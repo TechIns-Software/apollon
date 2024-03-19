@@ -1,0 +1,58 @@
+name: on-pr-unittest
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  run_unit_test:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 33306:3306
+        env:
+          MYSQL_USER: php_usr
+          MYSQL_PASSWORD: php_apsswd
+          MYSQL_DATABASE: test_php_app
+          MYSQL_ROOT_PASSWORD: password
+
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v4
+
+      - name: Remove Default Mysql and install nessesary tools to ping db connection
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo service mysql stop
+          sudo apt-get update && sudo apt-get purge -y mysql* && sudo apt-get install -y mariadb-client-10.6 netcat
+
+      # I do not want to modify the .env.testing therefore I spin my own host
+      - name: Add hosts to /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 mariadb" | sudo tee -a /etc/hosts
+
+      - name: Test Connect Into DB
+        run: |
+          docker ps &&
+          nc -vz mariadb 33306 &&
+          mysql -h localhost -u php_usr -pphp_apsswd test_php_app -P 33306 -e "select DATABASE();"
+
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, ctype, curl, dom, fileinfo, filter, hash, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, libxml
+
+      - name: Install dependencies
+        uses: php-actions/composer@v6
+
+      - name: PHPUnit tests
+        run: |
+          sed -i "s/DB_PORT=.*/DB_PORT=33306/" .env.testing &&
+          ./vendor/bin/phpunit
+
+
