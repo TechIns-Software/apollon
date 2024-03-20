@@ -1,0 +1,30 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\SaasUser;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SaasUser>
+ */
+class SaasUserFactory extends UserFactory
+{
+
+
+    public function configure():static
+    {
+        return $this->afterMaking(function (SaasUser $user){
+            // I do not use Eloquent Model Because at time of writing the was not need for it.
+            $id=DB::table('business')->inRandomOrder()->select('id')->first();
+
+            if(empty($id)){
+               $id = DB::table('business')->insertGetId([
+                    'name'=>fake()->name()
+               ]);
+            }
+
+            $user->business_id = $id;
+        });
+    }
+}
