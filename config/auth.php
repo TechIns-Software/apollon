@@ -43,6 +43,10 @@ return [
         'mobile_api' => [
             'driver' => 'sanctum',
             'provider'=> 'saas_users'
+        ],
+        'mobile_api_basic'=>[
+            'driver'=>'session',
+            'provider'=> 'saas_users'
         ]
     ],
 
