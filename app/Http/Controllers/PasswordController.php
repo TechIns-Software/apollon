@@ -20,9 +20,6 @@ use Illuminate\Support\Facades\Hash;
 
 class PasswordController extends Controller
 {
-    use SendsPasswordResetEmails;
-
-
     /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse

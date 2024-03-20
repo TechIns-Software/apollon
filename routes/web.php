@@ -20,9 +20,15 @@ Route::view('/forgot-password',"user.forgotPasswordEmailEntry")->name('user.rese
 Route::post('/forgot-password',[\App\Http\Controllers\PasswordController::class,'userForgetPasswordEmail'])
     ->middleware('guest')->name('password.email');
 
+Route::get('/reset-password',[\App\Http\Controllers\PasswordController::class,'resetUserPassword'])
+    ->name('password.reset');
+Route::post('/reset-password',[\App\Http\Controllers\PasswordController::class,'resetUserPasswordAction'])
+    ->name('password.reset.submit');
+
 Route::any('/profile',[\App\Http\Controllers\UserController::class,'profile'])
     ->name('user.profile')
     ->middleware("auth:web");
+
 
 
 Route::middleware(['auth'])->group(function () {

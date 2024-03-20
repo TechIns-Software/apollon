@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "techins/app-olon",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A minimalistic CRM with an API",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
