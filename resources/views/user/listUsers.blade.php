@@ -34,41 +34,6 @@
                 <div class="btn-group m-2">
                     <a id="resetForm" href="{{route('user.list')}}" class="btn btn-secondary" >Εκκαθάριση Φόρμας</a>
                 </div>
-                <div class="btn-group  m-2" role="group" >
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        @empty(request()->input('role'))
-                            Όλοι οι χρήστες
-                        @else
-                            {{ request()->input('role') }}
-                        @endif
-                    </button>
-                    <div class="dropdown-menu">
-                        <li>
-                            <label class="dropdown-item">
-                                <input type="radio" name="role" value=""
-                                       @empty(request()->input('role')) checked @endif
-                                >
-                                Όλοι οι χρήστες
-                            </label>
-                        </li>
-                        <li>
-                            <label class="dropdown-item" aria-current="true"
-                                   @if(request()->input('role') == App\Models\User::ADMIN) checked @endif
-                            >
-                                <input type="radio" name="role" value="{{App\Models\User::ADMIN}}">
-                                Διαχειρηστής
-                            </label>
-                        </li>
-                        <li>
-                            <label class="dropdown-item">
-                                <input type="radio" name="role" value="{{App\Models\User::USER}}"
-                                       @if(request()->input('role') == App\Models\User::USER) checked @endif
-                                >
-                                Χρήστης
-                            </label>
-                        </li>
-                    </div>
-                </div>
                 <div class="btn-group m-2" role="group">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <span style="font-weight:bold;">{{ $users->perPage() }}</span>&nbsp;Χρήστες Ανα σελίδα

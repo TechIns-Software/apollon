@@ -46,9 +46,7 @@ function hideReset()
 {
     const form = document.getElementById("searchform");
     const search = form.querySelector(`input[name="search"]`).value.trim()
-    const checkedRole = form.querySelector(`input[name="role"]:checked`).value.trim()
-
-    if(search == '' && checkedRole == ''){
+    if(search == ''){
         $("#resetForm").hide()
     } else {
         $("#resetForm").show()
