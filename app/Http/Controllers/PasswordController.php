@@ -20,6 +20,12 @@ use Illuminate\Support\Facades\Hash;
 
 class PasswordController extends Controller
 {
+
+    protected function getBroker()
+    {
+        return Password::broker('users');
+    }
+
     /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -30,7 +36,7 @@ class PasswordController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
 
-        Password::broker('users')->sendResetLink(['email'=>$request->email]);
+        $this->getBroker()->sendResetLink(['email'=>$request->email]);
         return back()->with('message', 'Σας αποστείλαμε ένα email με τον σύνδεσμο ανάκτησης κωδικού');
     }
 
@@ -52,8 +58,7 @@ class PasswordController extends Controller
             'email' => 'required|email'
         ]);
 
-
-        $response = Password::broker('users')->reset(
+        $response = $this->getBroker()->reset(
            [
                'email'=>$request->email,
                'token'=>$request->token,

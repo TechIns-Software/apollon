@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'mobile_api' => [
+            'driver' => 'sanctum',
+            'provider'=> 'saas_users'
+        ]
     ],
 
     /*
@@ -65,10 +69,10 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'saas_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\SaasUser::class
+        ],
     ],
 
     /*
