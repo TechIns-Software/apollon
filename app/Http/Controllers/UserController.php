@@ -27,12 +27,6 @@ class UserController extends Controller
 
     public function loginFormSubmit(Request $request)
     {
-        if(Auth::guard('customer')->check()){
-            Auth::guard('customer')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }
-
         // Auth handles authentication and data sanitization
         if (!Auth::attempt(['email'=>$request['email'], 'password'=>$request['password']])) {
             return redirect('/login');
@@ -51,15 +45,11 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
-        $user = Auth::user()??Auth::guard('customer')->user();
+        $user = Auth::user();
         Auth::logout();
-        Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        if($user instanceof \App\Models\Customer){
-            return redirect()->route('customer.login.page',['agent_id'=>$user->user_id]);
-        }
         return redirect('/login');
     }
 
@@ -112,7 +102,6 @@ class UserController extends Controller
         if($request->method()=='POST') {
             $validator = Validator::make($request->all(), [
                 'email' => ['email'],
-                'role' => [Rule::in([User::USER, User::ADMIN])],
                 'password' => 'confirmed',
                 [
                     "role.in" => 'Ο ρόλος δεν ειναι εγγυρος',
@@ -170,7 +159,6 @@ class UserController extends Controller
         $validator = Validator::make($request->all(),[
            'page'=>"integer|min:1",
            'limit'=>"integer|min:1",
-           'role' => [Rule::in([User::USER, User::ADMIN,null])],
         ]);
 
         if($validator->fails()){
@@ -178,13 +166,6 @@ class UserController extends Controller
         }
 
         $qb = User::query();
-
-        $role = $request->get('role')??"";
-        $role = trim($role);
-        $role = strtoupper($role);
-        if(!empty($role)){
-            $qb->where('role',$role);
-        }
 
         $searchTerm = $request->get('search')??"";
         $searchTerm = trim($searchTerm);
@@ -234,12 +215,5 @@ class UserController extends Controller
         }
 
         return view('user/profile',['user'=>$user]);
-    }
-
-
-
-    public function passwordChangeForm(Request $request)
-    {
-
     }
 }
