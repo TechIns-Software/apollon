@@ -70,12 +70,12 @@
                 <label for="password" class="col-sm-2" >Password</label>
                 <div class="col-sm-10">
                     <div id="passwordVisible" class="input-group mb-1">
-                        <input id="password" type="password" class="form-control @if($errors->has('password') || $errors->has('password_confirmation')) is-invalid @endif" name="password" placeholder="Κωδικός Πρόσβασης" required>
+                        <input id="password" type="password" class="form-control @if($errors->has('password') || $errors->has('password_confirmation')) is-invalid @endif" name="password" placeholder="Κωδικός Πρόσβασης" @empty($edit) required @endif>
                             <button class="btn btn-secondary" type="button" onclick="toogleEyePasword('password','passwordEye')">
                                 <i id="passwordEye" class="fa-regular fa-eye"></i>
                             </button>
                     </div>
-                    <input id="password-repeat" type="password" name="password_confirmation" class="form-control @if($errors->has('password')||$errors->has('password_confirmation')) is-invalid @endif" placeholder="Εισάγετε τον κώδικο πρόβασης όπως και απο πάνω" required>
+                    <input id="password-repeat" type="password" name="password_confirmation" class="form-control @if($errors->has('password')||$errors->has('password_confirmation')) is-invalid @endif" placeholder="Εισάγετε τον κώδικο πρόβασης όπως και απο πάνω" @empty($edit) required @endif>
                     <div class="invalid-feedback">
                         @if($errors->has('password'))
                             {{$errors->first('password')}}

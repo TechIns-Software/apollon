@@ -83,7 +83,7 @@ class UserController extends Controller
                 return Redirect::route('user.edit',['user_id'=>$user->id])->with('message',"Ο χρήστης αποθηκεύτηκε επιτυχώς.");
             }catch (\Exception $e){
                 return Redirect::back()
-                    ->withError($e->getMessage())
+                    ->withErrors($e->getMessage())
                     ->withInput();
             }
         }
@@ -97,7 +97,7 @@ class UserController extends Controller
         if($request->method()=='POST') {
             $validator = Validator::make($request->all(), [
                 'email' => ['email'],
-                'password' => 'confirmed',
+                'password' => 'sometimes|nullable|confirmed',
                 [
                     "role.in" => 'Ο ρόλος δεν ειναι εγγυρος',
                     'email.email' => "To email δεν ειναι εγγυρο",
@@ -145,7 +145,7 @@ class UserController extends Controller
 
         }
 
-        return view('user.register_or_edit',['user'=>$user]);
+        return view('user.register_or_edit',['user'=>$user,'edit'=>true]);
     }
 
     public function listUsers(Request $request)

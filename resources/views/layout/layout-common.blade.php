@@ -24,7 +24,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <a class="navbar-brand" href="{{ url("/") }}">E-Support</a>
+            <a class="navbar-brand" href="{{ url("/") }}">{{config('app.name')}}</a>
 
             <div class="dropdown d-block d-sm-none">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
