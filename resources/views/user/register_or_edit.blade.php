@@ -11,6 +11,16 @@
         <h1 class="pageTitle">Χρήστης  <span >{{$user->name}}</span></h1>
         @endif
     </div>
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+           <div class="alert alert-danger" role="alert">{{ $error }}</div>
+        @endforeach
+    @endif
+    @if(session()->has('message'))
+        <div class="alert alert-success" role="alert">
+            {{ session()->get('message') }}
+        </div>
+    @endif
     <form id="userForm" method="POST"
               class="g-3 needs-validation"
               action="{{url()->current()}}" novalidate>
@@ -57,39 +67,12 @@
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="emailInput" class="col-sm-2" >Ρολος</label>
-                <div class="col-sm-10">
-                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                        @if(!empty($user))
-                            @php($role=$user->role)
-                        @else
-                            @php($role=old('role'))
-                        @endif
-
-                        <input
-                            type="radio" class="btn-check" id="user" name="role" value="USER" checked autocomplete="off"
-                            @if($role=='USER')
-                                checked="checked"
-                            @endif
-                        >
-                        <label class="btn btn-outline-primary" for="user">Χρήστης</label>
-
-                        <input type="radio" class="btn-check" value="ADMIN" name="role" id="admin" autocomplete="off"
-                            @if($role=='ADMIN')
-                              checked="checked"
-                            @endif
-                        >
-                        <label class="btn btn-outline-primary" for="admin">Διαχειρηστής</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3 row">
                 <label for="password" class="col-sm-2" >Password</label>
                 <div class="col-sm-10">
                     <div id="passwordVisible" class="input-group mb-1">
                         <input id="password" type="password" class="form-control @if($errors->has('password') || $errors->has('password_confirmation')) is-invalid @endif" name="password" placeholder="Κωδικός Πρόσβασης" required>
                             <button class="btn btn-secondary" type="button" onclick="toogleEyePasword('password','passwordEye')">
-                                <i id="passwordEye" class="  fa-regular fa-eye"></i>
+                                <i id="passwordEye" class="fa-regular fa-eye"></i>
                             </button>
                     </div>
                     <input id="password-repeat" type="password" name="password_confirmation" class="form-control @if($errors->has('password')||$errors->has('password_confirmation')) is-invalid @endif" placeholder="Εισάγετε τον κώδικο πρόβασης όπως και απο πάνω" required>

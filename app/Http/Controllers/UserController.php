@@ -55,22 +55,19 @@ class UserController extends Controller
 
     public function register(Request $request)
     {
-
         if($request->method()=='POST'){
             $validator = Validator::make($request->all(),[
-                'email'=>['required','email','unique:users,email'],
-                'name'=>'required',
-                'password'=>'required|confirmed',
-                'role' => ['required', Rule::in(['ADMIN', 'USER'])],
+                    'email'=>['required','email','unique:users,email'],
+                    'name'=>'required',
+                    'password'=>'required|confirmed',
+                ],
                 [
-                    "role.in"=>'Ο ρόλος δεν ειναι εγγυρος',
                     'email.email'=>"To email δεν ειναι εγγυρο",
                     'email.required'=>"To email απαιτείτε",
                     'email.unique'=>"Το email ήδη υπάρχει",
                     'name.required'=>"Το πεδίο απαιτείτε",
                     'password.required'=>"Το πεδίο απαιτείτε"
-                ]
-            ]);
+                ]);
 
             if($validator->fails()){
                 return Redirect::back()->withErrors($validator)->withInput();
@@ -80,18 +77,16 @@ class UserController extends Controller
             $user->email = $request->get('email');
             $user->name = $request->get('name');
             $user->password = Hash::make($request->get('password'));
-            $user->role = $request->get('role');
 
             try{
                 $user->save();
-                return Redirect::route('user.edit',['user_id'=>$user->id]);
+                return Redirect::route('user.edit',['user_id'=>$user->id])->with('message',"Ο χρήστης αποθηκεύτηκε επιτυχώς.");
             }catch (\Exception $e){
                 return Redirect::back()
                     ->withError($e->getMessage())
                     ->withInput();
             }
         }
-
         return view('user.register_or_edit');
     }
 
