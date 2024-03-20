@@ -43,15 +43,11 @@ const paths = [
     ...js,
 
     'node_modules/jquery/dist/jquery.js',
-    'node_modules/jscroll/dist/jquery.jscroll.min.js',
 
     'node_modules/bootstrap/dist/css/bootstrap.css',
     'node_modules/bootstrap/dist/js/bootstrap.bundle.js',
 
     'node_modules/@fortawesome/fontawesome-free/css/all.css',
-
-    "node_modules/easyeditor/src/easyeditor.css",
-    "node_modules/easyeditor/src/jquery.easyeditor.js"
 ]
 
 console.log(paths);
@@ -69,12 +65,6 @@ export default defineConfig(({command,mode})=>{
                 bootstrap: "bootstrap"
             }),
         ],
-        resolve:{
-            alias:{
-                '@utils': resolve(__dirname, "resources/js/utils"),
-                '@jquery-plugins/easyeditor':resolve(__dirname,"node_modules/easyeditor/src/jquery.easyeditor.js"),
-            }
-        },
         build: {
             minify: mode=='dev'?false:true
         }
