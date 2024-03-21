@@ -7,4 +7,4 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::put('/token',[\App\Http\Controllers\SaasUserController::class,'login']);
+Route::put('/token',[\App\Http\Controllers\API\SaasUserController::class,'login']);
