@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Business;
 use App\Models\SaasUser;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +20,7 @@ class SaasUserFactory extends UserFactory
             $id=DB::table('business')->inRandomOrder()->select('id')->first();
 
             if(empty($id)){
-               $id = DB::table('business')->insertGetId([
-                    'name'=>fake()->name()
-               ]);
+               $id = Business::factory()->create()->id;
             }
 
             $user->business_id = $id;

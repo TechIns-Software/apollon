@@ -42,10 +42,10 @@ class BusinessController extends Controller
         }
 
         if(!empty($cursor)){
-            $result = $query->cursorPaginate(200,['*'], 'cursor',$cursor);
+            $result = $query->cursorPaginate(100,['*'], 'cursor',$cursor);
             return view('components.listBusiness',['rows'=>$result]);
         } else {
-            $result = $query->cursorPaginate(200);
+            $result = $query->cursorPaginate(100);
         }
 
         return view('business.list',['businesses'=>$result]);

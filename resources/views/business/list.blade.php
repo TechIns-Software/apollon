@@ -17,7 +17,7 @@
 
 @section('main')
     <h1>Επιχειρήσεις</h1>
-    <div id="business_container">
+    <div id="business_container" class="scrollWrapper">
        <table class="table table-striped">
            <thead>
                 <tr>
