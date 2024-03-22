@@ -4,21 +4,39 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Rules\ValidateBoolean;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Js;
 
 class BusinessController extends Controller
 {
     public function create(Request $request)
     {
-        $name = $request->get('name');
-        if(empty($name)){
-            return new JsonResponse(['msg'=>"Το όνομα της επιχείρησης δεν δώθηκε"],400);
+        $rules=[
+            'name'=>"required",
+            'active'=>["required",new ValidateBoolean()],
+            "expiration_date"=>"required|date",
+            "vat"=>"sometimes|nullable|regex:/^[0-9]{9}$/i'",
+            "doy"=>"sometimes|nullable"
+        ];
+
+        $validator = Validator::make($request->all(),$rules);
+
+        if($validator->fails()){
+            return new JsonResponse(['msg'=>$validator->errors()],400);
         }
 
         $business = new Business();
-        $business->name = $name;
+        $business->name = $request->get('name');
+
+        $business->vat = $request->get('vat_num');
+        $business->doy = $request->get('doy');
+
+        $business->is_active = $request->get('active');
+        $business->expiration_date = $request->get('expiration_date');
 
         try{
             $business->save();
