@@ -20,7 +20,9 @@ class BusinessFactory extends Factory
         return [
             'name'=>fake()->name,
             'expiration_date'=>Carbon::now()->modify("+1 year"),
-            'active'=>true
+            'active'=>true,
+            'doy'=> "ΑΘΗΝΩΝ",
+            'vat'=>mt_rand(100000000, 999999999) //ΑΦΜ
         ];
     }
 
