@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\Facades\Carbon;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +20,7 @@ class BusinessFactory extends Factory
         return [
             'name'=>fake()->name,
             'expiration_date'=>Carbon::now()->modify("+1 year"),
-            'active'=>true,
+            'is_active'=>true,
             'doy'=> "ΑΘΗΝΩΝ",
             'vat'=>mt_rand(100000000, 999999999) //ΑΦΜ
         ];
@@ -29,7 +29,7 @@ class BusinessFactory extends Factory
     public function inactive()
     {
         return $this->afterMaking(function (Business $business){
-           $business->active = false;
+           $business->is_active = false;
         });
     }
 

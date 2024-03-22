@@ -67,4 +67,81 @@ class BusinessController extends Controller
 
         return view('business.list',['businesses'=>$result]);
     }
+
+    public function edit(Request $request)
+    {
+        $business = null;
+        $rules=[
+            'business_id'=>[
+                'required',
+                'min:1',
+                function (string $attribute, mixed $value, \Closure $fail) use (&$business) {
+                    $business = Business::find($value);
+                    if(empty($business)){
+                        $fail('Η εταιρεία δεν υπάρχει');
+                    }
+                }
+            ],
+            'name'=>"sometimes|nullable|string",
+            'active'=>["sometimes",'nullable',new ValidateBoolean()],
+            "expiration_date"=>"sometimes|nullable|date",
+            "vat_num"=>"sometimes|nullable|regex:/^[0-9]{9}$/i",
+            "doy"=>"sometimes|nullable"
+        ];
+
+        $validator = Validator::make($request->all(),$rules);
+
+        if($validator->fails()){
+
+            $errors = $validator->errors();
+
+            // Check if there's an error associated with the 'business_id' field
+            if ($errors->has('business_id')) {
+                return new JsonResponse(['msg'=>"Η εταιρεία δεν υπάρχει"],404);
+            }
+            return new JsonResponse(['msg'=>$errors],400);
+        }
+
+        $save=false;
+
+        if(!empty($request->name)){
+            $business->name = $request->name;
+            $save=true;
+        }
+
+        if($request->has('expiration_date')){
+            $business->expiration_date = $request->expiration_date;
+            $save=true;
+        }
+
+        if(!is_null($request->active)){
+            $business->is_active = $request->active;
+            $save=true;
+        }
+
+        if($request->has('vat_num')){
+            $business->vat = $request->vat_num;
+            $save=true;
+        }
+
+        if($request->has('doy')){
+            $business->doy = $request->doy;
+            $save=true;
+        }
+
+        if(!$save){
+            return new JsonResponse(['msg'=>"Μη αποθήκευση αλλαγών λόγο ότι δεν δώθηκαν στοιχεία"],422);
+        }
+
+        try{
+            $business->save();
+        }catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης"],500);
+        }
+
+        return new JsonResponse($business,200);
+    }
+
+
 }

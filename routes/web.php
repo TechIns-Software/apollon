@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users',[\App\Http\Controllers\Panel\UserController::class,'listUsers'])->name('user.list');
 
     Route::post('/business',[\App\Http\Controllers\Panel\BusinessController::class,'create'])->name('business.create');
+    Route::post('/business/edit',[\App\Http\Controllers\Panel\BusinessController::class,'edit'])->name('business.edit');
     Route::get('/business',[\App\Http\Controllers\Panel\BusinessController::class,'list'])->name('business.list');
 
 });

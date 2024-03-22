@@ -252,7 +252,6 @@ class BusinessControllerTest extends TestCase
         $response->assertStatus(201);
 
         $jsonResponse = $response->json();
-        $response->assertStatus(201);
 
         $businessInDB = Business::find($jsonResponse['id']);
         $this->assertNotEmpty($businessInDB);
@@ -272,4 +271,69 @@ class BusinessControllerTest extends TestCase
         $this->assertEquals('2024-01-12',$jsonResponse['expiration_date']);
         $this->assertEquals('2024-01-12',$businessInDB->expiration_date);
     }
+
+    public function testEditSuccess()
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->session(['__token'=>'1234'])->post('/business/edit',[
+            'business_id'=>$business->id,
+            '__token'=>'1234',
+            'name'=>'LOREM IPSUM INC',
+            'active'=>false,
+            'expiration_date'=>'2024-01-12',
+            'vat_num'=>'125562123',
+            'doy'=>'Αθηνών'
+        ]);
+
+
+        $jsonResponse = $response->json();
+        $response->assertStatus(200);
+
+        $businessInDB = Business::find($business->id);
+        $this->assertNotEmpty($businessInDB);
+
+        $this->assertEquals($jsonResponse['name'],$businessInDB['name']);
+        $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
+
+        $this->assertEquals($jsonResponse['vat'],$businessInDB['vat']);
+        $this->assertEquals('125562123',$businessInDB['vat']);
+
+        $this->assertEquals($jsonResponse['doy'],$businessInDB['doy']);
+        $this->assertEquals('Αθηνών',$businessInDB['doy']);
+
+        $this->assertFalse(parseBool($jsonResponse['is_active']));
+        $this->assertFalse($businessInDB->is_active);
+
+        $this->assertEquals('2024-01-12',$jsonResponse['expiration_date']);
+        $this->assertEquals('2024-01-12',$businessInDB->expiration_date);
+    }
+
+    public function testEditNoData()
+    {
+        $user = User::factory()->create();
+        $business = Business::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->session(['__token'=>'1234'])->post('/business/edit',[
+            'business_id'=>$business->id,
+        ]);
+
+        $response->assertStatus(422);
+
+
+        $businessInDB = Business::find($business->id);
+        $this->assertNotEmpty($businessInDB);
+
+        $this->assertEquals($businessInDB->name,$business->name);
+        $this->assertEquals($businessInDB->vat,$business->vat);
+        $this->assertEquals($businessInDB->doy,$business->doy);
+        $this->assertEquals($businessInDB->is_active,$business->is_active);
+        $this->assertEquals($businessInDB->expiration_date,$business->expiration_date);
+    }
+
 }
