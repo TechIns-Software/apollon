@@ -19,11 +19,13 @@ class BusinessControllerTest extends TestCase
 
         $this->actingAs($user);
 
+        $date = Carbon::now()->modify('+1 year');
+
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
             'active'=>false,
-            'expiration_date'=>Carbon::now()->modify('+1 year'),
+            'expiration_date'=>$date,
             'vat_num'=>'125562123',
             'doy'=>'Αθηνών'
         ]);
@@ -45,6 +47,9 @@ class BusinessControllerTest extends TestCase
 
         $this->assertFalse(parseBool($jsonResponse['is_active']));
         $this->assertFalse($businessInDB->is_active);
+
+        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
+        $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
     public function testSavedActiveTrue()
@@ -53,16 +58,18 @@ class BusinessControllerTest extends TestCase
 
         $this->actingAs($user);
 
+        $date = Carbon::now()->modify('+1 year');
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
             'active'=>true,
-            'expiration_date'=>Carbon::now()->modify('+1 year'),
+            'expiration_date'=>$date->format('Y-m-d'),
             'vat_num'=>'125562123',
             'doy'=>'Αθηνών'
         ]);
 
         $jsonResponse = $response->json();
+
         $response->assertStatus(201);
 
         $businessInDB = Business::find($jsonResponse['id']);
@@ -79,6 +86,9 @@ class BusinessControllerTest extends TestCase
 
         $this->assertTrue(parseBool($jsonResponse['is_active']));
         $this->assertTrue($businessInDB->is_active);
+
+        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
+        $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
     public function testSavedActiveOn()
@@ -87,17 +97,18 @@ class BusinessControllerTest extends TestCase
 
         $this->actingAs($user);
 
+        $date = Carbon::now()->modify('+1 year');
+
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
             'active'=>'on',
-            'expiration_date'=>Carbon::now()->modify('+1 year'),
+            'expiration_date'=>$date,
             'vat_num'=>'125562123',
             'doy'=>'Αθηνών'
         ]);
 
         $jsonResponse = $response->json();
-        dump($jsonResponse);
         $response->assertStatus(201);
 
         $businessInDB = Business::find($jsonResponse['id']);
@@ -114,6 +125,9 @@ class BusinessControllerTest extends TestCase
 
         $this->assertTrue(parseBool($jsonResponse['is_active']));
         $this->assertTrue($businessInDB->is_active);
+
+        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
+        $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
     public function testSavedActiveOff()
@@ -122,11 +136,13 @@ class BusinessControllerTest extends TestCase
 
         $this->actingAs($user);
 
+        $date = Carbon::now()->modify('+1 year');
+
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
             'active'=>'off',
-            'expiration_date'=>Carbon::now()->modify('+1 year'),
+            'expiration_date'=>$date,
             'vat_num'=>'125562123',
             'doy'=>'Αθηνών'
         ]);
@@ -148,6 +164,9 @@ class BusinessControllerTest extends TestCase
 
         $this->assertFalse(parseBool($jsonResponse['is_active']));
         $this->assertFalse($businessInDB->is_active);
+
+        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
+        $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
     public function testSavedActiveInvalid()
@@ -164,6 +183,27 @@ class BusinessControllerTest extends TestCase
             'vat_num'=>'125562123',
             'doy'=>'Αθηνών'
         ]);
+
+        $response->assertStatus(400);
+
+        $business = Business::all();
+        $this->assertEmpty($business->all());
+    }
+
+    public function testSavedActiveNoValue()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->session(['__token'=>'1234'])->post('/business',[
+            '__token'=>'1234',
+            'name'=>'LOREM IPSUM INC',
+            'expiration_date'=>Carbon::now()->modify('+1 year'),
+            'vat_num'=>'125562123',
+            'doy'=>'Αθηνών'
+        ]);
+
 
         $response->assertStatus(400);
 

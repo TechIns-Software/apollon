@@ -37,7 +37,6 @@ class BusinessController extends Controller
 
         $business->is_active = $request->get('active');
         $business->expiration_date = $request->get('expiration_date');
-
         try{
             $business->save();
         }catch (\Exception $e){

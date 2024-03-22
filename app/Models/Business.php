@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,4 +44,23 @@ class Business extends Model
         $value = parseBool($value);
         $this->attributes['is_active']=$value;
     }
+
+    public function setExpirationDateAttribute($value)
+    {
+        if(is_string($value)){
+            $value = new Carbon($value);
+        }
+
+        if($value instanceof Carbon){
+            $value->setTime(0,0,0,0);
+        }
+
+        $this->attributes['expiration_date']=$value;
+    }
+
+    public function getExpirationDateAttribute()
+    {
+        return (new Carbon($this->attributes['expiration_date']))->format('Y-m-d');
+    }
+
 }
