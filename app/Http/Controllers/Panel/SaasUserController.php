@@ -166,15 +166,12 @@ class SaasUserController extends Controller
             return new JsonResponse(['msg'=>'H εταιρεία δεν υπάρχει'],404);
         }
 
-        $query = SaasUser::orderBy('id')->where('business_id',$business_id);
+        $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
 
-        if(!empty($cursor)){
-            $result = $query->cursorPaginate(100,['*'], 'cursor',$cursor);
-            return view('components.listBusiness',['rows'=>$result]);
-        } else {
-            $result = $query->cursorPaginate(100);
-        }
+        $page = $request->get('page')??1;
+        $limit = $request->get('limit')??10;
+        $paginationResult = $qb->offset(($page - 1) * $limit)->paginate($limit);
 
-        return new JsonResponse($result,200);
+        return new JsonResponse($paginationResult,200);
     }
 }
