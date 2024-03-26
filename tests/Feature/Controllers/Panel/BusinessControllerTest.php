@@ -1,13 +1,11 @@
 <?php
 
-namespace Tests\Feature\Controllers;
+namespace Tests\Feature\Controllers\Panel;
 
 use App\Models\Business;
 use App\Models\User;
 use Carbon\Carbon;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
 
 class BusinessControllerTest extends TestCase
