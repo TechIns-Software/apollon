@@ -82,4 +82,54 @@ class SaasUserControllerTest extends TestCase
         $tokenResponse->assertStatus(201);
     }
 
+    public static function missingInputProvider()
+    {
+
+        $email = 'user@example.com';
+        $password = '1234';
+
+        $input = [
+            '__token'=>'sadsadasdsa',
+            'name' =>"Lalala",
+            'email'=>$email,
+            'password'=>$password,
+            'password_confirmation'=>$password
+        ];
+
+
+        $keysToRemove = ['name','email','password','password_confirmation'];
+
+        $inputCombinations = [];
+
+        // Generate combinations of excluded keys
+        foreach ($keysToRemove as $key) {
+            $missingInput = $input;
+            unset($missingInput[$key]);
+            $inputCombinations[] = [
+                $missingInput
+            ];
+        }
+
+        return $inputCombinations;
+    }
+
+    /**
+     * @dataProvider missingInputProvider
+     */
+    public function testError400UponInsertWithMissingInput(array $input)
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $business = Business::factory()->create();
+
+        $input['business_id'] = $business->id;
+
+        $response = $this->session(['__token'=> $input["__token"]])
+            ->post(route('business.user.create'),$input);
+
+        $response->assertStatus(400);
+
+        $saasUser = SaasUser::where('business_id',$business->id)->exists();
+        $this->assertFalse($saasUser);
+    }
 }
