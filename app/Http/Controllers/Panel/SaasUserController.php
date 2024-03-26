@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use App\Models\SaasUser;
 
 use Illuminate\Http\Request;
@@ -158,5 +159,22 @@ class SaasUserController extends Controller
         return new JsonResponse($user,200);
     }
 
+    public function list(Request $request)
+    {
+        $business_id = $request->get('business_id');
+        if(empty($business_id)){
+            return new JsonResponse(['msg'=>'H εταιρεία δεν υπάρχει'],404);
+        }
 
+        $query = SaasUser::orderBy('id')->where('business_id',$business_id);
+
+        if(!empty($cursor)){
+            $result = $query->cursorPaginate(100,['*'], 'cursor',$cursor);
+            return view('components.listBusiness',['rows'=>$result]);
+        } else {
+            $result = $query->cursorPaginate(100);
+        }
+
+        return new JsonResponse($result,200);
+    }
 }

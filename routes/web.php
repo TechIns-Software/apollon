@@ -43,11 +43,13 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::get('/users',[\App\Http\Controllers\Panel\UserController::class,'listUsers'])->name('user.list');
 
+
     Route::post('/business',[\App\Http\Controllers\Panel\BusinessController::class,'create'])->name('business.create');
     Route::post('/business/edit',[\App\Http\Controllers\Panel\BusinessController::class,'edit'])->name('business.edit');
     Route::get('/business',[\App\Http\Controllers\Panel\BusinessController::class,'list'])->name('business.list');
 
     Route::post('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'add'])->name('business.user.create');
     Route::post('/business/user/edit',[\App\Http\Controllers\Panel\SaasUserController::class,'edit'])->name('business.user.edit');
+    Route::get('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'list'])->name('business.user');
 });
 
