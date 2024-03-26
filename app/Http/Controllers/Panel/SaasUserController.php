@@ -77,6 +77,9 @@ class SaasUserController extends Controller
 
     public function edit(Request $request)
     {
+        /**
+         * @var SaasUser|null
+         */
         $user = null;
         $rules = [
             'user_id'=>[
@@ -86,7 +89,7 @@ class SaasUserController extends Controller
                 function ($attribute, $value, $fail)  use (&$user){
                     $user = SaasUser::find($value);
                     if(empty($user)){
-                        $fail("ΟΠ χρήστης δεν υπάρχει");
+                        $fail("Ο χρήστης δεν υπάρχει");
                     }
                 }
             ],

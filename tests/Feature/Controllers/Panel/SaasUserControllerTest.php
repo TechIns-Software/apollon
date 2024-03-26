@@ -154,6 +154,7 @@ class SaasUserControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
+
         $business = Business::factory()->create();
 
         $input['business_id'] = $business->id;
@@ -168,4 +169,104 @@ class SaasUserControllerTest extends TestCase
     }
 
 
+    /**
+     * @dataProvider wrongInput
+     */
+    public function testEditWrongInput(array $input)
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
+        $input['user_id'] = $saasUser->id;
+        $response = $this->session(['__token'=> $input["__token"]])
+            ->post(route('business.user.edit'),$input);
+
+        $response->assertStatus(400);
+
+        $userInDB = SaasUser::find($saasUser->id);
+
+        $this->assertEquals($saasUser->name,$userInDB->name);
+        $this->assertEquals($saasUser->email,$userInDB->email);
+        $this->assertEquals($saasUser->password,$userInDB->password);
+    }
+
+    public function testEditSuccess()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        $input = [
+            '__token'=> '12234',
+            'user_id'=>$saasUser->id,
+            'email'=>'lslsls@example.com',
+            'name'=>"hahahaha"
+        ];
+
+        $response = $this->session(['__token'=> '12234'])
+            ->post(route('business.user.edit'),$input);
+
+        $userInDB = SaasUser::find($saasUser->id);
+
+        $this->assertEquals("hahahaha",$userInDB->name);
+        $this->assertEquals('lslsls@example.com',$userInDB->email);
+        $this->assertEquals($saasUser->password,$userInDB->password);
+    }
+
+    public function testEditSuccessPassword()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        $input = [
+            '__token'=> '12234',
+            'user_id'=>$saasUser->id,
+            'password'=>'55555',
+            'password_confirmation'=>"55555"
+        ];
+
+        $response = $this->session(['__token'=> '12234'])
+            ->post(route('business.user.edit'),$input);
+
+        $userInDB = SaasUser::find($saasUser->id);
+
+        $this->assertEquals($saasUser->name,$userInDB->name);
+        $this->assertEquals($saasUser->email,$userInDB->email);
+        $this->assertTrue(password_verify('55555',$userInDB->password));
+    }
+
+    /**
+     * @depends testEditSuccessPassword
+     */
+    public function testEditSuccessPasswordLogin()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        $input = [
+            '__token'=> '12234',
+            'user_id'=>$saasUser->id,
+            'password'=>'55555',
+            'password_confirmation'=>"55555"
+        ];
+
+        $response = $this->session(['__token'=> '12234'])
+            ->post(route('business.user.edit'),$input);
+
+        $userInDB = SaasUser::find($saasUser->id);
+
+        $this->assertEquals($saasUser->name,$userInDB->name);
+        $this->assertEquals($saasUser->email,$userInDB->email);
+        $this->assertTrue(password_verify('55555',$userInDB->password));
+    }
 }
