@@ -82,9 +82,8 @@ class SaasUserControllerTest extends TestCase
         $tokenResponse->assertStatus(201);
     }
 
-    public static function missingInputProvider()
+    public static function missingInput()
     {
-
         $email = 'user@example.com';
         $password = '1234';
 
@@ -113,8 +112,43 @@ class SaasUserControllerTest extends TestCase
         return $inputCombinations;
     }
 
+    public static function wrongInput()
+    {
+        return [
+            [[
+                '__token'=>'sadsadasdsa',
+                'name' =>"Lalala",
+                'email'=> 'user@example.com',
+                'password'=>'1234',
+                'password_confirmation'=>'12345'
+            ]],
+            [[
+                '__token'=>'sadsadasdsa',
+                'name' =>"Lalala",
+                'email'=> 'user@example.com',
+                'password'=>'12345',
+                'password_confirmation'=>'1234'
+            ]],
+            [[
+                '__token'=>'sadsadasdsa',
+                'name' =>"Lalala",
+                'email'=> 'hgahaha',
+                'password'=>'1234',
+                'password_confirmation'=>'1234'
+            ]],
+            [[
+                '__token'=>'sadsadasdsa',
+                'name' =>"Lalala",
+                'email'=> 'hgahaha',
+                'password'=>'12345',
+                'password_confirmation'=>'1234'
+            ]]
+        ];
+    }
+
     /**
-     * @dataProvider missingInputProvider
+     * @dataProvider missingInput
+     * @dataProvider wrongInput
      */
     public function testError400UponInsertWithMissingInput(array $input)
     {
@@ -132,4 +166,6 @@ class SaasUserControllerTest extends TestCase
         $saasUser = SaasUser::where('business_id',$business->id)->exists();
         $this->assertFalse($saasUser);
     }
+
+
 }
