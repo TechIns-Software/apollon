@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * App\Models\Client
@@ -64,11 +65,6 @@ class Client extends Model
         "description",
         "map_link"
     ];
-
-    public function getChangesCountAttribute()
-    {
-        return (int)$this->attributes['changes_count'];
-    }
 
 
     protected static function boot()

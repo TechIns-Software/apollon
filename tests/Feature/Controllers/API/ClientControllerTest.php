@@ -2,6 +2,7 @@
 
 namespace Feature\Controllers\API;
 
+use App\Models\Business;
 use App\Models\SaasUser;
 use App\Models\Client;
 
@@ -50,5 +51,47 @@ class ClientControllerTest extends TestCase
     }
 
 
+    public function testGetUserSuccess()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create();
+        $customer->refresh();
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id);
+
+        $result->assertStatus(200);
+        $json = $result->json();
+
+        $this->assertEquals($json['changes_count'],$customer->changes_count);
+        foreach ($json as $key => $value) {
+            if($key == 'created_at' || $key == 'updated_at' || $key=='changes_count'){
+                continue;
+            }
+            $this->assertEquals($customer->$key,$value);
+        }
+    }
+
+
+    public function testGetUserSuccessForUnauthorizedUser()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create();
+
+        $business = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id);
+
+        $result->assertStatus(403);
+    }
 
 }
