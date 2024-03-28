@@ -48,4 +48,7 @@ class ClientControllerTest extends TestCase
            $this->assertEquals($value, $itemInDb->$key);
         }
     }
+
+
+
 }

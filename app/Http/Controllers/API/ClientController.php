@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -11,12 +12,36 @@ class ClientController extends Controller
 {
     public function list(Request $request)
     {
+        $page = (int)$request->get('page')??1;
+        $limit = (int)$request->get('limit')??20;
 
+        $clients = Client::orderBy('id','DESC')
+            ->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
+            ->paginate($limit);
+        $clients->appends(['limit'=>$limit]);
+
+        return new JsonResponse($clients,200);
     }
 
-    public function client(Request $request)
+    public function client(Request $request,int $id)
     {
+        if(empty($id)){
+            return new JsonResponse(['msg'=>"Ο πελάτης Δεν υπάρχει"],404);
+        }
 
+        $client = Client::find($id);
+
+        $user = $request->user();
+
+        if($client->business_id != $user->business_id){
+            return new JsonResponse(['msg'=>"Aπαγορεύετε"],403);
+        }
+
+        if(empty($client)){
+            return new JsonResponse(['msg'=>"Ο πελάτης Δεν υπάρχει"],404);
+        }
+
+        return new JsonResponse($client,200);
     }
 
     public function create(Request $request)
