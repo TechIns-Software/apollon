@@ -23,24 +23,9 @@ class ClientController extends Controller
         return new JsonResponse($clients,200);
     }
 
-    public function client(Request $request,int $id)
+    public function client(Request $request)
     {
-        if(empty($id)){
-            return new JsonResponse(['msg'=>"Ο πελάτης Δεν υπάρχει"],404);
-        }
-
-        $client = Client::find($id);
-
-        $user = $request->user();
-
-        if($client->business_id != $user->business_id){
-            return new JsonResponse(['msg'=>"Aπαγορεύετε"],403);
-        }
-
-        if(empty($client)){
-            return new JsonResponse(['msg'=>"Ο πελάτης Δεν υπάρχει"],404);
-        }
-
+        $client = $request->input('client');
         return new JsonResponse($client,200);
     }
 

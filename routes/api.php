@@ -16,8 +16,10 @@ Route::middleware('auth:sanctum')->group(function (){
         Route::post('/',[\App\Http\Controllers\API\ClientController::class,'create'])->name('client.create');
         Route::get('/',[\App\Http\Controllers\API\ClientController::class,'list']);
 
-        Route::post('/{id}',[\App\Http\Controllers\API\ClientController::class,'create']);
-        Route::get('/{id}',[\App\Http\Controllers\API\ClientController::class,'client']);
+        Route::middleware(\App\Http\Middleware\RequiresClientId::class)->group(function (){
+            Route::post('/{id}',[\App\Http\Controllers\API\ClientController::class,'create']);
+            Route::get('/{id}',[\App\Http\Controllers\API\ClientController::class,'client']);
+        });
     });
 });
 
