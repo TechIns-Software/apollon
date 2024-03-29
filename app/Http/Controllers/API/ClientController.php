@@ -92,7 +92,7 @@ class ClientController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            return response()->json(['msg' => $validator->errors()], 400);
         }
 
         try{
@@ -100,7 +100,7 @@ class ClientController extends Controller
             $client->refresh();
         } catch (\Exception $e){
             report($e);
-            return response()->json(['errors' => "Αδυναμία αποθήκευσης"], 500);
+            return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
 
         return response()->json($client, 200);
@@ -117,7 +117,7 @@ class ClientController extends Controller
             $client->delete();
         }catch (\Exception $e){
             report($e);
-            return response()->json(['errors' => "Αδυναμία αποθήκευσης"], 500);
+            return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
 
         return response()->json( ['id'=>$id,'msg'=>'Ο πελάτης διεγράφει'],200);
