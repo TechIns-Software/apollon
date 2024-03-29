@@ -71,8 +71,11 @@ class Client extends Model
     {
         parent::boot();
 
-        static::updating(function (Client $client){
-            $client->increment('changes_count');
+        static::updating(function (Client $model) {
+            if ($model->isDirty('changes_count')) {
+                return;
+            }
+            $model->changes_count = ($model->changes_count??0)+1;
         });
     }
 
