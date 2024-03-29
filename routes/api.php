@@ -12,14 +12,17 @@ Route::middleware('auth:sanctum')->group(function (){
         return $request->user();
     });
 
-    Route::prefix('/client')->group(function (){
-        Route::post('/',[\App\Http\Controllers\API\ClientController::class,'create'])->name('client.create');
-        Route::get('/',[\App\Http\Controllers\API\ClientController::class,'list']);
+    Route::middleware(\App\Http\Middleware\BusinessIsActive::class)->group(function (){
 
-        Route::middleware(\App\Http\Middleware\RequiresClientId::class)->group(function (){
-            Route::post('/{id}',[\App\Http\Controllers\API\ClientController::class,'edit']);
-            Route::get('/{id}',[\App\Http\Controllers\API\ClientController::class,'client']);
-            Route::delete('/{id}',[\App\Http\Controllers\API\ClientController::class,'delete']);
+        Route::prefix('/client')->group(function (){
+            Route::post('/',[\App\Http\Controllers\API\ClientController::class,'create'])->name('client.create');
+            Route::get('/',[\App\Http\Controllers\API\ClientController::class,'list']);
+
+            Route::middleware(\App\Http\Middleware\RequiresClientId::class)->group(function (){
+                Route::post('/{id}',[\App\Http\Controllers\API\ClientController::class,'edit']);
+                Route::get('/{id}',[\App\Http\Controllers\API\ClientController::class,'client']);
+                Route::delete('/{id}',[\App\Http\Controllers\API\ClientController::class,'delete']);
+            });
         });
     });
 });
