@@ -37,9 +37,9 @@ class ClientController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'surname' => 'required|string',
-            'telephone' => 'sometimes|nullable|string|regex:/[\\+\d\s]+/',
-            'phone1' => 'sometimes|nullable|string|regex:/[\\+\d\s]+/',
-            'phone2' => 'sometimes|nullable|string|regex:/[\\+\d\s]+/',
+            'telephone' => 'sometimes|nullable|string',
+            'phone1' => 'sometimes|nullable|string',
+            'phone2' => 'sometimes|nullable|string',
             'state' => 'sometimes|string',
             'region' => 'sometimes|string',
             'description' => 'sometimes|string',
@@ -61,7 +61,11 @@ class ClientController extends Controller
     public function edit(Request $request)
     {
         $data = $request->all();
-
+        /**
+         * @var Client
+         */
+        $client = $data['client'];
+        unset($data['client']);
         if(empty($data)){
             return response()->json(['errors' => "No data provided"], 400);
         }
@@ -69,9 +73,9 @@ class ClientController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string',
             'surname' => 'sometimes|string',
-            'telephone' => 'sometimes|nullable|string|regex:/[\\+\d\s]+/',
-            'phone1' => 'sometimes|nullable|string|regex:/[\\+\d\s]+/',
-            'phone2' => 'sometimes|nullable|string|regex:/[\\+\d\s]+/',
+            'telephone' => 'sometimes|nullable|string',
+            'phone1' => 'sometimes|nullable|string',
+            'phone2' => 'sometimes|nullable|string',
             'state' => 'sometimes|string',
             'region' => 'sometimes|string',
             'description' => 'sometimes|string',
@@ -81,11 +85,6 @@ class ClientController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
-        /**
-         * @var Client
-         */
-        $client = $request->input('client');
 
         try{
             $client->update($data);
