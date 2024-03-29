@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function (){
         Route::middleware(\App\Http\Middleware\RequiresClientId::class)->group(function (){
             Route::post('/{id}',[\App\Http\Controllers\API\ClientController::class,'edit']);
             Route::get('/{id}',[\App\Http\Controllers\API\ClientController::class,'client']);
+            Route::delete('/{id}',[\App\Http\Controllers\API\ClientController::class,'delete']);
         });
     });
 });

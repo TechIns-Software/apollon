@@ -97,4 +97,21 @@ class ClientController extends Controller
 
         return response()->json($client, 200);
     }
+
+    public function delete(Request $request)
+    {
+        /**
+         * @var Client
+         */
+        $client = $request->input('client');
+        $id = $client->id;
+        try{
+            $client->delete();
+        }catch (\Exception $e){
+            report($e);
+            return response()->json(['errors' => "Αδυναμία αποθήκευσης"], 500);
+        }
+
+        return response()->json( ['id'=>$id,'msg'=>'Ο πελάτης διεγράφει'],200);
+    }
 }

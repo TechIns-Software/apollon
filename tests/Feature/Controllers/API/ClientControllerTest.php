@@ -8,6 +8,7 @@ use App\Models\Client;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 class ClientControllerTest extends TestCase
 {
@@ -163,8 +164,46 @@ class ClientControllerTest extends TestCase
             $this->assertEquals($value,$customer->$key);
             $this->assertEquals($value,$json[$key]);
         }
+    }
 
+    public function testDeleteUserForUnauthorizedUser()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create();
 
+        $business = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business->id]);
 
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+        $result = $this->delete("/api/client/".$customer->id);
+
+        $result->assertStatus(403);
+    }
+
+    public function testDeleteUserSuccess()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create();
+        $id = $customer->id;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->delete("/api/client/".$customer->id);
+        $result->assertStatus(200);
+
+        // Aserting that
+        $record = DB::table("client")->where('id',$id)->first();
+        $this->assertNotEmpty($record);
+        $this->assertNotEmpty($record->deleted_at);
+
+        $client = Client::find($id);
+
+        $this->assertEmpty($client);
     }
 }
