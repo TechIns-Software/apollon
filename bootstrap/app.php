@@ -26,4 +26,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 501);
             }
         });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException $e,Request $request){
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Unsupported Method'
+                ], 405);
+            }
+        });
     })->create();

@@ -38,7 +38,7 @@ class SaasUserController extends Controller
         if(auth()->guard('mobile_api_basic')->attempt(['email'=>$email,'password'=>$password])){
             $user = auth()->guard('mobile_api_basic')->user();
             $business = Business::find($user->business_id);
-            if(!$business->active){
+            if(!$business->is_active){
                 return new JsonResponse(['msg'=>"H εταιρεία δεν ειναι ενεργή"],401);
             }
             return new JsonResponse(['token'=>$user->createToken('auth_token')->plainTextToken],201);

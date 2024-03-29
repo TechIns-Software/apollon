@@ -23,7 +23,7 @@ class BusinessIsActive
             return $next($request);
         }
         $business = Business::find($user->business_id);
-        if(!$business->active){
+        if(!$business->is_active){
             return new JsonResponse(['msg'=>"H εταιρεία δεν ειναι ενεργή"],401);
         }
         return $next($request);

@@ -13,14 +13,23 @@ class ClientController extends Controller
     public function list(Request $request)
     {
         $user = $request->user();
-        $page = (int)$request->get('page')??1;
-        $limit = (int)$request->get('limit')??20;
+
+        $page = $request->get('page')??1;
+        $limit = $request->get('limit')??20;
+
+        if($page <= 0){
+            return new JsonResponse(['msg'=>"Page must have positive value"],400);
+        }
+
+        if($limit <= 0){
+            return new JsonResponse(['msg'=>"Limit must have positive value"],400);
+        }
 
         $clients = Client::orderBy('id','DESC')
             ->whereBusinessId($user->business_id)
             ->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
-            ->paginate($limit);
-        $clients->appends(['limit'=>$limit]);
+            ->simplePaginate($limit);
+        $clients->appends(['limit'=>$limit, 'page' => $page+1]);
 
         return new JsonResponse($clients,200);
     }
