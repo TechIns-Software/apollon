@@ -14,9 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->api(prepend: [
-            \App\Http\Middleware\ApiMiddleware::class
-        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions){
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
@@ -32,6 +30,23 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'msg' => 'Unsupported Method'
                 ], 405);
+            }
+        });
+
+        $exceptions->render(function (\Exception $e,Request $request) {
+            if ($request->is('api/*')) {
+                $responseBody = [
+                    "msg"=> "Προέκυψε ένα εσωτερικό σφάλμα",
+                ];
+
+                if(\Illuminate\Support\Facades\App::environment(['local','testing'])){
+                    $responseBody['debug']=[
+                        'exception_msg'=>$e->getMessage(),
+                        'trace'=>$e->getTrace()
+                    ];
+                }
+
+                return response()->json($responseBody, 500);
             }
         });
     })->create();
