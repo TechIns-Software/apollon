@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Exceptions\BusinessIdIsNotSameAsClientsOne;
+use App\Exceptions\BusinessIdIsNotSameAsUsersOne;
+use http\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,6 +48,29 @@ class Order extends Model
         'business_id',
         'status',
         'description',
-
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function (Order $order){
+            if(
+                !empty($order->saas_user_id)
+                && !empty($order->business_id)
+                && !empty($order->business_id)
+            ){
+                $user = SaasUser::find($order->saas_user_id);
+
+                if($user->business_id != $order->business_id){
+                    throw new BusinessIdIsNotSameAsUsersOne($user,$order);
+                }
+
+                $client = Client::find($order->client_id);
+                if($client->business_id != $order->business_id){
+                    throw new BusinessIdIsNotSameAsClientsOne($client,$order->business_id);
+                }
+            }
+        });
+    }
 }

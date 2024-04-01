@@ -75,22 +75,5 @@ class OrderController extends Controller
     {
         // @todo Implement
         return new JsonResponse($order,201);
-
-    }
-
-    // @TODO Implement
-    public function addTag(Request $request)
-    {
-
-    }
-
-    public function editTag(Request $request)
-    {
-
-    }
-
-    public function deleteTag(Request $request)
-    {
-
     }
 }
