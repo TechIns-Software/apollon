@@ -58,6 +58,6 @@ jobs:
       - name: PHPUnit tests
         run: |
           sed -i "s/DB_PORT=.*/DB_PORT=33306/" .env.testing &&
-          ./vendor/bin/phpunit
+          ./vendor/bin/phpunit --versobse
 
 
