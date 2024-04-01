@@ -18,7 +18,7 @@ class ClientControllerTest extends TestCase
     {
         $user = SaasUser::factory()->create();
 
-        dump(Business::find($user->business_id)->active);
+        dump(Business::find($user->business_id)->is_active);
 
         Sanctum::actingAs(
             $user,
