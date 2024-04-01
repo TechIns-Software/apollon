@@ -49,4 +49,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json($responseBody, 500);
             }
         });
+
+        $exceptions->render(function(\Illuminate\Validation\ValidationException $e, Request $request){
+            if ($request->is('api/*')) {
+                return response()->json(['errors' => $e->errors()], 400);
+            }
+        });
     })->create();

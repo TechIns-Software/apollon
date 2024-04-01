@@ -24,6 +24,15 @@ Route::middleware('auth:sanctum')->group(function (){
                 Route::delete('/{id}',[\App\Http\Controllers\API\ClientController::class,'delete']);
             });
         });
+
+        Route::prefix('/order')->group(function (){
+            Route::post('/',[\App\Http\Controllers\API\OrderController::class,'add']);
+            Route::get('/',[\App\Http\Controllers\API\OrderController::class,'list']);
+
+            Route::post('/{id}',[\App\Http\Controllers\API\ClientController::class,'edit']);
+            Route::get('/{id}',[\App\Http\Controllers\API\ClientController::class,'client']);
+            Route::delete('/{id}',[\App\Http\Controllers\API\ClientController::class,'delete']);
+        });
     });
 });
 
