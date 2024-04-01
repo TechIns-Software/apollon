@@ -16,8 +16,9 @@ class ClientControllerTest extends TestCase
     use RefreshDatabase;
     public function testInsert()
     {
-        $business = Business::factory()->active()->create();
-        $user = SaasUser::factory()->create(['business_id'=>$business->id]);
+        $user = SaasUser::factory()->create();
+
+        dump(Business::find($user->business_id)->active);
 
         Sanctum::actingAs(
             $user,
