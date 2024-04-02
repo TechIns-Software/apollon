@@ -222,4 +222,41 @@ class OrderControllerTest extends TestCase
 
         $this->assertEquals("FINISHED",$orderInDb->status);
     }
+
+    public function testUpdateSuccessOnlyStatus()
+    {
+        $user = SaasUser::factory()->create();
+
+        $order = Order::factory()->withUser($user)->create();
+
+        $payload = [
+            'status'=>'FINISHED'
+        ];
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->post('/api/order/'.$order->id,$payload);
+
+        $json = $response->json();
+
+        $response->assertStatus(200);
+
+        $orderInDb = Order::find($json['id']);
+        $this->assertNotEmpty($orderInDb);
+        foreach ($json as $key => $value){
+            if(in_array($key,['created_at','updated_at','deleted_at','id'])){
+                continue;
+            }
+
+            $this->assertEquals($value,$orderInDb->$key);
+        }
+
+        $this->assertEquals($user->business_id,$orderInDb->business_id);
+        $this->assertEquals($user->id,$orderInDb->saas_user_id);
+
+        $this->assertEquals("FINISHED",$orderInDb->status);
+    }
 }
