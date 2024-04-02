@@ -63,7 +63,7 @@ class Order extends Model
                 $user = SaasUser::find($order->saas_user_id);
 
                 if($user->business_id != $order->business_id){
-                    throw new BusinessIdIsNotSameAsUsersOne($user,$order);
+                    throw new BusinessIdIsNotSameAsUsersOne($user,$order->business_id);
                 }
 
                 $client = Client::find($order->client_id);
