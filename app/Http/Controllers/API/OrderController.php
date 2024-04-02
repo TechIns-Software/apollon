@@ -2,22 +2,42 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Http\Middleware\RequiresClientId;
 use App\Models\Order;
 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
-class OrderController extends Controller
+class OrderController extends Controller implements HasMiddleware
 {
 
-    public function add(Request $request)
+    public static function middleware(): array
+    {
+        // @todo Implement checks for order id IN url
+        return [
+        ];
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function add(Request $request):JsonResponse
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
-            'client_id' => 'required|integer|belongs:client,id',
+            'client_id' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::exists('client','id')
+            ],
             'status' => 'required|string|in:OPEN,FINISHED,CANCELLED',
             'description' => 'sometimes|nullable'
         ]);
@@ -34,10 +54,10 @@ class OrderController extends Controller
             $order = Order::create($items);
         } catch (\Exception $e) {
             report($e);
-            return response()->json(['message' => 'Αδυναμία αποθήκευσης'], 500);
+            return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
         }
 
-        return response()->json($order, 201);
+        return new JsonResponse($order, 201);
     }
 
 

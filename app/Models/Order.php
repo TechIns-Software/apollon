@@ -46,8 +46,9 @@ class Order extends Model
     protected $fillable = [
         'client_id',
         'business_id',
+        'saas_user_id',
         'status',
-        'description',
+        'description'
     ];
 
     protected static function boot()
