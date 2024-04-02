@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Middleware\RequiresClientId;
+use App\Models\Client;
 use App\Models\Order;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -31,12 +32,24 @@ class OrderController extends Controller implements HasMiddleware
     public function add(Request $request):JsonResponse
     {
         $user = $request->user();
+
         $validator = Validator::make($request->all(), [
             'client_id' => [
                 'required',
                 'integer',
                 'min:1',
-                Rule::exists('client','id')
+                function (string $attribute, mixed $value, \Closure $fail) use ($user) {
+                    $client = Client::find($value);
+
+                    if(empty($client)){
+                        $fail("Client is not found");
+                        return;
+                    }
+
+                    if($client->business_id != $user->business_id ){
+                        $fail("Client is not found");
+                    }
+                }
             ],
             'status' => 'required|string|in:OPEN,FINISHED,CANCELLED',
             'description' => 'sometimes|nullable'
@@ -46,11 +59,12 @@ class OrderController extends Controller implements HasMiddleware
            throw new ValidationException($validator);
         }
 
-        try {
-            $items = $request->all();
-            $items['saas_user_id']=$user->id;
-            $items['business_id']=$user->business_id;
+        $items = $request->all();
 
+        $items['saas_user_id']=$user->id;
+        $items['business_id']=$user->business_id;
+
+        try {
             $order = Order::create($items);
         } catch (\Exception $e) {
             report($e);
