@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Middleware\MissingIdBaseMiddleware;
 use App\Http\Middleware\RequiresClientId;
+use App\Http\Middleware\RequiresOrderId;
 use App\Models\Client;
 use App\Models\Order;
 
@@ -21,8 +23,8 @@ class OrderController extends Controller implements HasMiddleware
 
     public static function middleware(): array
     {
-        // @todo Implement checks for order id IN url
         return [
+            new Middleware(RequiresOrderId::class,['edit','order'])
         ];
     }
 
@@ -102,6 +104,9 @@ class OrderController extends Controller implements HasMiddleware
     public function order(Request $request, Order $order)
     {
         $order->refresh();
+        if(empty($order->id)){
+            return new JsonResponse($order,200);
+        }
         return new JsonResponse($order,200);
     }
 

@@ -102,7 +102,7 @@ class OrderControllerTest extends TestCase
         $this->assertEmpty($orders);
     }
 
-    public function testInsertInvalidMissingCLientId()
+    public function testInsertInvalidMissingClientId()
     {
         $user = SaasUser::factory()->create();
 
@@ -123,5 +123,36 @@ class OrderControllerTest extends TestCase
 
         $orders = Order::all()->toArray();
         $this->assertEmpty($orders);
+    }
+
+    public function testGetOrderNonExistent()
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->get('/api/order/1');
+
+        $response->assertStatus(404);
+    }
+
+    public function testGetOrderBelongsToDifferentBusiness()
+    {
+        $user = SaasUser::factory()->create();
+
+        $business = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business->id]);
+        $order = Order::factory()->withUser($user2)->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->get('/api/order/'.$order->id);
+        $response->assertStatus(403);
     }
 }
