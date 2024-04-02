@@ -4,9 +4,9 @@ namespace App\Models;
 
 use App\Exceptions\BusinessIdIsNotSameAsClientsOne;
 use App\Exceptions\BusinessIdIsNotSameAsUsersOne;
-use http\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
@@ -40,6 +40,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $table="order";
 

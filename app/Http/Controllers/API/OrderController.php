@@ -24,7 +24,7 @@ class OrderController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(RequiresOrderId::class,['edit','order'])
+            new Middleware(RequiresOrderId::class,['edit','order','delete'])
         ];
     }
 
@@ -104,9 +104,6 @@ class OrderController extends Controller implements HasMiddleware
     public function order(Request $request, Order $order)
     {
         $order->refresh();
-        if(empty($order->id)){
-            return new JsonResponse($order,200);
-        }
         return new JsonResponse($order,200);
     }
 
@@ -157,5 +154,18 @@ class OrderController extends Controller implements HasMiddleware
         }
 
         return new JsonResponse($order,200);
+    }
+
+    public function delete(Request $request)
+    {
+        $order = $request->input('order');
+        try{
+            $order->delete();
+        } catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
+        }
+
+        return new JsonResponse(['msg'=>'Η παραγγελίεα διεγράφει επιτυχώς'],200);
     }
 }

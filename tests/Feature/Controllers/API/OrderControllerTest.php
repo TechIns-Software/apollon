@@ -6,7 +6,7 @@ use App\Models\Business;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\SaasUser;
-
+use DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -259,4 +259,28 @@ class OrderControllerTest extends TestCase
 
         $this->assertEquals("FINISHED",$orderInDb->status);
     }
+    public function testDeleteSuccessOnlyStatus()
+    {
+        $user = SaasUser::factory()->create();
+
+        $order = Order::factory()->withUser($user)->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->delete('/api/order/'.$order->id);
+
+        $response->assertStatus(200);
+
+        $orderInDb = Order::find($order->id);
+        $this->assertEmpty($orderInDb);
+
+        $actualOrderInDb = DB::table('order')->where('id',$order->id)->limit(1)->first();
+        $this->assertNotEmpty($actualOrderInDb);
+
+        $this->assertNotEmpty($actualOrderInDb->deleted_at);
+    }
+
 }
