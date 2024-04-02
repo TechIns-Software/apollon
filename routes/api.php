@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function (){
 
             Route::post('/{id}',[\App\Http\Controllers\API\OrderController::class,'edit']);
             Route::get('/{id}',[\App\Http\Controllers\API\OrderController::class,'order']);
-            Route::delete('/{id}',[\App\Http\Controllers\API\OrderController::class,'delete']);
+//            Route::delete('/{id}',[\App\Http\Controllers\API\OrderController::class,'delete']);
         });
     });
 });

@@ -110,9 +110,52 @@ class OrderController extends Controller implements HasMiddleware
         return new JsonResponse($order,200);
     }
 
-    public function edit(Request $request, Order $order)
+    public function edit(Request $request)
     {
-        // @todo Implement
-        return new JsonResponse($order,201);
+        $user = $request->user();
+        $items = $request->all();
+
+        /*
+         * This route NEEDS RequiresOrderId in order to work.
+         * Please do nor remove middleware for the route of this controller,
+         * without refactoring the 2 lines bellow.
+         */
+        $order = $items['order'];
+        unset($items['order']);
+
+        $validator = Validator::make($items, [
+            'client_id' => [
+                'sometimes',
+                'integer',
+                'min:1',
+                function (string $attribute, mixed $value, \Closure $fail) use ($user) {
+                    $client = Client::find($value);
+
+                    if(empty($client)){
+                        $fail("Client is not found");
+                        return;
+                    }
+
+                    if($client->business_id != $user->business_id ){
+                        $fail("Client is not found");
+                    }
+                }
+            ],
+            'status' => 'sometimes|string|in:OPEN,FINISHED,CANCELLED',
+            'description' => 'sometimes|nullable',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        try{
+            $order->update($items);
+        } catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
+        }
+
+        return new JsonResponse($order,200);
     }
 }

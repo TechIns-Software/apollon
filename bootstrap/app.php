@@ -40,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (\Exception $e,Request $request) {
+            dump(get_class($e));
             if ($request->is('api/*')) {
                 $responseBody = [
                     "msg"=> "Προέκυψε ένα εσωτερικό σφάλμα",
