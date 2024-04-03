@@ -75,4 +75,9 @@ class Order extends Model
             }
         });
     }
+
+    protected function business()
+    {
+        return $this->belongsTo(Business::class,'business_id','id');
+    }
 }

@@ -5,7 +5,10 @@ namespace Feature\Controllers\API;
 use App\Models\Business;
 use App\Models\Client;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\SaasUser;
+use App\Models\ProductOrder;
+
 use DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -305,5 +308,41 @@ class OrderControllerTest extends TestCase
         $actualOrderInDb = DB::table('order')->where('id',$order->id)->limit(1)->first();
         $this->assertNotEmpty($actualOrderInDb);
         $this->assertEmpty($actualOrderInDb->deleted_at);
+    }
+
+    public function testAddPrices()
+    {
+        $business = Business::factory()->create();
+        $user = SaasUser::factory()->create(['business_id'=>$business->id]);
+        $order = Order::factory()->withProducts()->create(['business_id'=>$business->id]);
+
+        $productsToUpdate = Product::where('business_id',$business->id)->get();
+        $productToPlaceNewValue = Product::factory(5)->create(['business_id'=>$business->id]);
+
+        $payload = [];
+
+        foreach ($productToPlaceNewValue as $value){
+            $payload[$value->id]=12.2;
+        }
+
+        foreach ($productsToUpdate as $value){
+            $payload[$value->id]=12.2;
+        }
+
+        $productsToSkip = Product::factory(5)->create(['business_id'=>$business->id]);
+        $productsIdToCheck = array_keys($payload);
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $response = $this->post('/api/order/'.$order->id.'/products',['items'=>$payload]);
+        $response->assertStatus(200);
+
+        $values = ProductOrder::whereOrderId($order->id)->whereOrderId($order->id)->get();
+        foreach ($values as $value){
+            $this->assertEquals(12.2,(float)$value->ammount);
+            $this->assertEquals($order->id,$value->order_id);
+            $this->assertContains($value->product_id,$productsIdToCheck);
+        }
     }
 }

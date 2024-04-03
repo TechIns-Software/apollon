@@ -63,4 +63,8 @@ class Business extends Model
         return (new Carbon($this->attributes['expiration_date']))->format('Y-m-d');
     }
 
+    public function products()
+    {
+        return $this->hasMany(Product::class,'id','product_id');
+    }
 }

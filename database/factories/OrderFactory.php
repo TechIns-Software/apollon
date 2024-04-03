@@ -54,11 +54,9 @@ class OrderFactory extends Factory
                 ->where('business_id',$order->business_id)
                 ->limit(10)
                 ->get();
-
             if(empty($products->count())){
                 $products = Product::factory(10)->create(['business_id'=>$order->business_id]);
             }
-
             foreach ($products as $product){
                 ProductOrder::factory()
                     ->create([
