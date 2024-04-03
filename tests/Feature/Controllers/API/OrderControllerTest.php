@@ -283,4 +283,27 @@ class OrderControllerTest extends TestCase
         $this->assertNotEmpty($actualOrderInDb->deleted_at);
     }
 
+    public function testDeleteSuccessOrderDoesNotBelongToBusiness()
+    {
+        $user = SaasUser::factory()->create();
+
+        $business = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business->id]);
+        $order = Order::factory()->withUser($user2)->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->delete('/api/order/'.$order->id);
+        $response->assertStatus(403);
+
+        $orderInDb = Order::find($order->id);
+        $this->assertNotEmpty($orderInDb);
+
+        $actualOrderInDb = DB::table('order')->where('id',$order->id)->limit(1)->first();
+        $this->assertNotEmpty($actualOrderInDb);
+        $this->assertEmpty($actualOrderInDb->deleted_at);
+    }
 }
