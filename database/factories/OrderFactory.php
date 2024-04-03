@@ -2,9 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Business;
 use App\Models\Client;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductOrder;
 use App\Models\SaasUser;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -42,7 +46,28 @@ class OrderFactory extends Factory
         });
     }
 
+    public function withProducts()
+    {
+        return $this->afterCreating(function (Order $order) {
 
+            $products = Product::inRandomOrder()
+                ->where('business_id',$order->business_id)
+                ->limit(10)
+                ->get();
+
+            if(empty($products->count())){
+                $product = Product::factory(10)->create(['business_id'=>$order->business_id]);
+            }
+
+            foreach ($products as $product){
+                ProductOrder::factory()
+                    ->create([
+                        'product_id'=>$product->id,
+                        'order_id'=>$order->id
+                    ]);
+            }
+        });
+    }
     public function configure()
     {
         return $this->afterMaking(function (Order $order){
