@@ -39,3 +39,15 @@ if(!function_exists('validateBooleableValue')) {
         return in_array($value, [0, 1, 'true', 'false', 'yes', 'no', 'on', 'off']);
     }
 }
+
+if(!function_exists('cast_greek_float')){
+    function cast_greek_float($value):float
+    {
+        if(is_string($value)){
+            $value = str_replace('.',"",$value);
+            $value = str_replace(',',".",$value);
+        }
+
+        return floatval($value);
+    }
+}

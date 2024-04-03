@@ -8,6 +8,8 @@ use App\Http\Middleware\RequiresOrderId;
 use App\Models\Client;
 use App\Models\Order;
 
+use App\Models\Product;
+use App\Models\ProductOrder;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
@@ -24,7 +26,7 @@ class OrderController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(RequiresOrderId::class,['edit','order','delete'])
+            new Middleware(RequiresOrderId::class,['edit','order','delete','addItemToOrder'])
         ];
     }
 
@@ -166,6 +168,75 @@ class OrderController extends Controller implements HasMiddleware
             return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
         }
 
-        return new JsonResponse(['msg'=>'Η παραγγελίεα διεγράφει επιτυχώς'],200);
+        return new JsonResponse(['msg'=>'Η παραγγελία διεγράφει επιτυχώς'],200);
+    }
+
+    public function addItemToOrder(Request $request)
+    {
+        $user = $request->user();
+        $items = ['items'=>$request->get('items')];
+        /*
+         * This route NEEDS RequiresOrderId in order to work.
+         * Please do nor remove middleware for the route of this controller,
+         * without refactoring the 2 lines bellow.
+         */
+        $order = $request->input('order');
+
+        /**
+         * @var Product
+         */
+        $products = [];
+        $productIds = [];
+        $productSearch = ProductOrder::whereOrderId($order->id);
+
+        $validator = Validator::make($items, [
+            'items' => 'required|array',
+            'items.*'=>[
+                "required",
+                'numeric',
+                function (string $attribute, mixed $value, \Closure $fail) use (&$products,$order,&$productIds){
+
+                    $productId = (int)str_replace('items.',"",$attribute);
+                    $productInDb = Product::find($productId);
+                    if(empty($productInDb)){
+                        $fail("Το προϊόν δεν υπάρχει");
+                        return;
+                    }
+                    if($productInDb->business_id != $order->business_id){
+                        $fail("Αδυναμία Επεξεργασίας");
+                        return;
+                    }
+                    // I want to avoid extra loops therefore I prepare my input here
+                    $products[]=[
+                        'product_id'=>$productId,
+                        'ammount'=>(float)$value,
+                        'order_id'=>$order->id
+                    ];
+                    $productIds[]=$productId;
+                }
+            ]
+        ]);
+
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        if(empty($productIds)){
+            return new JsonResponse(['msg'=>"Δεν δώθηκαν τιμες για τα προϊόντα"],400);
+        }
+
+        $productSearch=$productSearch->whereIn('product_id',$productIds);
+
+        $created = [];
+        try{
+            ProductOrder::upsert($products,['product_id','order_id'],['ammount']);
+            $created =$productSearch->with('product')->get();
+        }catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης"],500);
+        }
+
+        return new JsonResponse($created,200);
     }
 }

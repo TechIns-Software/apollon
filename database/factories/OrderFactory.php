@@ -56,7 +56,7 @@ class OrderFactory extends Factory
                 ->get();
 
             if(empty($products->count())){
-                $product = Product::factory(10)->create(['business_id'=>$order->business_id]);
+                $products = Product::factory(10)->create(['business_id'=>$order->business_id]);
             }
 
             foreach ($products as $product){
