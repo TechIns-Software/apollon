@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Middleware\MissingIdBaseMiddleware;
 use App\Http\Middleware\RequiresClientId;
 use App\Http\Middleware\RequiresOrderId;
+use App\Http\Resources\OrderResource;
 use App\Models\Client;
 use App\Models\Order;
 
@@ -75,7 +76,7 @@ class OrderController extends Controller implements HasMiddleware
             return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
         }
 
-        return new JsonResponse($order, 201);
+        return new JsonResponse(new OrderResource($order), 201);
     }
 
 
@@ -103,10 +104,10 @@ class OrderController extends Controller implements HasMiddleware
         return new JsonResponse($orders,200);
     }
 
-    public function order(Request $request, Order $order)
+    public function order(Request $request)
     {
-        $order->refresh();
-        return new JsonResponse($order,200);
+        $order = $request->input('order');
+        return new OrderResource($order);
     }
 
     public function edit(Request $request)

@@ -80,4 +80,9 @@ class Order extends Model
     {
         return $this->belongsTo(Business::class,'business_id','id');
     }
+
+    protected function products()
+    {
+        return $this->hasMany(ProductOrder::class,'order_id','id');
+    }
 }
