@@ -26,7 +26,7 @@ class OrderController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(RequiresOrderId::class,['edit','order','delete','addItemToOrder'])
+            new Middleware(RequiresOrderId::class,['edit','order','delete','addItemToOrder','removeOrderProduct'])
         ];
     }
 
@@ -173,7 +173,6 @@ class OrderController extends Controller implements HasMiddleware
 
     public function addItemToOrder(Request $request)
     {
-        $user = $request->user();
         $items = ['items'=>$request->get('items')];
         /*
          * This route NEEDS RequiresOrderId in order to work.
@@ -223,7 +222,7 @@ class OrderController extends Controller implements HasMiddleware
         }
 
         if(empty($productIds)){
-            return new JsonResponse(['msg'=>"Δεν δώθηκαν τιμες για τα προϊόντα"],400);
+            return new JsonResponse(['msg'=>"Δεν δώθηκαν τιμές για τα προϊόντα"],400);
         }
 
         $productSearch=$productSearch->whereIn('product_id',$productIds);
@@ -239,4 +238,34 @@ class OrderController extends Controller implements HasMiddleware
 
         return new JsonResponse($created,200);
     }
+
+    public function removeOrderProduct(Request $request)
+    {
+        $order = $request->get('order');
+        $product_id = $request->route('product_id');
+
+        if(empty($product_id)){
+            return new JsonResponse(['msg'=>"Το προϊόν δεν υπάρχει"],404);
+        }
+
+        $product = Product::find($product_id);
+
+        if(empty($product)){
+            return new JsonResponse(['msg'=>"Το προϊόν δεν υπάρχει"],404);
+        }
+
+        if($order->business_id != $product->business_id){
+            return new JsonResponse(['msg'=>"Αδυναμία διαγραφής."],403);
+        }
+
+        try{
+            ProductOrder::where('product_id',$product->id)->where('order_id',$order->id)->delete();
+        }catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['msg'=>"Αδυναμία Διαγραφής"],500);
+        }
+
+        return new JsonResponse(['msg'=>"Επιτυχώς Διεγράφει"],200);
+    }
+
 }

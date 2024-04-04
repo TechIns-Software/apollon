@@ -347,4 +347,29 @@ class OrderControllerTest extends TestCase
             $this->assertNotContains($value->product_id,$productsToSkip);
         }
     }
+
+    public function testDeletePricesFromOrder()
+    {
+        $business = Business::factory()->create();
+        $user = SaasUser::factory()->create(['business_id'=>$business->id]);
+        $order = Order::factory()->withProducts()->create(['business_id'=>$business->id]);
+        $productsToDelete =  Product::factory()->create(['business_id'=>$business->id]);
+
+        ProductOrder::factory()->create(['product_id'=>$productsToDelete->id,'order_id'=>$order->id]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->delete('/api/order/'.$order->id.'/product/'.$productsToDelete->id);
+
+        $response->assertStatus(200);
+
+        $deletedProductExists = ProductOrder::where('order_id',$order->id)->where('product_id',$productsToDelete->id)->exists();
+        $this->assertFalse($deletedProductExists);
+
+        $existingProducts = ProductOrder::where('order_id',$order->id)->pluck('product_id')->count();
+        $this->assertNotEquals(0,$existingProducts);
+    }
 }
