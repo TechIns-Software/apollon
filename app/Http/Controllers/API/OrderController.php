@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Middleware\MissingIdBaseMiddleware;
-use App\Http\Middleware\RequiresClientId;
 use App\Http\Middleware\RequiresOrderId;
 use App\Http\Resources\OrderResource;
+use App\Http\Validation\OrderValidationClosure;
+
 use App\Models\Client;
 use App\Models\Order;
-
 use App\Models\Product;
 use App\Models\ProductOrder;
+
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Rule;
+
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller implements HasMiddleware
 {
@@ -31,12 +33,15 @@ class OrderController extends Controller implements HasMiddleware
         ];
     }
 
+
+
     /**
      * @throws ValidationException
      */
     public function add(Request $request):JsonResponse
     {
         $user = $request->user();
+        $productsToInsert=[];
 
         $validator = Validator::make($request->all(), [
             'client_id' => [
@@ -57,7 +62,20 @@ class OrderController extends Controller implements HasMiddleware
                 }
             ],
             'status' => 'required|string|in:OPEN,FINISHED,CANCELLED',
-            'description' => 'sometimes|nullable'
+            'description' => 'sometimes|nullable',
+            'items' => 'sometimes|array|nullable',
+            'items.*'=>[
+                "required",
+                'numeric',
+                function (string $attribute, mixed $value, \Closure $fail) use ($user,&$productsToInsert) {
+                    if(OrderValidationClosure::validateOrderItems($attribute,$value,$fail,$user->business_id,$product)){
+                        $productsToInsert[]=[
+                            'product_id'=>$product->id,
+                            'ammount'=>(float)$value,
+                        ];
+                    }
+                }
+            ]
         ]);
 
         if ($validator->fails()) {
@@ -70,8 +88,18 @@ class OrderController extends Controller implements HasMiddleware
         $items['business_id']=$user->business_id;
 
         try {
+            DB::beginTransaction();
+
             $order = Order::create($items);
+            foreach ($productsToInsert as $key=>$product){
+                $productsToInsert[$key]['order_id']=$order['id'];
+            }
+
+            ProductOrder::insert($productsToInsert);
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollback();
             report($e);
             return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
         }
@@ -195,28 +223,18 @@ class OrderController extends Controller implements HasMiddleware
                 "required",
                 'numeric',
                 function (string $attribute, mixed $value, \Closure $fail) use (&$products,$order,&$productIds){
-
-                    $productId = (int)str_replace('items.',"",$attribute);
-                    $productInDb = Product::find($productId);
-                    if(empty($productInDb)){
-                        $fail("Το προϊόν δεν υπάρχει");
-                        return;
+                    if(OrderValidationClosure::validateOrderItems($attribute,$value,$fail,(int)$order->business_id,$product)){
+                        // I want to avoid extra loops therefore I prepare my input here
+                        $products[]=[
+                            'product_id'=>$product->id,
+                            'ammount'=>(float)$value,
+                            'order_id'=>$order->id
+                        ];
+                        $productIds[]=$product->id;
                     }
-                    if($productInDb->business_id != $order->business_id){
-                        $fail("Αδυναμία Επεξεργασίας");
-                        return;
-                    }
-                    // I want to avoid extra loops therefore I prepare my input here
-                    $products[]=[
-                        'product_id'=>$productId,
-                        'ammount'=>(float)$value,
-                        'order_id'=>$order->id
-                    ];
-                    $productIds[]=$productId;
                 }
             ]
         ]);
-
 
         if ($validator->fails()) {
             throw new ValidationException($validator);

@@ -13,8 +13,8 @@ class ProductOrder extends Model
     protected $table='product_order';
 
     public $incrementing = false;
-    protected $primaryKey = ['order_id', 'business_id'];
-    protected $fillable = ['order_id', 'business_id', 'ammount' ];
+    protected $primaryKey = ['order_id', 'product_id'];
+    protected $fillable = ['order_id', 'product_id', 'ammount' ];
 
 
     public function order()

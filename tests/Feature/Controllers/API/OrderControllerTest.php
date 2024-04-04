@@ -42,7 +42,7 @@ class OrderControllerTest extends TestCase
         $orderInDb = Order::find($json['id']);
         $this->assertNotEmpty($orderInDb);
         foreach ($json as $key => $value){
-            if(in_array($key,['created_at','updated_at','deleted_at','id'])){
+            if(in_array($key,['created_at','updated_at','deleted_at','id','items'])){
                 continue;
             }
 
@@ -54,6 +54,65 @@ class OrderControllerTest extends TestCase
 
         $this->assertEquals($client->id,$orderInDb->client_id);
         $this->assertEquals($user->id,$orderInDb->saas_user_id);
+
+        $this->assertEmpty($json['items']);
+    }
+    public function testInsertNewOrderWithPrices()
+    {
+        $user = SaasUser::factory()->create();
+        $client = Client::factory()->withUser($user)->create();
+        $productToPlaceNewValue = Product::factory(5)->create(['business_id'=>$user->business_id]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload = [
+            'client_id'=>$client->id,
+            'description'=>"Omae wa mou shindeiru",
+            'status'=>'OPEN',
+            'items'=>[]
+        ];
+
+        foreach ($productToPlaceNewValue as $product){
+            $payload['items'][$product->id]=12.33;
+        }
+
+        $response=$this->post('/api/order',$payload);
+
+        $json = $response->json();
+        $response->assertStatus(201);
+
+        $orderInDb = Order::find($json['id']);
+        $this->assertNotEmpty($orderInDb);
+        foreach ($json as $key => $value){
+            if(in_array($key,['created_at','updated_at','deleted_at','id','items'])){
+                continue;
+            }
+
+            $this->assertEquals($value,$orderInDb->$key);
+        }
+
+        $this->assertEquals($user->business_id,$orderInDb->business_id);
+        $this->assertEquals($client->business_id,$orderInDb->business_id);
+
+        $this->assertEquals($client->id,$orderInDb->client_id);
+        $this->assertEquals($user->id,$orderInDb->saas_user_id);
+
+        $expectedProcustIds = $productToPlaceNewValue->pluck('id')->toArray();
+        foreach ($json['items'] as $item){
+            $this->assertContains($item['product_id'],$expectedProcustIds);
+            $this->assertEquals($orderInDb->id,$item['order_id']);
+            $this->assertEquals(12.33,$item['ammount']);
+
+            $productOrder = ProductOrder::where('product_id',$item['product_id'])
+                    ->where('order_id',$item['order_id'])
+                    ->first();
+
+            $this->assertNotEmpty($item);
+            $this->assertEquals(12.33,$productOrder->ammount);
+        }
     }
 
     public function testInsertWrongCLient()

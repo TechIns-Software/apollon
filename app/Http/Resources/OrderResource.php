@@ -20,6 +20,7 @@ class OrderResource extends JsonResource
             'description' => $this->description,
             'business_id'=>$this->business_id,
             'client_id'=>$this->client_id,
+            'status'=>$this->status,
             'items' => ProductOrderResource::collection($this->products)
         ];
     }
