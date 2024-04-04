@@ -329,7 +329,8 @@ class OrderControllerTest extends TestCase
             $payload[$value->id]=12.2;
         }
 
-        $productsToSkip = Product::factory(5)->create(['business_id'=>$business->id]);
+        $productsToSkip = Product::factory(5)->create(['business_id'=>$business->id])->pluck('id')->toArray();
+
         $productsIdToCheck = array_keys($payload);
         Sanctum::actingAs(
             $user,
@@ -343,6 +344,7 @@ class OrderControllerTest extends TestCase
             $this->assertEquals(12.2,(float)$value->ammount);
             $this->assertEquals($order->id,$value->order_id);
             $this->assertContains($value->product_id,$productsIdToCheck);
+            $this->assertNotContains($value->product_id,$productsToSkip);
         }
     }
 }
