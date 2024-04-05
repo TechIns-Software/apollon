@@ -286,4 +286,19 @@ class OrderController extends Controller implements HasMiddleware
         return new JsonResponse(['msg'=>"Επιτυχώς Διεγράφει"],200);
     }
 
+    public function productSearch(Request $request)
+    {
+        $user = $request->user();
+        $searchterm = $request->get('searchterm');
+
+        $productsQB = Product::where('business_id',$user->business_id);
+
+        if(!empty($searchterm)){
+            $productsQB->where('name','like',"%{$searchterm}%");
+        }
+
+        $products = $productsQB->get();
+
+        return new JsonResponse($products,200);
+    }
 }
