@@ -51,7 +51,6 @@ class ProductControllersTest extends TestCase
 
         $response = $this->post('/product/edit',['products'=>$payload]);
         $json = $response->json();
-        dump($json);
         $response->assertStatus(200);
 
         $responsedIds = array_map(function ($product) { return (int)$product['id'];},$json);
