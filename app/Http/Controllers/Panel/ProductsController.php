@@ -52,4 +52,6 @@ class ProductsController extends Controller
         $products = Product::whereBusinessId($items['business_id'])->get();
         return new JsonResponse($products, 200);
     }
+
+
 }
