@@ -88,7 +88,6 @@ class ProductsController extends Controller
         try{
             DB::beginTransaction();
             foreach ($productsToModify as $productInfo){
-                dump($productInfo['product']);
                 $product = $productInfo['product'];
                 $product->name = $productInfo['name'];
                 $product->save();
