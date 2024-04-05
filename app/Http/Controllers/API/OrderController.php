@@ -286,6 +286,14 @@ class OrderController extends Controller implements HasMiddleware
         return new JsonResponse(['msg'=>"Επιτυχώς Διεγράφει"],200);
     }
 
+    /**
+     *
+     * Saas User doe not add or modify products.
+     * Therefore, making a WHOLE controller for it seems like a waste.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function productSearch(Request $request)
     {
         $user = $request->user();
