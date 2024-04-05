@@ -54,5 +54,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/product',[\App\Http\Controllers\Panel\ProductsController::class,'addProduct']);
     Route::get('/products',[\App\Http\Controllers\Panel\ProductsController::class,'listProducts']);
+    Route::post('/product/edit',[\App\Http\Controllers\Panel\ProductsController::class,'editProducts']);
+
 });
 

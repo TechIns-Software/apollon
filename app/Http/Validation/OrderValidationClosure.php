@@ -45,6 +45,5 @@ class OrderValidationClosure
         }
 
         return true;
-
     }
 }

@@ -34,7 +34,6 @@ class OrderController extends Controller implements HasMiddleware
     }
 
 
-
     /**
      * @throws ValidationException
      */
