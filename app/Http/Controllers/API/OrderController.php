@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Middleware\RequiresOrderId;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\ProductOrderResource;
 use App\Http\Validation\OrderValidationClosure;
 
 use App\Models\Client;
@@ -255,7 +256,7 @@ class OrderController extends Controller implements HasMiddleware
             return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης"],500);
         }
 
-        return new JsonResponse($created,200);
+        return new JsonResponse(ProductOrderResource::collection($created),200);
     }
 
     public function removeOrderProduct(Request $request)
