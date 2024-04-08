@@ -36,6 +36,10 @@ Route::middleware('auth:sanctum')->group(function (){
             Route::post('/{id}/products',[\App\Http\Controllers\API\OrderController::class,'addItemToOrder']);
             Route::delete('/{id}/product/{product_id}',[\App\Http\Controllers\API\OrderController::class,'removeOrderProduct']);
         });
+
+        Route::prefix('/delivery')->group(function (){
+            Route::post('/',[\App\Http\Controllers\API\DeliveryController::class,'add']);
+        });
     });
 });
 
