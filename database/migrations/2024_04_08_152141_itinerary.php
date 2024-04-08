@@ -53,6 +53,7 @@ return new class extends Migration
                 ->onDelete('NO ACTION')
                 ->onUpdate("NO ACTION");
 
+            $table->string('name');
         });
 
         Schema::dropIfExists('delivery_order');
@@ -86,8 +87,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('delivery_order');
+        Schema::dropIfExists('delivery');
         Schema::dropIfExists('driver');
-        Schema::dropIfExists('itinerary_orders');
-        Schema::dropIfExists('itinerary');
     }
 };
