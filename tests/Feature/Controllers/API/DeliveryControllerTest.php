@@ -154,4 +154,73 @@ class DeliveryControllerTest extends TestCase
         $deliveryOrder = DeliveryOrder::whereDeliveryId($delivery->id)->get();
         $this->assertEmpty($deliveryOrder);
     }
+
+    public function testEdit()
+    {
+        $user = SaasUser::factory()->create();
+        $driver = Driver::create([
+            'driver_name'=>'lalalala',
+            'business_id'=>$user->business_id,
+        ]);
+
+        $orders = Order::factory(5)->withUser($user)->withProducts()->create();
+        $orderIds = [];
+        foreach ($orders as $order) {
+            $orderIds[] = $order->id;
+        }
+
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        $orders2 = Order::factory(5)->withUser($user)->withProducts()->create();
+
+        $unmodifiedOrders=[];
+        foreach ($orders2 as $order) {
+            $unmodifiedOrders[] = $order->id;
+        }
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'driver_id'=>$driver->id,
+            'delivery_date'=>'2025-12-01',
+            'name'=>'Panzer Delivery',
+            'orders'=>$orderIds
+        ];
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $body=$response->json();
+        $response->assertStatus(200);
+
+
+        $deliveryInDb=Delivery::find($body['id']);
+        $this->assertNotEmpty($deliveryInDb);
+
+        $this->assertEquals($user->business_id,$delivery->business_id);
+        $this->assertEquals($body['business_id'],$delivery->business_id);
+        $this->assertEquals($deliveryInDb->business_id,$delivery->business_id);
+
+
+        $this->assertNotEmpty($body['orders']);
+
+        $deliveryOrder = DeliveryOrder::whereDeliveryId($delivery->id)->get();
+        $this->assertNotEmpty($deliveryOrder);
+
+        foreach ($body['orders'] as $order) {
+            $order=$order['order'];
+            $deliveryOrder = DeliveryOrder::whereOrderId($order['id'])
+                ->whereDeliveryId($delivery->id)
+                ->first();
+
+            $this->assertNotEmpty($deliveryOrder);
+            $order = Order::find($deliveryOrder->order_id);
+
+            $this->assertNotEmpty($order);
+            $this->assertEquals($deliveryOrder->id,$order->id);
+            $this->assertEquals($user->business_id,$order->business_id);
+            $this->assertContains($order->id,$orderIds);
+            $this->assertNotContains($order->id,$unmodifiedOrders);
+        }
+    }
 }

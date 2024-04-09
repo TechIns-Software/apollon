@@ -9,15 +9,24 @@ use App\Models\Delivery;
 use App\Models\DeliveryOrder;
 use App\Models\Driver;
 use App\Models\Order;
+use App\Http\Middleware\RequiresDeliveryId;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Controllers\Middleware;
 
-class DeliveryController extends Controller
+class DeliveryController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(RequiresDeliveryId::class,['edit','delivery'])
+        ];
+    }
     public function add(Request $request)
     {
         $user = $request->user();
@@ -109,4 +118,97 @@ class DeliveryController extends Controller
 
         return new JsonResponse(new DeliveryResource($delivery),201);
     }
+
+    public function edit(Request $request)
+    {
+        $user = $request->user();
+        $all = $request->all();
+
+        /**
+         * @var Delivery
+         */
+        $delivery = $all['delivery'];
+        unset($all['delivery']);
+
+        $validator = Validator::make($all,[
+            'driver_id'=>[
+                'sometimes',
+                'integer',
+                "min:1",
+                function ($attribute, $value, $fail) use ($user) {
+                    $driver = Driver::find($value);
+                    if(empty($driver)){
+                        $fail("Ο οδηγός δεν βρέθηκε");
+                    }
+
+                    if($driver->business_id != $user->business_id){
+                        $fail("Ο οδηγός δεν βρέθηκε");
+                    }
+                }
+            ],
+            "delivery_date"=>[
+                "required",
+                "date"
+            ],
+            "name"=>[
+                'required',
+                "string"
+            ],
+            "orders"=>[
+                "sometimes",
+                "array"
+            ],
+            "orders.*"=>[
+                "required",
+                "integer",
+                "min:1",
+                function ($attribute, $value, $fail) use ($user){
+                    $order = Order::find($value);
+                    if(empty($order)){
+                        $fail("Δεν βρέθηκε η παραγγελία");
+                    }
+
+                    if($order->business_id != $user->business_id){
+                        $fail("Δεν βρέθηκε η παραγγελία");
+                    }
+                }
+            ]
+        ]);
+
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $delivery->update($all);
+            $delivery->refresh();
+            $orders = collect();
+            $all['orders'] = $all['orders']??[];
+            foreach ($all['orders'] as $key => $order){
+                $orders->push(DeliveryOrder::upsert([
+                    'order_id'=>$order,
+                    'delivery_id'=>$delivery->id,
+                    'delivery_sequence'=>$key+1
+                ],['order_id','delivery_id']));
+            }
+
+            $delivery->refresh();
+            DB::commit();
+        }catch (\Exception $e){
+            DB::rollback();
+            report($e);
+            return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
+        }
+
+        return new JsonResponse(new DeliveryResource($delivery),200);
+    }
+
+    public function delivery(Request $request)
+    {
+        return new JsonResponse(new DeliveryResource($request->input('delivery')),200);
+    }
+
+
 }
