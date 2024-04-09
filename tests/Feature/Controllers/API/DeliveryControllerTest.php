@@ -119,4 +119,39 @@ class DeliveryControllerTest extends TestCase
             $this->assertEquals($user->business_id,$order->business_id);
         }
     }
+
+    public function testAddWithoutOrders()
+    {
+        $user = SaasUser::factory()->create();
+        $driver = Driver::create([
+            'driver_name'=>'lalalala',
+            'business_id'=>$user->business_id,
+        ]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'driver_id'=>$driver->id,
+            'delivery_date'=>'2025-12-01',
+            'name'=>'Panzer Delivery',
+        ];
+
+        $response = $this->post('/api/delivery',$payload);
+
+        $body=$response->json();
+        $response->assertStatus(201);
+
+        $delivery=Delivery::find($body['id']);
+        $this->assertNotEmpty($delivery);
+        $this->assertEquals($user->business_id,$delivery->business_id);
+        $this->assertEquals($body['business_id'],$delivery->business_id);
+
+        $this->assertEmpty($body['orders']);
+
+        $deliveryOrder = DeliveryOrder::whereDeliveryId($delivery->id)->get();
+        $this->assertEmpty($deliveryOrder);
+    }
 }

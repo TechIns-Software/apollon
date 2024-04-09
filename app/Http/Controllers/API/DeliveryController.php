@@ -89,6 +89,7 @@ class DeliveryController extends Controller
                 'business_id'=>$user->business_id,
             ]);
             $orders = collect();
+            $all['orders'] = $all['orders']??[];
             foreach ($all['orders'] as $key => $order){
                 $orders->push(DeliveryOrder::create([
                    'order_id'=>$order,
@@ -101,7 +102,6 @@ class DeliveryController extends Controller
             $delivery->setRelation('driver',$driver);
             DB::commit();
         }catch (\Exception $e){
-            dump($e->getMessage());
             DB::rollback();
             report($e);
             return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
