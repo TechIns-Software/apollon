@@ -235,8 +235,52 @@ class DeliveryControllerTest extends TestCase
             ['mobile_api']
         );
         $response = $this->post('/api/delivery/'.$delivery->id,['driver_id'=>$driverId]);
-        $body=$response->json();
         $response->assertStatus(400);
+    }
 
+    public function testEditMissingDelivery()
+    {
+        $user = SaasUser::factory()->create();
+        $driver = Driver::create([
+            'driver_name'=>'lalalala',
+            'business_id'=>$user->business_id,
+        ]);
+
+        $orders = Order::factory(5)->withUser($user)->withProducts()->create();
+        $orderIds = [];
+        foreach ($orders as $order) {
+            $orderIds[] = $order->id;
+        }
+
+        Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'driver_id'=>$driver->id,
+            'delivery_date'=>'2025-12-01',
+            'name'=>'Panzer Delivery',
+            'orders'=>$orderIds
+        ];
+        $response = $this->post('/api/delivery/256',$payload);
+        $response->assertStatus(404);
+    }
+
+    public function testGetMissingDelivery()
+    {
+        $user = SaasUser::factory()->create();
+        Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+        Order::factory(5)->withUser($user)->withProducts()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->get('/api/delivery/256');
+        $response->assertStatus(404);
     }
 }

@@ -97,12 +97,10 @@ class DeliveryController extends Controller implements HasMiddleware
                 'driver_id'=>$driver->id,
                 'business_id'=>$user->business_id,
             ]);
-            dump(__LINE__);
 
             $orders = collect();
             $all['orders'] = $all['orders']??[];
             foreach ($all['orders'] as $key => $order){
-                dump(__LINE__);
                 $orders->push(DeliveryOrder::create([
                    'order_id'=>$order,
                    'delivery_id'=>$delivery->id,
@@ -280,4 +278,6 @@ class DeliveryController extends Controller implements HasMiddleware
 
         return new JsonResponse($results,200);
     }
+
+
 }
