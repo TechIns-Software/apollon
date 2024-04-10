@@ -24,7 +24,7 @@ class DeliveryController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(RequiresDeliveryId::class,['edit','delivery','deliveries','addOrderToDelivery'])
+            new Middleware(RequiresDeliveryId::class,['edit','delivery','deliveries','addOrderToDelivery','delete'])
         ];
     }
     public function add(Request $request)
@@ -290,5 +290,20 @@ class DeliveryController extends Controller implements HasMiddleware
         }
 
         return new JsonResponse($qb->get());
+    }
+
+    public function delete(Request $request)
+    {
+        $user = $request->user();
+        $delivery = $request->input('delivery');
+
+        try{
+            $delivery->delete();
+        }catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['msg'=>"Αδυναμία Διαγραφής"],500);
+        }
+
+        return new JsonResponse(['msg'=>'Επιτυχής Διαγραφής']);
     }
 }

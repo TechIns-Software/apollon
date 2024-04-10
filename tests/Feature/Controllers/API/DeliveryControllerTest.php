@@ -11,7 +11,7 @@ use App\Models\SaasUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
-
+use Illuminate\Support\Facades\DB;
 class DeliveryControllerTest extends TestCase
 {
     use RefreshDatabase;
@@ -315,5 +315,26 @@ class DeliveryControllerTest extends TestCase
                 $this->assertNotEquals($missinsOrder->id,(int)$result['id']);
             }
         }
+    }
+
+    public function testDelete()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery=Delivery::factory()->businessFromUser($user)->withNewDriver()->create(['name'=>"Τιμή Στα ελληνικά "]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $response = $this->delete('/api/delivery/'.$delivery->id);
+
+        $response->assertStatus(200);
+
+        $deliveryInDbViaEloquent = Delivery::find($delivery->id);
+        $this->assertEmpty($deliveryInDbViaEloquent);
+
+        $actualRecord = DB::table('delivery')->where('id',$delivery->id)->first();
+
+        $this->assertNotEmpty($actualRecord->deleted_at);
     }
 }
