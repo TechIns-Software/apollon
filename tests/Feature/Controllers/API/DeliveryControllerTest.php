@@ -223,4 +223,20 @@ class DeliveryControllerTest extends TestCase
             $this->assertNotContains($order->id,$unmodifiedOrders);
         }
     }
+
+    public function testEditWrongDriver()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        $driverId=-100;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $response = $this->post('/api/delivery/'.$delivery->id,['driver_id'=>$driverId]);
+        $body=$response->json();
+        $response->assertStatus(400);
+
+    }
 }

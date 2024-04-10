@@ -81,13 +81,13 @@ class DeliveryController extends Controller implements HasMiddleware
                 }
             ]
         ]);
-
         if($validator->fails()){
             throw new ValidationException($validator);
         }
 
         try {
             DB::beginTransaction();
+
             if(empty($driver)){
                 $driver = Driver::create(['driver_name'=>$all['driver_name'],'business_id'=>$user->business_id]);
             }
@@ -97,9 +97,12 @@ class DeliveryController extends Controller implements HasMiddleware
                 'driver_id'=>$driver->id,
                 'business_id'=>$user->business_id,
             ]);
+            dump(__LINE__);
+
             $orders = collect();
             $all['orders'] = $all['orders']??[];
             foreach ($all['orders'] as $key => $order){
+                dump(__LINE__);
                 $orders->push(DeliveryOrder::create([
                    'order_id'=>$order,
                    'delivery_id'=>$delivery->id,
@@ -139,6 +142,7 @@ class DeliveryController extends Controller implements HasMiddleware
                     $driver = Driver::find($value);
                     if(empty($driver)){
                         $fail("Ο οδηγός δεν βρέθηκε");
+                        return;
                     }
 
                     if($driver->business_id != $user->business_id){
@@ -159,7 +163,7 @@ class DeliveryController extends Controller implements HasMiddleware
                 "array"
             ],
             "orders.*"=>[
-                "required",
+                "sometimes",
                 "integer",
                 "min:1",
                 function ($attribute, $value, $fail) use ($user){
@@ -174,7 +178,6 @@ class DeliveryController extends Controller implements HasMiddleware
                 }
             ]
         ]);
-
         if($validator->fails()){
             throw new ValidationException($validator);
         }
