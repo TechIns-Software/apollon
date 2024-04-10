@@ -39,9 +39,10 @@ Route::middleware('auth:sanctum')->group(function (){
 
         Route::prefix('/delivery')->group(function (){
             Route::post('/',[\App\Http\Controllers\API\DeliveryController::class,'add']);
+            Route::get('/',[\App\Http\Controllers\API\DeliveryController::class,'list']);
+
             Route::post('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'edit']);
             Route::get('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delivery']);
-
         });
     });
 });

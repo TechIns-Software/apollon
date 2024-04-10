@@ -24,7 +24,7 @@ class DeliveryController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(RequiresDeliveryId::class,['edit','delivery'])
+            new Middleware(RequiresDeliveryId::class,['edit','delivery','deliveries'])
         ];
     }
     public function add(Request $request)
@@ -147,11 +147,11 @@ class DeliveryController extends Controller implements HasMiddleware
                 }
             ],
             "delivery_date"=>[
-                "required",
+                "sometimes",
                 "date"
             ],
             "name"=>[
-                'required',
+                'sometimes',
                 "string"
             ],
             "orders"=>[
@@ -210,5 +210,71 @@ class DeliveryController extends Controller implements HasMiddleware
         return new JsonResponse(new DeliveryResource($request->input('delivery')),200);
     }
 
+    public function list(Request $request)
+    {
+        $all = $request->all();
 
+        $validationRules=[
+            "delivery_date_from"=>[
+                "sometimes",
+                "date"
+            ],
+            "delivery_date_until"=>[
+                "sometimes",
+                "date",
+                "after:delivery_date_from",
+            ],
+            "name"=>[
+                'sometimes',
+                "string"
+            ],
+            'page'=>[
+                'sometimes',
+                'integer',
+                "min:1"
+            ],
+            'limit'=>[
+                'sometimes',
+                'integer',
+                "min:1"
+            ],
+        ];
+        $validator = Validator::make($all,$validationRules);
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
+
+        $user = $request->user();
+
+        $delivery = Delivery::where('business_id',$user->business_id)->orderBy('delivery_date','DESC');
+
+        $date = $request->get('delivery_date_from');
+        if(!empty($date)){
+            $delivery->where('delivery_date',">=",$date);
+        }
+
+        $date = $request->get('delivery_date_until');
+        if(!empty($date)){
+            $delivery->where('delivery_date',"<=",$date);
+        }
+
+        $searchterm = $request->get('name');
+        if(!empty($searchterm)){
+            $delivery->whereFullText(['name'],$searchterm)
+                ->orderByRaw("MATCH(name) AGAINST(?) DESC", [$searchterm]);
+        }
+
+        $page = $request->get('page')??1;
+        $limit = $request->get('limit')??20;
+
+        $results = $delivery->offset(($page - 1) * $limit)
+            ->simplePaginate($limit);
+
+        $appends = $all;
+        $appends['limit']=$limit;
+        $appends['page']=$page+1;
+        $results->appends($appends);
+
+        return new JsonResponse($results,200);
+    }
 }
