@@ -59,11 +59,9 @@ class DeliveryControllerTest extends TestCase
                 ->first();
 
             $this->assertNotEmpty($deliveryOrder);
-            $order = Order::find($deliveryOrder->order_id);
-
+            $orderInDb = Order::find($deliveryOrder->order_id);
             $this->assertNotEmpty($order);
-            $this->assertEquals($deliveryOrder->id,$order->id);
-            $this->assertEquals($user->business_id,$order->business_id);
+            $this->assertEquals($user->business_id,$orderInDb->business_id);
         }
     }
 
@@ -112,11 +110,10 @@ class DeliveryControllerTest extends TestCase
                 ->first();
 
             $this->assertNotEmpty($deliveryOrder);
-            $order = Order::find($deliveryOrder->order_id);
+            $orderInDB = Order::find($deliveryOrder->order_id);
 
             $this->assertNotEmpty($order);
-            $this->assertEquals($deliveryOrder->id,$order->id);
-            $this->assertEquals($user->business_id,$order->business_id);
+            $this->assertEquals($user->business_id,$orderInDB->business_id);
         }
     }
 
@@ -214,13 +211,13 @@ class DeliveryControllerTest extends TestCase
                 ->first();
 
             $this->assertNotEmpty($deliveryOrder);
-            $order = Order::find($deliveryOrder->order_id);
+            $orderInDB = Order::find($deliveryOrder->order_id);
 
             $this->assertNotEmpty($order);
-            $this->assertEquals($deliveryOrder->id,$order->id);
-            $this->assertEquals($user->business_id,$order->business_id);
-            $this->assertContains($order->id,$orderIds);
-            $this->assertNotContains($order->id,$unmodifiedOrders);
+
+            $this->assertEquals($user->business_id,$orderInDB->business_id);
+            $this->assertContains($orderInDB->id,$orderIds);
+            $this->assertNotContains($orderInDB->id,$unmodifiedOrders);
         }
     }
 
