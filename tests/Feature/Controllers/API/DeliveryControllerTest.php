@@ -283,4 +283,37 @@ class DeliveryControllerTest extends TestCase
         $response = $this->get('/api/delivery/256');
         $response->assertStatus(404);
     }
+
+
+    public function testListSearch()
+    {
+        $user = SaasUser::factory()->create();
+        $group1=Delivery::factory(5)->businessFromUser($user)->withNewDriver()->create(['name'=>"Τιμή Στα ελληνικά "]);
+        $group2=Delivery::factory(5)->businessFromUser($user)->withNewDriver()->create(['name'=>"Something"]);
+        $group3=Delivery::factory(5)->businessFromUser($user)->withNewDriver()->create(['name'=>"Something Else"]);
+        $group4=Delivery::factory(5)->businessFromUser($user)->withNewDriver()->create(['name'=>"Ελληνική Τιμή"]);
+
+        $missingBusiness = Business::factory()->create();
+        $missinsOrder = Order::factory()->create(['business_id'=>$missingBusiness->id]);
+
+        $searchtermAndExpectedValues=[
+          'ελλην'=>array_merge($group1->pluck('id')->toArray(),$group4->pluck('id')->toArray()),
+          'some'=>array_merge($group2->pluck('id')->toArray(),$group3->pluck('id')->toArray())
+        ];
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        foreach ($searchtermAndExpectedValues as $searchterm=> $searchtermAndExpectedValue) {
+            $response = $this->get('/api/delivery?name='.$searchterm);
+            $response->assertStatus(200);
+            $body = $response->json();
+            foreach ($body['data'] as $result){
+                $this->assertContains((int)$result['id'],$searchtermAndExpectedValue);
+                $this->assertNotEquals($missinsOrder->id,(int)$result['id']);
+            }
+        }
+    }
 }

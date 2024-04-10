@@ -247,28 +247,27 @@ class DeliveryController extends Controller implements HasMiddleware
 
         $user = $request->user();
 
-        $delivery = Delivery::where('business_id',$user->business_id)->orderBy('delivery_date','DESC');
+        $qb = Delivery::where('business_id',$user->business_id)->orderBy('delivery_date','DESC');
 
         $date = $request->get('delivery_date_from');
         if(!empty($date)){
-            $delivery->where('delivery_date',">=",$date);
+            $qb=$qb->where('delivery_date',">=",$date);
         }
 
         $date = $request->get('delivery_date_until');
         if(!empty($date)){
-            $delivery->where('delivery_date',"<=",$date);
+            $qb=$qb->where('delivery_date',"<=",$date);
         }
 
         $searchterm = $request->get('name');
         if(!empty($searchterm)){
-            $delivery->whereFullText(['name'],$searchterm)
-                ->orderByRaw("MATCH(name) AGAINST(?) DESC", [$searchterm]);
+            $qb=$qb->whereRaw("MATCH(name) AGAINST(? IN BOOLEAN MODE)",["*".$searchterm."*"])
+                ->orderByRaw("MATCH(name) AGAINST(?) DESC", ["*".$searchterm."*"]);
         }
 
         $page = $request->get('page')??1;
         $limit = $request->get('limit')??20;
-
-        $results = $delivery->offset(($page - 1) * $limit)
+        $results = $qb->offset(($page - 1) * $limit)
             ->simplePaginate($limit);
 
         $appends = $all;
@@ -278,6 +277,5 @@ class DeliveryController extends Controller implements HasMiddleware
 
         return new JsonResponse($results,200);
     }
-
 
 }
