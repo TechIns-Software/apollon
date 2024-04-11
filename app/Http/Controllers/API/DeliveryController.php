@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 
+use App\Http\Middleware\RequiresOrderId;
+use App\Http\Resources\DeliveryOrderResource;
 use App\Http\Resources\DeliveryResource;
 use App\Models\Delivery;
 use App\Models\DeliveryOrder;
@@ -11,6 +13,7 @@ use App\Models\Driver;
 use App\Models\Order;
 use App\Http\Middleware\RequiresDeliveryId;
 
+use App\Models\ProductOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -294,7 +297,6 @@ class DeliveryController extends Controller implements HasMiddleware
 
     public function delete(Request $request)
     {
-        $user = $request->user();
         $delivery = $request->input('delivery');
 
         try{
@@ -305,5 +307,45 @@ class DeliveryController extends Controller implements HasMiddleware
         }
 
         return new JsonResponse(['msg'=>'Επιτυχής Διαγραφής']);
+    }
+
+    public function changeSequenceOfOrders(Request $request,int $id)
+    {
+        if($id <= 0){
+            return new JsonResponse(['msg'=>"Αδυναμία εύρεσης"],404);
+        }
+
+        $deliveryOrder = DeliveryOrder::find($id);
+
+        if(empty($deliveryOrder)){
+            return new JsonResponse(['msg'=>"Αδυναμία εύρεσης"],404);
+        }
+
+        $user = $request->user();
+        $order = $deliveryOrder->order;
+        if($user->business_id != $order->business_id){
+            return new JsonResponse(['msg'=>"Απαγορεύετε"],403);
+        }
+
+        $delivery = $deliveryOrder->delivery;
+        if($user->business_id != $delivery->business_id){
+            return new JsonResponse(['msg'=>"Απαγορεύετε"],403);
+        }
+
+        $sequenceNum = $request->get('delivery_order');
+        if(empty($sequenceNum) || ! is_numeric($sequenceNum)){
+            return new JsonResponse(['msg'=>"Η σειρά δεν έχει έγκυρη τιμή"],400);
+        }
+
+        $deliveryOrder->delivery_sequence=$sequenceNum;
+
+        try{
+            $deliveryOrder->save();
+        }catch (\Exception $e){
+            report($e);
+            return new JsonResponse(['msg'=>"Αδυναμία Αποθήκευσης"],500);
+        }
+
+        return new JsonResponse(new DeliveryOrderResource($deliveryOrder),200);
     }
 }

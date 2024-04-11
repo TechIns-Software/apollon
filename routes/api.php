@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function (){
             Route::post('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'edit']);
             Route::get('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delivery']);
             Route::delete('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delete']);
-
+            Route::post('/order/{id}',[\App\Http\Controllers\API\DeliveryController::class,'changeSequenceOfOrders']);
         });
 
         Route::get('/driver',[\App\Http\Controllers\API\DeliveryController::class,'driver']);

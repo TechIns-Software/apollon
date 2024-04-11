@@ -37,4 +37,9 @@ class DeliveryOrder extends Model
     {
         return $this->hasOne(Order::class,'id','order_id');
     }
+
+    public function delivery()
+    {
+        return $this->hasOne(Delivery::class,'id','delivery_id');
+    }
 }
