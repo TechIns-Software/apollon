@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Business;
-use App\Models\Client;
 use App\Models\Delivery;
+use App\Models\DeliveryOrder;
 use App\Models\Driver;
 use App\Models\Order;
 use App\Models\SaasUser;
+
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Bus;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Delivery>
@@ -44,6 +44,27 @@ class DeliveryFactory extends Factory
         });
     }
 
+    public function withOrders()
+    {
+        return $this->afterCreating(function (Delivery $delivery){
+            $orders = Order::whereBusinessId($delivery->business_id)->limit(10)->inRandomOrder()->get();
+            if($orders->isEmpty()){
+                $orders = Order::factory(10)->withProducts()->create();
+            }
+
+            $insertRecords=[];
+            $i=1;
+            foreach ($orders as $order){
+                $insertRecords[]=[
+                    'delivery_id'=>$delivery->id,
+                    'order_id'=>$order->id,
+                    'delivery_sequence'=>$i
+                ];
+                $i++;
+            }
+            DeliveryOrder::insert($insertRecords);
+        });
+    }
     public function configure()
     {
         return $this->afterMaking(function (Delivery $delivery){
@@ -56,10 +77,11 @@ class DeliveryFactory extends Factory
                 }
 
                 $delivery->business_id=$business->id;
-                return;
             }
 
             if(empty($delivery->driver_id)){
+
+                $business = $business??Business::find($delivery->business_id);
                 $driver = Driver::where('business_id',$business->id)->inRandomOrder()->first();
                 if(empty($driver)){
                     $driver = Driver::make(['business_id'=>$business->id,'name'=>'Alan Parsons']);
