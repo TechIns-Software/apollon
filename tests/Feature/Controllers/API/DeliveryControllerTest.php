@@ -52,7 +52,9 @@ class DeliveryControllerTest extends TestCase
         $this->assertEquals($body['business_id'],$delivery->business_id);
         $this->assertEquals($payload['name'],$delivery->name);
 
+        $sequence = -1;
         foreach ($body['orders'] as $order) {
+            $sequenceInResponse=$order['sequence'];
             $order=$order['order'];
             $deliveryOrder = DeliveryOrder::whereOrderId($order['id'])
                 ->whereDeliveryId($delivery->id)
@@ -62,6 +64,9 @@ class DeliveryControllerTest extends TestCase
             $orderInDb = Order::find($deliveryOrder->order_id);
             $this->assertNotEmpty($order);
             $this->assertEquals($user->business_id,$orderInDb->business_id);
+            $this->assertGreaterThanOrEqual($sequence,$sequenceInResponse);
+            $this->assertEquals($sequenceInResponse,$deliveryOrder->delivery_sequence);
+            $sequence=$sequenceInResponse;
         }
     }
 
@@ -103,7 +108,10 @@ class DeliveryControllerTest extends TestCase
         $this->assertEquals($body['business_id'],$delivery->business_id);
         $this->assertEquals($payload['name'],$delivery->name);
 
+        $sequence = -1;
         foreach ($body['orders'] as $order) {
+            $sequenceInResponse=$order['sequence'];
+
             $order=$order['order'];
             $deliveryOrder = DeliveryOrder::whereOrderId($order['id'])
                 ->whereDeliveryId($delivery->id)
@@ -114,6 +122,10 @@ class DeliveryControllerTest extends TestCase
 
             $this->assertNotEmpty($order);
             $this->assertEquals($user->business_id,$orderInDB->business_id);
+
+            $this->assertGreaterThanOrEqual($sequence,$sequenceInResponse);
+            $this->assertEquals($sequenceInResponse,$deliveryOrder->delivery_sequence);
+            $sequence=$sequenceInResponse;
         }
     }
 
@@ -333,5 +345,48 @@ class DeliveryControllerTest extends TestCase
         $actualRecord = DB::table('delivery')->where('id',$delivery->id)->first();
 
         $this->assertNotEmpty($actualRecord->deleted_at);
+    }
+
+    public function testUpdateSequence()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery=Delivery::factory()->businessFromUser($user)->create(['name'=>"Τιμή Στα ελληνικά "]);
+        $order1 = Order::factory()->withUser($user)->create();
+        $order2 = Order::factory()->withUser($user)->create();
+
+        $deliveryOrder = new DeliveryOrder();
+        $deliveryOrder->order_id = $order1->id;
+        $deliveryOrder->delivery_id = $delivery->id;
+        $deliveryOrder->delivery_sequence=1;
+        $deliveryOrder->save();
+
+        $deliveryOrder2 = new DeliveryOrder();
+        $deliveryOrder2->order_id = $order2->id;
+        $deliveryOrder2->delivery_id = $delivery->id;
+        $deliveryOrder2->delivery_sequence=2;
+        $deliveryOrder2->save();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->post('/api/delivery/order/'.$deliveryOrder->id,[
+            'delivery_order'=>3
+        ]);
+
+        $body = $response->json();
+        $response->assertStatus(200);
+
+
+        $this->assertEquals(3,$body['sequence']);
+
+        $orderSequenceInDb = DeliveryOrder::find($body['id']);
+        $this->assertNotEmpty($orderSequenceInDb);
+
+        $this->assertEquals(3,$orderSequenceInDb->delivery_sequence);
+
+        $order2SequenceInDb=DeliveryOrder::find($deliveryOrder2->id);
+        $this->assertEquals(2,$order2SequenceInDb->delivery_sequence);
     }
 }

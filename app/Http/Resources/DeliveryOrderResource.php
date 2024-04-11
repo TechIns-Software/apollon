@@ -16,7 +16,8 @@ class DeliveryOrderResource extends JsonResource
     {
         return [
             'order'=>new OrderResource($this->order),
-            'sequence'=>$this->delivery_sequence
+            'sequence'=>$this->delivery_sequence,
+            'id'=>$this->id
         ];
     }
 }

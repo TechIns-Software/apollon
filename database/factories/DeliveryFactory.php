@@ -84,7 +84,10 @@ class DeliveryFactory extends Factory
                 $business = $business??Business::find($delivery->business_id);
                 $driver = Driver::where('business_id',$business->id)->inRandomOrder()->first();
                 if(empty($driver)){
-                    $driver = Driver::make(['business_id'=>$business->id,'name'=>'Alan Parsons']);
+                    $driver = new Driver;
+                    $driver->business_id = $business->id;
+                    $driver->driver_name='Alan Parsons';
+                    $driver->save();
                 }
                 $delivery->driver_id = $driver->id;
             }
