@@ -68,6 +68,8 @@ class BusinessController extends Controller
         return view('business.list',['businesses'=>$result]);
     }
 
+
+
     public function edit(Request $request)
     {
         $business = null;
