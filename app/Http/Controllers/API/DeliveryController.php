@@ -56,10 +56,6 @@ class DeliveryController extends Controller implements HasMiddleware
            'driver_name'=>[
             'required_without:driver_id',
            ],
-            "delivery_date"=>[
-                "required",
-                "date"
-            ],
             "name"=>[
                 'required',
                 "string"
@@ -150,10 +146,6 @@ class DeliveryController extends Controller implements HasMiddleware
                         $fail("Ο οδηγός δεν βρέθηκε");
                     }
                 }
-            ],
-            "delivery_date"=>[
-                "sometimes",
-                "date"
             ],
             "name"=>[
                 'sometimes',
