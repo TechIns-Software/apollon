@@ -194,7 +194,6 @@ class DeliveryControllerTest extends TestCase
 
         $payload=[
             'driver_id'=>$driver->id,
-            'delivery_date'=>'2025-12-01',
             'name'=>'Panzer Delivery',
             'orders'=>$orderIds
         ];

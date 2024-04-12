@@ -91,7 +91,6 @@ class DeliveryController extends Controller implements HasMiddleware
                 $driver = Driver::create(['driver_name'=>$all['driver_name'],'business_id'=>$user->business_id]);
             }
             $delivery = Delivery::create([
-                'delivery_date'=>$all['delivery_date'],
                 'name'=>$all['name'],
                 'driver_id'=>$driver->id,
                 'business_id'=>$user->business_id,
@@ -112,6 +111,7 @@ class DeliveryController extends Controller implements HasMiddleware
             DB::commit();
         }catch (\Exception $e){
             DB::rollback();
+            dump($e);
             report($e);
             return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
@@ -194,6 +194,7 @@ class DeliveryController extends Controller implements HasMiddleware
             DB::commit();
         }catch (\Exception $e){
             DB::rollback();
+            dump($e->getMessage());
             report($e);
             return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
@@ -211,15 +212,7 @@ class DeliveryController extends Controller implements HasMiddleware
         $all = $request->all();
 
         $validationRules=[
-            "delivery_date_from"=>[
-                "sometimes",
-                "date"
-            ],
-            "delivery_date_until"=>[
-                "sometimes",
-                "date",
-                "after:delivery_date_from",
-            ],
+
             "name"=>[
                 'sometimes',
                 "string"
@@ -242,17 +235,8 @@ class DeliveryController extends Controller implements HasMiddleware
 
         $user = $request->user();
 
-        $qb = Delivery::where('business_id',$user->business_id)->orderBy('delivery_date','DESC');
+        $qb = Delivery::where('business_id',$user->business_id)->orderBy('created_at','DESC');
 
-        $date = $request->get('delivery_date_from');
-        if(!empty($date)){
-            $qb=$qb->where('delivery_date',">=",$date);
-        }
-
-        $date = $request->get('delivery_date_until');
-        if(!empty($date)){
-            $qb=$qb->where('delivery_date',"<=",$date);
-        }
 
         $searchterm = $request->get('name');
         if(!empty($searchterm)){
