@@ -20,7 +20,6 @@ class DeliveryResource extends JsonResource
             'driver'=>$this->driver->driver_name,
             'name'=>$this->name,
             'orders'=>DeliveryOrderResource::collection($this->deliveryOrder->sortBy('delivery_sequence')->sortBy('id')),
-            'delivery_date'=>$this->delivery_date
         ];
     }
 }

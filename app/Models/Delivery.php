@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property int $business_id
- * @property \Illuminate\Support\Carbon|null $delivery_date
  * @property int $driver_id
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
