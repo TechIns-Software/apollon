@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Mail\APIUSerPasswordResetToken;
 use App\Models\Business;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class SaasUserController extends Controller
 {
@@ -85,6 +88,24 @@ class SaasUserController extends Controller
             return response()->json(['msg'=>"Αδυναμία αλλαγής κωδικού πρόσβασης"],500);
         }
         return response()->json(['msg'=>"O κωδικός πρόσβασης άλλαξε επιτυχώς"],200);
+    }
+
+    public function sendPasswordResetEmail(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'email' => 'required|email|exists:saas_user,email'
+        ]);
+
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
+
+        $broker =  Password::broker('saas_users');
+        $user  = $broker->getUser(['email'=>$request->get('email')]);
+        $token = $broker->createToken($user);
+
+        Mail::to($user->email)->send(new APIUSerPasswordResetToken($token));
+        return response()->json(['msg'=>"Σας αποστείλαμε το token δια μέσω email"],202);
     }
 
 
