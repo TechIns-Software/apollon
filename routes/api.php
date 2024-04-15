@@ -12,6 +12,10 @@ Route::middleware('auth:sanctum')->group(function (){
         return $request->user();
     });
 
+    Route::post('/token',[\App\Http\Controllers\API\SaasUserController::class,'resetToken']);
+    Route::delete('/token',[\App\Http\Controllers\API\SaasUserController::class,'logout']);
+    Route::post('/user/password',[\App\Http\Controllers\API\SaasUserController::class,'updatePassword']);
+
     Route::middleware(\App\Http\Middleware\BusinessIsActive::class)->group(function (){
 
         Route::prefix('/client')->group(function (){

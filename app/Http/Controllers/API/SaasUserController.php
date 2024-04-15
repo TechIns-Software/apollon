@@ -7,6 +7,9 @@ use App\Models\Business;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class SaasUserController extends Controller
 {
@@ -47,4 +50,42 @@ class SaasUserController extends Controller
 
         return new JsonResponse(['msg'=>"Η πρόσβαση Δεν επιτρέπετε"],401);
     }
+
+    public function resetToken(Request $request)
+    {
+        $user = $request->user();
+        $user->tokens()->delete();
+        return response()->json(['token' => $user->createToken('auth_token')->plainTextToken],201);
+    }
+
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+        $user->tokens()->delete();
+        return response()->status(204);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'password'=>"required|confirmed"
+        ]);
+
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
+
+        $password=$request->get('password');
+        $user = $request->user();
+
+        try{
+            $user->password = Hash::make($password);
+            $user->save();
+        }catch (\Exception $e){
+            return response()->json(['msg'=>"Αδυναμία αλλαγής κωδικού πρόσβασης"],500);
+        }
+        return response()->json(['msg'=>"O κωδικός πρόσβασης άλλαξε επιτυχώς"],200);
+    }
+
+
 }
