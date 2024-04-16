@@ -27,7 +27,7 @@ class SaasUserControllerTest extends TestCase
            'password_confirmation'=>'3456',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         $userInDB = SaasUser::find($user->id);
 

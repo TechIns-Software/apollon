@@ -87,7 +87,7 @@ class SaasUserController extends Controller
         }catch (\Exception $e){
             return response()->json(['msg'=>"Αδυναμία αλλαγής κωδικού πρόσβασης"],500);
         }
-        return response()->json(['msg'=>"O κωδικός πρόσβασης άλλαξε επιτυχώς"],200);
+        return response()->json(['msg'=>"O κωδικός πρόσβασης άλλαξε επιτυχώς"],201);
     }
 
     public function sendPasswordResetEmail(Request $request)
@@ -103,7 +103,7 @@ class SaasUserController extends Controller
         $broker =  Password::broker('saas_users');
         $broker->sendResetLink(['email'=>$request->email]);
 
-        return response()->json(['msg'=>"Σας αποστείλαμε το token δια μέσω email"],202);
+        return response()->json(['msg'=>"Σας αποστείλαμε τον σύνδεσμο ανάκτησης κωδικού δια μέσω email στην διεύθυνση .".$request->email."."],202);
     }
 
 
