@@ -101,10 +101,8 @@ class SaasUserController extends Controller
         }
 
         $broker =  Password::broker('saas_users');
-        $user  = $broker->getUser(['email'=>$request->get('email')]);
-        $token = $broker->createToken($user);
+        $broker->sendResetLink(['email'=>$request->email]);
 
-        Mail::to($user->email)->send(new APIUSerPasswordResetToken($token));
         return response()->json(['msg'=>"Σας αποστείλαμε το token δια μέσω email"],202);
     }
 

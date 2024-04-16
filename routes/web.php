@@ -25,6 +25,18 @@ Route::get('/reset-password',[\App\Http\Controllers\Panel\PasswordController::cl
 Route::post('/reset-password',[\App\Http\Controllers\Panel\PasswordController::class,'resetUserPasswordAction'])
     ->name('password.reset.submit');
 
+
+Route::post('/saasuser/forgot-password',[\App\Http\Controllers\SaasUserPasswordController::class,'userForgetPasswordEmail'])
+    ->middleware('guest')->name('saasuser.password.email');
+
+Route::get('/saasuser/reset-password',[\App\Http\Controllers\SaasUserPasswordController::class,'resetUserPassword'])
+    ->name('saasuser.password.reset');
+Route::post('/saasuser/reset-password',[\App\Http\Controllers\SaasUserPasswordController::class,'resetUserPasswordAction'])
+    ->name('saasuser.password.reset.submit');
+
+Route::get('/saasuser/msg',[\App\Http\Controllers\SaasUserPasswordController::class,'changeSuccessOrFailMsgPage'])
+    ->name('saasuser.password.change.success_or_error');
+
 Route::any('/profile',[\App\Http\Controllers\Panel\UserController::class,'profile'])
     ->name('user.profile')
     ->middleware("auth:web");
