@@ -8,6 +8,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Τhis is a common middleware that contains the nessesary logic when a route needs an is of a model be provided upon its url.
+ *
+ * The Mode of provided is should contain the business_id as its field because checks are perfomred up
+ */
 abstract class MissingIdBaseMiddleware
 {
 
