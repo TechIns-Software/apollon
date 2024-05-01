@@ -43,6 +43,7 @@ const paths = [
     ...js,
 
     'node_modules/jquery/dist/jquery.js',
+    "node_modules/jscroll/dist/jquery.jscroll.min.js",
 
     'node_modules/bootstrap/dist/css/bootstrap.css',
     'node_modules/bootstrap/dist/js/bootstrap.bundle.js',
