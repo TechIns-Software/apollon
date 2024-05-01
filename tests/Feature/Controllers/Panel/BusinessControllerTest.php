@@ -334,4 +334,27 @@ class BusinessControllerTest extends TestCase
         $this->assertEquals($businessInDB->expiration_date,$business->expiration_date);
     }
 
+    public function testGetBusinessStats()
+    {
+        $user = User::factory()->create();
+        $stats=[];
+        for($i=1;$i<=12;$i++){
+            $stats[$i]=rand(5,50);
+            $date = "2024-$i-12";
+            Business::factory($stats[$i])->create(['created_at'=>$date]);
+        }
+
+        $this->actingAs($user);
+
+        $response = $this->session(['__token'=>'1234'])->get('/business/stats');
+
+        $response->assertStatus(200);
+        $body = $response->json();
+
+        foreach ($body as $month => $value){
+            $this->assertContains($month,range(1,12));
+            $this->assertEquals((int)$value,(int)$stats[$month]);
+        }
+    }
+
 }

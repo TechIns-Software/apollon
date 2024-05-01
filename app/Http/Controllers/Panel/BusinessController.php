@@ -8,8 +8,7 @@ use App\Rules\ValidateBoolean;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Js;
+use Illuminate\Support\Facades\DB;
 
 class BusinessController extends Controller
 {
@@ -47,6 +46,22 @@ class BusinessController extends Controller
         return new JsonResponse($business,201);
     }
 
+    public function businessStats(Request $request)
+    {
+        $result = DB::select("select count(*) as business_count,MONTH(created_at) as month from business group by MONTH(created_at);");
+
+        $monthStats=[];
+        for($i=1;$i<=12;$i++){
+            $monthStats[$i]=0;
+        }
+
+        foreach ($result as $month){
+            $monthStats[$month->month]=$month->business_count;
+        }
+
+        return new JsonResponse($monthStats);
+    }
+
     public function list(Request $request)
     {
         $searchterm = $request->get('searchterm');
@@ -67,6 +82,8 @@ class BusinessController extends Controller
 
         return view('business.list',['businesses'=>$result]);
     }
+
+
 
     public function edit(Request $request)
     {
