@@ -19,9 +19,11 @@ abstract class MissingIdBaseMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, \Closure $next): Response
+    public function handle(Request $request, \Closure $next,?string $inputParam=null): Response
     {
-        $id = $request->route('id');
+        $inputParam=$inputParam??'id';
+        $id = $request->route($inputParam);
+
         if(empty($id)){
             return new JsonResponse(['msg'=>$this->notFoundMsg],404);
         }

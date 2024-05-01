@@ -40,6 +40,18 @@ Route::middleware('auth:sanctum')->group(function (){
 
         Route::get('/products',[\App\Http\Controllers\API\OrderController::class,'productSearch']);
 
+
+        Route::prefix('/delivery')->group(function (){
+            Route::post('/',[\App\Http\Controllers\API\DeliveryController::class,'add']);
+            Route::get('/',[\App\Http\Controllers\API\DeliveryController::class,'list']);
+
+            Route::post('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'edit']);
+            Route::get('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delivery']);
+            Route::delete('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delete']);
+            Route::post('/order/{id}',[\App\Http\Controllers\API\DeliveryController::class,'changeSequenceOfOrders']);
+        });
+
+        Route::get('/driver',[\App\Http\Controllers\API\DeliveryController::class,'driver']);
     });
 });
 
