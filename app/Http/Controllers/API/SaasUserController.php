@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,9 +37,14 @@ class SaasUserController extends Controller
 
         if(auth()->guard('mobile_api_basic')->attempt(['email'=>$email,'password'=>$password])){
             $user = auth()->guard('mobile_api_basic')->user();
+            $business = Business::find($user->business_id);
+
+            if(!$business->is_active){
+                return new JsonResponse(['msg'=>"H εταιρεία δεν ειναι ενεργή"],401);
+            }
             return new JsonResponse(['token'=>$user->createToken('auth_token')->plainTextToken],201);
         }
 
-        return new JsonResponse(['msg'=>"Η πρόσβαση Δεν επιτρέπετε"],403);
+        return new JsonResponse(['msg'=>"Η πρόσβαση Δεν επιτρέπετε"],401);
     }
 }

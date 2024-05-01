@@ -15,16 +15,17 @@ class SaasUserFactory extends UserFactory
     public function configure():static
     {
         return $this->afterMaking(function (SaasUser $user){
-            if(empty($user->business_id)){
+            if(!empty($user->business_id)){
                return;
             }
             // I do not use Eloquent Model Because at time of writing the was not need for it.
-            $id=DB::table('business')->inRandomOrder()->select('id')->first()->id;
+            $business=DB::table('business')->inRandomOrder()->select('id')->first();
 
-            if(empty($id)){
+            if(empty($business)){
                $id = Business::factory()->create()->id;
+            } else {
+                $id=$business->id;
             }
-
             $user->business_id = $id;
         });
     }
