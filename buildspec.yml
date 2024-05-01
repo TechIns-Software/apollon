@@ -17,7 +17,7 @@ phases:
       - php artisan key:generate
 #      - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
 #      - sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
-      - composer install --optimize-autoloader --no-dev
+#      - composer install --optimize-autoloader --no-dev
       - cp appspec.$ENVIRONMENT.yml appspec.yml
 
 artifacts:
