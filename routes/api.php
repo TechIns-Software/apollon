@@ -7,10 +7,17 @@ use Illuminate\Support\Facades\Route;
 Route::put('/token',[\App\Http\Controllers\API\SaasUserController::class,'login'])
         ->name('api.login');
 
+Route::post('/user/forgot/password',[\App\Http\Controllers\API\SaasUserController::class,'sendPasswordResetEmail']);
+
+
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::post('/token',[\App\Http\Controllers\API\SaasUserController::class,'resetToken']);
+    Route::delete('/token',[\App\Http\Controllers\API\SaasUserController::class,'logout']);
+    Route::post('/user/password',[\App\Http\Controllers\API\SaasUserController::class,'updatePassword']);
 
     Route::middleware(\App\Http\Middleware\BusinessIsActive::class)->group(function (){
 
