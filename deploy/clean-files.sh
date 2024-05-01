@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-rm -rf /var/www/html/*
+rm -rf /var/www/html/app/*
