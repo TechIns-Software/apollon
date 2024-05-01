@@ -15,11 +15,8 @@ phases:
       - ls -l .env*
       - cp .env.$ENVIRONMENT .env
       - php artisan key:generate
-      - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
-      - sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
-      - sed -i "s/AWS_ACCESS_KEY_ID=.*/AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY/" .env
-      - echo $AWS_ACCESS_SECRET
-      - sed -i "s#AWS_SECRET_ACCESS_KEY=.*#AWS_SECRET_ACCESS_KEY=$AWS_ACCESS_SECRET#" .env
+#      - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
+#      - sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
       - composer install --optimize-autoloader --no-dev
       - cp appspec.$ENVIRONMENT.yml appspec.yml
 
