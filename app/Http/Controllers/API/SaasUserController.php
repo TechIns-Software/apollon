@@ -31,7 +31,7 @@ class SaasUserController extends Controller
         try{
             list($email,$password) = $this->getCredentialsFromBAsicAuth($request);
         }catch (\Exception $e){
-            new JsonResponse(['msg'=>'Το email και το password δεν έχουν δωθεί'],400);
+            new JsonResponse(['msg'=>'Το email και το password δεν έχουν δοθεί'],400);
         }
 
         if(auth()->guard('mobile_api_basic')->attempt(['email'=>$email,'password'=>$password])){

@@ -51,6 +51,7 @@ class SaasUser extends Authenticatable
         'name',
         'email',
         'password',
+        'business_id'
     ];
 
     /**
