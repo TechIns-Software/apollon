@@ -40,6 +40,14 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'mobile_api' => [
+            'driver' => 'sanctum',
+            'provider'=> 'saas_users'
+        ],
+        'mobile_api_basic'=>[
+            'driver'=>'session',
+            'provider'=> 'saas_users'
+        ]
     ],
 
     /*
@@ -65,10 +73,10 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'saas_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\SaasUser::class
+        ],
     ],
 
     /*
@@ -97,6 +105,12 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+      'saas_users'=>[
+          'provider' => 'saas_users',
+          'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+          'expire' => 60,
+          'throttle' => 60
+      ]
     ],
 
     /*

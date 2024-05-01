@@ -1,0 +1,62 @@
+<?php
+
+namespace Database\Factories;
+
+
+use App\Models\Business;
+use App\Models\Client;
+use App\Models\SaasUser;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Client>
+ */
+class ClientFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'name'=>fake()->name,
+            'surname'=>fake()->name,
+            'telephone'=>fake()->phoneNumber
+        ];
+    }
+
+    public function withUser(SaasUser $user)
+    {
+        return $this->afterMaking(function (Client $client) use ($user){
+            $client->saas_user_id=$user->id;
+            $client->business_id = $user->business_id;
+        });
+    }
+    public function configure():static
+    {
+        return $this->afterMaking(function (Client $client){
+           if(empty($client->business_id)){
+
+               if(!empty($client->saas_user_id)){
+                  $user = SaasUser::find($client->saas_user_id);
+               } else {
+                  $user = SaasUser::factory()->create();
+               }
+
+
+               $client->saas_user_id = $user->id;
+               $client->business_id = $user->business_id;
+
+               return;
+           }
+
+           if(empty($client->saas_user_id)){
+               $user = Business::whereBusinessId($client->business_id)->inRandomOrder()->first();
+               $client->business_id = $user->business_id;
+           }
+        });
+    }
+}

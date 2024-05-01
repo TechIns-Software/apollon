@@ -11,10 +11,13 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
+
+    const DEFAULT_PASSWORD='1234';
+
     /**
      * The current password being used by the factory.
      */
-    protected static ?string $password;
+    protected static ?string $password=self::DEFAULT_PASSWORD;
 
     /**
      * Define the model's default state.
