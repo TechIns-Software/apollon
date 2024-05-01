@@ -24,6 +24,18 @@ Route::middleware('auth:sanctum')->group(function (){
                 Route::delete('/{id}',[\App\Http\Controllers\API\ClientController::class,'delete']);
             });
         });
+
+        Route::prefix('/order')->group(function (){
+            Route::post('/',[\App\Http\Controllers\API\OrderController::class,'add']);
+            Route::get('/',[\App\Http\Controllers\API\OrderController::class,'list']);
+
+            Route::post('/{id}',[\App\Http\Controllers\API\OrderController::class,'edit']);
+            Route::get('/{id}',[\App\Http\Controllers\API\OrderController::class,'order']);
+            Route::delete('/{id}',[\App\Http\Controllers\API\OrderController::class,'delete']);
+
+            Route::post('/{id}/products',[\App\Http\Controllers\API\OrderController::class,'addItemToOrder']);
+            Route::delete('/{id}/product/{product_id}',[\App\Http\Controllers\API\OrderController::class,'removeOrderProduct']);
+        });
     });
 });
 

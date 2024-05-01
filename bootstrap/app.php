@@ -33,6 +33,18 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        $exceptions->render(function(\Illuminate\Validation\ValidationException $e, Request $request){
+            if ($request->is('api/*')) {
+                return new \Illuminate\Http\JsonResponse(['errors' => $e->errors()], 400);
+            }
+        });
+
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e,Request $request) {
+            if ($request->is('api/*')) {
+                return new \Illuminate\Http\JsonResponse(['errors' => "Access Denied"], 401);
+            }
+        });
+
         $exceptions->render(function (\Exception $e,Request $request) {
             if ($request->is('api/*')) {
                 $responseBody = [
@@ -49,4 +61,5 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json($responseBody, 500);
             }
         });
+
     })->create();
