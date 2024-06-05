@@ -51,6 +51,101 @@ class ClientControllerTest extends TestCase
         }
     }
 
+    public function testInsertCoords()
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "longitude"=>"12.5",
+            "latitude"=>"12.5",
+        ];
+
+        $result = $this->post(route('client.create'),$payload);
+        $jsonResult = $result->json();
+
+        $result->assertStatus(201);
+        $result->assertJson($payload);
+        $itemInDb = Client::find($jsonResult['id']);
+        $this->assertNotEmpty($itemInDb);
+
+        $this->assertEquals($user->business_id,$itemInDb->business_id);
+        $this->assertEquals($user->id,$itemInDb->saas_user_id);
+
+        foreach ($payload as $key => $value) {
+            $this->assertEquals($value, $itemInDb->$key);
+        }
+
+        $this->assertEmpty($itemInDb->map_link);
+    }
+
+    public function testMissingLongitude()
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "latitude"=>"12.5",
+        ];
+
+        $result = $this->post(route('client.create'),$payload);
+        $result->assertStatus(400);
+
+        $clients = Client::count();
+        $this->assertEquals(0,$clients);
+    }
+
+    public function testMissingLatitude()
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "latitude"=>"12.5",
+        ];
+
+        $result = $this->post(route('client.create'),$payload);
+        $result->assertStatus(400);
+
+        $clients = Client::count();
+        $this->assertEquals(0,$clients);
+    }
 
     public function testGetUserSuccess()
     {

@@ -63,7 +63,9 @@ class Client extends Model
         "state",
         "region",
         "description",
-        "map_link"
+        "map_link",
+        'longitude',
+        "latitude"
     ];
 
 

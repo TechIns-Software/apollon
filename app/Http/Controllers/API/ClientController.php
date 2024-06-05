@@ -53,6 +53,8 @@ class ClientController extends Controller
             'region' => 'sometimes|string',
             'description' => 'sometimes|string',
             'map_link' => 'sometimes|string',
+            'latitude' => 'required_with:longitude|string',
+            'longitude' => 'required_with:latitude|string',
         ]);
 
         if ($validator->fails()) {
@@ -89,6 +91,8 @@ class ClientController extends Controller
             'region' => 'sometimes|string',
             'description' => 'sometimes|string',
             'map_link' => 'sometimes|string',
+            'latitude' => 'required_with:longitude|string',
+            'longitude' => 'required_with:latitude|string',
         ]);
 
         if ($validator->fails()) {
