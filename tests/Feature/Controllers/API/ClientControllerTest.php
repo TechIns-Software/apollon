@@ -213,7 +213,9 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu"
+            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
+            "longitude"=>"12.5",
+            "latitude"=>"12.5"
         ];
 
         $result = $this->post("/api/client/".$customer->id,$payload);
@@ -259,6 +261,115 @@ class ClientControllerTest extends TestCase
             $this->assertEquals($value,$customer->$key);
             $this->assertEquals($value,$json[$key]);
         }
+    }
+
+    public function testUpdateCoordinatesSuccess()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create()->refresh();
+        $origCount = $customer->changes_count;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "longitude"=>"12.5",
+            "latitude"=>"12.5",
+        ];
+
+        $result = $this->post("/api/client/".$customer->id,$payload);
+
+        $result->assertStatus(200);
+        $json = $result->json();
+
+        $customer = Client::find($customer->id);
+
+        $this->assertGreaterThan($origCount,$customer->changes_count);
+
+        foreach ($payload as $key => $value) {
+            if($key == 'created_at' || $key == 'updated_at' || $key=='changes_count'){
+                continue;
+            }
+            $this->assertEquals($value,$customer->$key);
+            $this->assertEquals($value,$json[$key]);
+        }
+
+        $this->assertEquals("12.5",$customer->longitude);
+        $this->assertEquals("12.5",$customer->latitude);
+
+    }
+
+    public function testUpdateCoordinatesMissingLongitude()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create(["longitude"=>"10.0","latitude"=>"10.0"])->refresh();
+        $origCount = $customer->changes_count;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "latitude"=>"12.5",
+        ];
+
+        $result = $this->post("/api/client/".$customer->id,$payload);
+
+        $result->assertStatus(400);
+
+        $customer = Client::find($customer->id);
+
+        $this->assertEquals("10.0",$customer->longitude);
+        $this->assertEquals("10.0",$customer->latitude);
+    }
+
+    public function testUpdateCoordinatesMissingLatitude()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create(["longitude"=>"10.0","latitude"=>"10.0"])->refresh();
+        $origCount = $customer->changes_count;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "longitude"=>"12.5",
+        ];
+
+        $result = $this->post("/api/client/".$customer->id,$payload);
+
+        $result->assertStatus(400);
+
+        $customer = Client::find($customer->id);
+
+        $this->assertEquals("10.0",$customer->longitude);
+        $this->assertEquals("10.0",$customer->latitude);
     }
 
     public function testDeleteUserForUnauthorizedUser()
