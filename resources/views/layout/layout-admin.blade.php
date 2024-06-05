@@ -10,5 +10,8 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{route('user.list')}}">Διαχείρηση Χρηστών</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('business.list')}}">Διαχείρηση Εταιρειών</a>
+            </li>
         </ul>
 @endsection
