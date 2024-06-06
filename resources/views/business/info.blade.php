@@ -3,6 +3,10 @@
 @section('main')
     <h1>{{$business->name}}</h1>
 
+    <div id="msg">
+
+    </div>
+
     <form id="infoForm" method="POST" action="{{route('business.edit')}}">
         @csrf
         <input type="hidden" name="business_id" value="{{$business->id}}" />
@@ -12,6 +16,8 @@
             </div>
             <div class="col">
                 <input type="text" id="name" name="name" value="{{$business->name}}" class="form-control" required>
+                <div class="invalid-tooltip">
+                </div>
             </div>
         </div>
         <div class="row mb-1 g-3 align-items-center">
@@ -20,11 +26,15 @@
             </div>
             <div class="col">
                 <input type="checkbox" id="active" @if($business->is_active) checked @endif  name="active" class="form-check-input">
+                <div class="invalid-tooltip">
+                </div>
             </div>
         </div>
         <div class="row mb-1 g-3 align-items-center">
             <div class="col-2">
                 <label for="expiration_date" class="col-form-label">Ημ/νια Λήξη Συνδρομής</label>
+                <div class="invalid-tooltip">
+                </div>
             </div>
             <div class="col">
                 <input type="text" id="expiration_date" name="expiration_date" value="{{$business->expiration_date}}" class="form-control">
@@ -36,6 +46,8 @@
             </div>
             <div class="col">
                 <input type="text" id="afm" name="var_num" value="{{$business->vat}}" class="form-control">
+                <div class="invalid-tooltip">
+                </div>
             </div>
         </div>
         <div class="row mb-1 g-3 align-items-center">
@@ -44,6 +56,8 @@
             </div>
             <div class="col">
                 <input type="text" id="doy" name="doy" value="{{$business->doy}}" class="form-control">
+                <div class="invalid-tooltip">
+                </div>
             </div>
         </div>
         <button class="btn btn-success">Αποθήκευση</button>
