@@ -2,7 +2,8 @@
 
 @section('main')
     <h1>{{$business->name}}</h1>
-    <form method="POST" action="{{route('business.edit')}}">
+
+    <form id="infoForm" method="POST" action="{{route('business.edit')}}">
         @csrf
         <input type="hidden" name="business_id" value="{{$business->id}}" />
         <div class="row mb-1 g-3 align-items-center">
@@ -18,7 +19,7 @@
                 <label for="active" class="col-form-label">Ενεργό</label>
             </div>
             <div class="col">
-                <input type="checkbox" id="active" @if($business->is_active) checked @endif value="true"  class="form-check-input">
+                <input type="checkbox" id="active" @if($business->is_active) checked @endif  name="active" class="form-check-input">
             </div>
         </div>
         <div class="row mb-1 g-3 align-items-center">
@@ -47,4 +48,8 @@
         </div>
         <button class="btn btn-success">Αποθήκευση</button>
     </form>
+@endsection
+
+@section('js')
+    @vite(['resources/js/business/info.js'])
 @endsection
