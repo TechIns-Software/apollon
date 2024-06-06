@@ -59,8 +59,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/business',[\App\Http\Controllers\Panel\BusinessController::class,'create'])->name('business.create');
     Route::post('/business/edit',[\App\Http\Controllers\Panel\BusinessController::class,'edit'])->name('business.edit');
     Route::get('/business',[\App\Http\Controllers\Panel\BusinessController::class,'list'])->name('business.list');
-    Route::get('/business/{id}',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
     Route::get('/business/stats',[\App\Http\Controllers\Panel\BusinessController::class,'businessStats'])->name('business.stats');
+
+    Route::get('/business/{id}',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
 
 
     Route::post('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'add'])->name('business.user.create');

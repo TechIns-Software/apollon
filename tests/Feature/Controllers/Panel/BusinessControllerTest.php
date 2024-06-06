@@ -348,8 +348,8 @@ class BusinessControllerTest extends TestCase
 
         $response = $this->session(['__token'=>'1234'])->get('/business/stats');
 
-        $response->assertStatus(200);
         $body = $response->json();
+        $response->assertStatus(200);
 
         foreach ($body as $month => $value){
             $this->assertContains($month,range(1,12));
