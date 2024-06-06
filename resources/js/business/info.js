@@ -2,15 +2,18 @@ import $ from "jquery";
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus} from "@techins/jsutils/utils";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
 
+import AirDatepicker from "air-datepicker";
+import el from 'air-datepicker/locale/el';
+import 'air-datepicker/air-datepicker.css';
+
 function createAlert(msg,success=true){
     const alert = document.createElement("div")
     alert.className = success?"alert alert-success":"alert alert-danger"
     alert.innerText = msg
-
-    $("#msg").append(alert)
+    const msgContainer = document.getElementById("msg");
+    msgContainer.innerHTML=alert.outerHTML
 }
 function formSubmitSuccess(data){
-    console.log(data)
     createAlert("Επιτυχής αποθήκευση")
 }
 
@@ -31,6 +34,10 @@ function formSubmitFail(xhr){
 }
 $(document).ready(function () {
     boolInputUponCheckboxCheckedStatus('active');
+    new AirDatepicker("#expiration_date",{
+        locale: el,
+        dateFormat: "yyyy-MM-dd"
+    });
 
     $("#infoForm").on('submit',function (e){
         e.preventDefault();
