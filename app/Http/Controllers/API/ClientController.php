@@ -84,10 +84,29 @@ class ClientController extends Controller
             return new JsonResponse(['msg'=>"Limit must have positive value"],400);
         }
 
-        $orders = Order::where('client_id',$client_id)
+        $validator = Validator::make($request->all(), [
+            'from_date'=>"sometimes|date",
+            "to_date"=>"sometimes|date"
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['msg' => $validator->errors()], 400);
+        }
+
+        $qb = Order::where('client_id',$client_id)
             ->where('business_id',$user->business_id)
-            ->orderBy('created_at','DESC')
-            ->offset(($page - 1) * $limit)
+            ->orderBy('created_at','DESC');
+
+        if($request->has('from_date')){
+            $qb=$qb->where('created_at',">=",$request->get('from_date'));
+        }
+
+        if($request->has('to_date')){
+            $qb=$qb->where('created_at',"<=",$request->get('to_date'));
+        }
+        $sql = $qb->toSql();
+
+        $orders=$qb->offset(($page - 1) * $limit)
             ->simplePaginate($limit);
 
         $orders->appends(['limit'=>$limit, 'page' => $page+1]);
