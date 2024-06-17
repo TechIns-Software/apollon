@@ -5,6 +5,7 @@ namespace Feature\Controllers\API;
 use App\Models\Business;
 use App\Models\SaasUser;
 use App\Models\Client;
+use App\Models\Order;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase;
@@ -306,5 +307,86 @@ class ClientControllerTest extends TestCase
         foreach ($clientInDb as  $key=>$item) {
             $this->assertEquals($item,$customer->$key);
         }
+    }
+
+    public function testGetOrdersForASpecificClient()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->withOrders()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id."/orders",[]);
+
+        $result->assertStatus(200);
+
+        $expectedOrdersIds = Order::where('client_id',$customer->id)->get()->pluck('id');
+        $resultOrders = $result->json('data');
+
+        foreach ($resultOrders as $order){
+            $this->assertContains($order['id'],$expectedOrdersIds);
+        }
+    }
+
+    public function testGetOrdersWrongUser()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->withOrders()->create();
+
+        $business = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id."/orders",[]);
+
+        $result->assertStatus(403);
+    }
+
+    public function testGetOrdersUserBelongsIntoSameBusiness()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->withOrders()->create();
+
+        $user2 = SaasUser::factory()->create(['business_id'=>$user->business_id]);
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+
+        $result = $this->get("/api/client/".$customer->id."/orders",[]);
+
+        $result->assertStatus(200);
+
+        $expectedOrdersIds = Order::where('client_id',$customer->id)->get()->pluck('id');
+        $resultOrders = $result->json('data');
+
+        foreach ($resultOrders as $order){
+            $this->assertContains($order['id'],$expectedOrdersIds);
+        }
+    }
+
+    public function testGetOrdersMissingUser()
+    {
+        $user = SaasUser::factory()->create();
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        DB::statement("DELETE FROM client;");
+
+        // Fetch User id 445. Clients is an empty table
+        $result = $this->get("/api/client/445/orders",[]);
+        $result->assertStatus(404);
+
     }
 }

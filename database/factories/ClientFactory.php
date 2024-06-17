@@ -6,6 +6,8 @@ namespace Database\Factories;
 use App\Models\Business;
 use App\Models\Client;
 use App\Models\SaasUser;
+use App\Models\Order;
+
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 
@@ -33,6 +35,14 @@ class ClientFactory extends Factory
         return $this->afterMaking(function (Client $client) use ($user){
             $client->saas_user_id=$user->id;
             $client->business_id = $user->business_id;
+        });
+    }
+
+    public function withOrders()
+    {
+        return $this->afterCreating(function (Client $client){
+            $user = SaasUser::find($client->saas_user_id);
+            Order::factory(50)->withUser($user)->withProducts()->create(['client_id'=>$client->id]);
         });
     }
     public function configure():static
