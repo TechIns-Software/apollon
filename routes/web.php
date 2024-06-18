@@ -68,9 +68,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/business/user/edit',[\App\Http\Controllers\Panel\SaasUserController::class,'edit'])->name('business.user.edit');
     Route::get('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'list'])->name('business.user');
 
-    Route::post('/product',[\App\Http\Controllers\Panel\ProductsController::class,'addProduct']);
+    Route::post('/product',[\App\Http\Controllers\Panel\ProductsController::class,'addProduct'])->name("product.add");
     Route::get('/products',[\App\Http\Controllers\Panel\ProductsController::class,'listProducts']);
-    Route::post('/product/edit',[\App\Http\Controllers\Panel\ProductsController::class,'editProducts']);
+    Route::post('/product/edit',[\App\Http\Controllers\Panel\ProductsController::class,'editProducts'])->name("product.edit");
 
 });
 

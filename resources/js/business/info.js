@@ -1,6 +1,7 @@
 import $ from "jquery";
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs} from "@techins/jsutils/utils";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
+import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 
 import AirDatepicker from "air-datepicker";
 import el from 'air-datepicker/locale/el';
@@ -18,7 +19,6 @@ function formSubmitSuccess(data){
 }
 
 function formSubmitFail(xhr){
-    console.log("Hello");
     const responseJson = JSON.parse(xhr.responseText)['msg']
 
     if(xhr.status == 400){
@@ -47,4 +47,27 @@ $(document).ready(function () {
         const form = e.target
         submitFormAjax(form,formSubmitSuccess,formSubmitFail)
     })
+
+    $(".toggle-visibility").on('click',function (e){
+        e.preventDefault();
+        const target = this;
+
+        toggleVisibilityBetween2Elements(target.hash,target.dataset.hide);
+    })
+
+    $(".productEditForm").on('submit',function (e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        const form=this;
+
+        submitFormAjax(form,(data)=>{
+            const elementToPlaceNewValue = document.getElementById(form.dataset.success);
+            // Frotnend sends only 1 items to ediut. Endpoint though supports mass editing.
+            // Thus only One item will be returned as response and always will be the first one.
+            elementToPlaceNewValue.innerHTML = data[0].name
+            toggleVisibilityBetween2Elements(this,form.dataset.success);
+            createAlert("Επιτυχής αποθήκευση")
+        },formSubmitFail);
+    });
 })

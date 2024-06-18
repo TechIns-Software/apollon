@@ -52,6 +52,18 @@ class ProductsController extends Controller
         return new JsonResponse($products, 200);
     }
 
+    /**
+     *
+     * As you'll see upon frontend I edit them mone at a time but this route mass edits products
+     * The frontend has been implemented later because the initial planning was for another person to implement it.
+     *
+     * Also, there was no initial design upon product edit thus I made it generic.
+     *
+     * @author DESYLLAS DIMITRIOS <ddesyllas@techins.gr>
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function editProducts(Request $request)
     {
         $productsToModify = [];
@@ -63,7 +75,7 @@ class ProductsController extends Controller
                 function (string $attribute, mixed $value, \Closure $fail) use (&$productsToModify) {
                     $productId = (int)str_replace('products.',"",$attribute);
                     if($productId < 1){
-                        $fail("Το id του προϊόντος δεν μπορεί να ειναι αρνητικό");
+                        $fail("Το id του προϊόντος δεν μπορεί να είναι αρνητικό");
                         return;
                     }
 

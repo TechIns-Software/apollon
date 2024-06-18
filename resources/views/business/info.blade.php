@@ -95,7 +95,17 @@
             </form>
         </div>
         <div class="tab-pane fade show" id="products-tab-pane" role="tabpanel" aria-labelledby="products-tab" tabindex="1">
-            Ηαηαηαηα
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Ονομα Προϊόντος</th>
+                        <th>#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @include('components.listProducts',['rows'=>$products])
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection
