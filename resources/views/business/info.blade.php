@@ -95,7 +95,18 @@
             </form>
         </div>
         <div class="tab-pane fade show" id="products-tab-pane" role="tabpanel" aria-labelledby="products-tab" tabindex="1">
-            <table class="table">
+{{--            <form method="post" class="mt-2 mb-2">--}}
+{{--                @csrf--}}
+{{--                <input type="hidden" name="business_id" value="{{$business->id}}">--}}
+{{--                <div class="input-group mb-3">--}}
+{{--                    <input name="name" class="form-control" placeholder="Τοποθετήστε ένα όνομα προς αναζήτηση ">--}}
+{{--                    <button class="btn btn-secondary" type="button"><i class="fa fa-search"></i></button>--}}
+{{--                </div>--}}
+{{--            </form>--}}
+            <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createProduct" >
+                <i class="fa fa-plus"></i>&nbsp;Προσθήκη Προϊόντος
+            </button>
+            <table id="productListTable" class="table">
                 <thead>
                     <tr>
                         <th>Ονομα Προϊόντος</th>
@@ -106,6 +117,28 @@
                     @include('components.listProducts',['rows'=>$products])
                 </tbody>
             </table>
+        </div>
+
+        <div class="modal fade" id="createProduct" tabindex="-1" aria-labelledby="Δημιουργία Προϊόντος" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Προσθήκη Προϊόντος</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="createProductForm" method="post" action="{{route('product.add')}}">
+                        <div class="modal-body">
+                            @csrf
+                            <input type="hidden" name="business_id" value="{{$business->id}}">
+                            <input name="name" class="form-control" placeholder="Ονομα Προϊόντος ">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
+                            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;Αποθήκευση</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

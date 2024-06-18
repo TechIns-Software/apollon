@@ -1,4 +1,5 @@
 import $ from "jquery";
+import { Modal } from "bootstrap";
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs} from "@techins/jsutils/utils";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
@@ -32,6 +33,16 @@ function formSubmitFail(xhr){
 
     createAlert(responseJson??"Αδυναμία Αποθήκευσης",false)
 }
+
+function resetProductAddModal() {
+
+    const modal = Modal.getInstance(document.getElementById('createProduct'))
+    modal.hide()
+
+    const inputElement = document.querySelector("#createProductForm").querySelector(" input[name='name']");
+    inputElement.value="";
+}
+
 $(document).ready(function () {
 
     enableTabs(document.getElementById("myTab"),"#home-tab-pane")
@@ -63,11 +74,31 @@ $(document).ready(function () {
 
         submitFormAjax(form,(data)=>{
             const elementToPlaceNewValue = document.getElementById(form.dataset.success);
-            // Frotnend sends only 1 items to ediut. Endpoint though supports mass editing.
+            // Frontend sends only 1 items to edit, despite endpoint supports mass editing.
             // Thus only One item will be returned as response and always will be the first one.
             elementToPlaceNewValue.innerHTML = data[0].name
             toggleVisibilityBetween2Elements(this,form.dataset.success);
             createAlert("Επιτυχής αποθήκευση")
         },formSubmitFail);
     });
+
+
+    $("#createProductForm").on('submit',function (e) {
+        e.preventDefault();
+
+        const form = this;
+        submitFormAjax(form, (data) => {
+            const tableBody=document.getElementById("productListTable").querySelector("tbody");
+            const element = document.createElement("template")
+            element.innerHTML=data
+
+            tableBody.prepend(element.content.firstChild)
+            createAlert("Επιτυχής αποθήκευση")
+
+            resetProductAddModal()
+        }, (xhr)=>{
+            formSubmitFail(xhr)
+            resetProductAddModal()
+        });
+    })
 })

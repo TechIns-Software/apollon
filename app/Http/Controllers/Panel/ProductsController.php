@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use View;
+
 class ProductsController extends Controller
 {
     public function addProduct(Request $request)
@@ -33,7 +37,7 @@ class ProductsController extends Controller
             return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης."], 500);
         }
 
-        return new JsonResponse($product, 201);
+        return new Response(View::make('components.productListItem',['row'=>$product]), 201);
     }
 
     public function listProducts(Request $request)
