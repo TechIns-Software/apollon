@@ -101,4 +101,12 @@ $(document).ready(function () {
             resetProductAddModal()
         });
     })
+
+    $("#scroll").jscroll( {
+        loadingHtml: '<tr>' +
+            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
+            '</tr>',
+        nextSelector: 'a.jscroll-next:last',
+        contentSelector: '#productScroll.tbody',}
+    );
 })

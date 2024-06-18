@@ -88,7 +88,8 @@ class BusinessController extends Controller
     public function get(Request $request,int $business_id)
     {
         $business = Business::findOrFail($business_id);
-        $products = Product::where("business_id",$business->id)->cursorPaginate(20);
+        $products = Product::where("business_id",$business->id)->orderBy('created_at','DESC')->orderBy('name','ASC')
+            ->cursorPaginate(20);
         return view("business.info",['business'=>$business,'products'=>$products]);
 
     }

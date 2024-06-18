@@ -1,5 +1,20 @@
 @extends('layout.layout-admin')
 
+@section('css')
+    <style>
+        .scrollWrapper {
+            overflow-y: scroll;
+            max-height: 70vh;
+        }
+
+        .scrollWrapper thead tr th {
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+    </style>
+@endsection
+
 @section('main')
     <h1>{{$business->name}}</h1>
 
@@ -106,17 +121,19 @@
             <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createProduct" >
                 <i class="fa fa-plus"></i>&nbsp;Προσθήκη Προϊόντος
             </button>
-            <table id="productListTable" class="table">
-                <thead>
-                    <tr>
-                        <th>Ονομα Προϊόντος</th>
-                        <th>#</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @include('components.listProducts',['rows'=>$products])
-                </tbody>
-            </table>
+            <div id="productScroll" class="scrollWrapper">
+                <table id="productListTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>Ονομα Προϊόντος</th>
+                            <th>#</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @include('components.listProducts',['rows'=>$products])
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="modal fade" id="createProduct" tabindex="-1" aria-labelledby="Δημιουργία Προϊόντος" aria-hidden="true">
@@ -144,5 +161,5 @@
 @endsection
 
 @section('js')
-    @vite(['resources/js/business/info.js'])
+    @vite(["node_modules/jscroll/dist/jquery.jscroll.min.js",'resources/js/business/info.js'])
 @endsection
