@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {submitFormAjax,boolInputUponCheckboxCheckedStatus} from "@techins/jsutils/utils";
+import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs} from "@techins/jsutils/utils";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
 
 import AirDatepicker from "air-datepicker";
@@ -33,6 +33,9 @@ function formSubmitFail(xhr){
     createAlert(responseJson??"Αδυναμία Αποθήκευσης",false)
 }
 $(document).ready(function () {
+
+    enableTabs(document.getElementById("myTab"),"#home-tab-pane")
+
     boolInputUponCheckboxCheckedStatus('active');
     new AirDatepicker("#expiration_date",{
         locale: el,

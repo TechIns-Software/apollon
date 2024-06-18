@@ -424,6 +424,7 @@ class ClientControllerTest extends TestCase
 
         $expectedOrdersIds=$expectedOrdersIds->pluck('id');
 
+
         $unexpectedOrdersIds = Order::where('created_at',">",$date_to)->where('client_id',$customer->id)
             ->where('business_id',$customer->business_id)
             ->where('created_at',"<=",$date_off)
