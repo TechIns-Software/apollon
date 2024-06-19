@@ -52,8 +52,18 @@ class ProductsController extends Controller
             return new JsonResponse(['errors' => $validator->errors()], 400);
         }
 
-        $products = Product::whereBusinessId($items['business_id'])->get();
-        return new JsonResponse($products, 200);
+        $qb = Product::whereBusinessId($items['business_id'])->orderBy('created_at','DESC')->orderBy('name','ASC');
+
+
+        $cursor = $request->input('cursor', null);
+        if(!empty($cursor)) {
+            $products = $qb->cursorPaginate(20, ['*'], 'cursor', $cursor);
+
+        } else {
+            $products = $qb->cursorPaginate(50);
+        }
+
+        return view('components/listProducts',['rows'=>$products]);;
     }
 
     /**

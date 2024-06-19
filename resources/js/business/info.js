@@ -1,4 +1,6 @@
 import $ from "jquery";
+import 'jscroll';
+
 import { Modal } from "bootstrap";
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs} from "@techins/jsutils/utils";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";

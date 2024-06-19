@@ -161,5 +161,5 @@
 @endsection
 
 @section('js')
-    @vite(["node_modules/jscroll/dist/jquery.jscroll.min.js",'resources/js/business/info.js'])
+    @vite(['resources/js/business/info.js'])
 @endsection
