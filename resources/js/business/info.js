@@ -138,4 +138,10 @@ $(document).ready(function () {
     $("#inputSearchField").on('change',debounce(()=>{
         handleSearch();
     }));
+
+    $("#cleanSearch").on('click',debounce(()=>{
+        console.log("Here")
+        document.getElementById("inputSearchField").value="";
+        handleSearch();
+    }))
 })
