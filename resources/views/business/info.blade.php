@@ -110,14 +110,14 @@
             </form>
         </div>
         <div class="tab-pane fade show" id="products-tab-pane" role="tabpanel" aria-labelledby="products-tab" tabindex="1">
-{{--            <form method="post" class="mt-2 mb-2">--}}
-{{--                @csrf--}}
-{{--                <input type="hidden" name="business_id" value="{{$business->id}}">--}}
-{{--                <div class="input-group mb-3">--}}
-{{--                    <input name="name" class="form-control" placeholder="Τοποθετήστε ένα όνομα προς αναζήτηση ">--}}
-{{--                    <button class="btn btn-secondary" type="button"><i class="fa fa-search"></i></button>--}}
-{{--                </div>--}}
-{{--            </form>--}}
+            <form id="productSearchform" method="get" class="mt-2 mb-2" action="{{route('products.fetch')}}">
+                @csrf
+                <input type="hidden" name="business_id" value="{{$business->id}}">
+                <div class="input-group mb-3">
+                    <input id="inputSearchField" name="name" class="form-control" placeholder="Αναζητήστε ένα προϊόν ">
+                    <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
             <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createProduct" >
                 <i class="fa fa-plus"></i>&nbsp;Προσθήκη Προϊόντος
             </button>

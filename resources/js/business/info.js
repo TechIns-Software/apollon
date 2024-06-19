@@ -2,13 +2,14 @@ import $ from "jquery";
 import 'jscroll';
 
 import { Modal } from "bootstrap";
-import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs} from "@techins/jsutils/utils";
+import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,debounce} from "@techins/jsutils/utils";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 
 import AirDatepicker from "air-datepicker";
 import el from 'air-datepicker/locale/el';
 import 'air-datepicker/air-datepicker.css';
+import tab from "bootstrap/js/src/tab.js";
 
 function createAlert(msg,success=true){
     const alert = document.createElement("div")
@@ -43,6 +44,19 @@ function resetProductAddModal() {
 
     const inputElement = document.querySelector("#createProductForm").querySelector(" input[name='name']");
     inputElement.value="";
+}
+
+let prevAjax=null
+
+function handleSearch(){
+    const searchForm = document.getElementById("productSearchform");
+
+    prevAjax=submitFormAjax(searchForm, (data) => {
+        const table = document.getElementById("productListTable").querySelector("tbody")
+        table.innerHTML=data;
+    }, (xhr)=>{
+
+    },null,prevAjax);
 }
 
 $(document).ready(function () {
@@ -111,4 +125,17 @@ $(document).ready(function () {
         nextSelector: 'a.jscroll-next:last',
         contentSelector: '#productScroll.tbody',}
     );
+
+    const searchForm = document.getElementById("productSearchform");
+
+    $("#productSearchform").on('submit',function (e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        handleSearch();
+    });
+
+    $("#inputSearchField").on('change',debounce(()=>{
+        handleSearch();
+    }));
 })

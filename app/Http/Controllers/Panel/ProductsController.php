@@ -52,13 +52,17 @@ class ProductsController extends Controller
             return new JsonResponse(['errors' => $validator->errors()], 400);
         }
 
-        $qb = Product::whereBusinessId($items['business_id'])->orderBy('created_at','DESC')->orderBy('name','ASC');
+        $qb = Product::whereBusinessId($items['business_id']);
 
+        $searchterm = $request->input('name',null);
+        if(!empty($searchterm)){
+           $qb->where('name','like','%'.$searchterm.'%');
+        }
+        $qb->orderBy('created_at','DESC')->orderBy('name','ASC');
 
         $cursor = $request->input('cursor', null);
         if(!empty($cursor)) {
             $products = $qb->cursorPaginate(20, ['*'], 'cursor', $cursor);
-
         } else {
             $products = $qb->cursorPaginate(50);
         }

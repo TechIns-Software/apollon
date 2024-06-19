@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'list'])->name('business.user');
 
     Route::post('/product',[\App\Http\Controllers\Panel\ProductsController::class,'addProduct'])->name("product.add");
-    Route::get('/products',[\App\Http\Controllers\Panel\ProductsController::class,'listProducts']);
+    Route::get('/products',[\App\Http\Controllers\Panel\ProductsController::class,'listProducts'])->name("products.fetch");
     Route::post('/product/edit',[\App\Http\Controllers\Panel\ProductsController::class,'editProducts'])->name("product.edit");
 
 });
