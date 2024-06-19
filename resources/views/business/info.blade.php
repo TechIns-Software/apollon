@@ -115,6 +115,7 @@
                 <input type="hidden" name="business_id" value="{{$business->id}}">
                 <div class="input-group mb-3">
                     <input id="inputSearchField" name="name" class="form-control" placeholder="Αναζητήστε ένα προϊόν ">
+                    <button id="cleanSearch" class="btn btn-outline-secondary" type="submit"><i class="fa fa-x"></i></button>
                     <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
                 </div>
             </form>
