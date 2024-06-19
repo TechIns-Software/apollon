@@ -9,7 +9,8 @@ import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 import AirDatepicker from "air-datepicker";
 import el from 'air-datepicker/locale/el';
 import 'air-datepicker/air-datepicker.css';
-import tab from "bootstrap/js/src/tab.js";
+
+import {drawChart} from "../common.js";
 
 function createAlert(msg,success=true){
     const alert = document.createElement("div")
