@@ -132,4 +132,6 @@ class ProductsController extends Controller
 
         return new JsonResponse($modified, 200);
     }
+
+
 }

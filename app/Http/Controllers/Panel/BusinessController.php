@@ -62,6 +62,23 @@ class BusinessController extends Controller
 
         return new JsonResponse($monthStats);
     }
+    public function orderStats(Request $request,int $businesId)
+    {
+        $sql = "SELECT count(*) as orders ,MONTH(created_at) as month from `order` where business_id=:business_id group by month;";
+        $result = DB::select($sql,['business_id'=>$businesId]);
+
+        $monthStats=[];
+        for($i=1;$i<=12;$i++){
+            $monthStats[$i]=0;
+        }
+
+        foreach ($result as $month){
+            $monthStats[$month->month]=$month->orders;
+        }
+
+        return new JsonResponse($monthStats);
+    }
+
 
     public function list(Request $request)
     {
