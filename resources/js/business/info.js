@@ -102,7 +102,7 @@ $(document).ready(function () {
         });
     })
 
-    $("#scroll").jscroll( {
+    $("#productScroll").jscroll( {
         loadingHtml: '<tr>' +
             '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
             '</tr>',

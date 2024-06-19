@@ -89,7 +89,8 @@ class BusinessController extends Controller
     {
         $business = Business::findOrFail($business_id);
         $products = Product::where("business_id",$business->id)->orderBy('created_at','DESC')->orderBy('name','ASC')
-            ->cursorPaginate(20);
+            ->cursorPaginate(20)
+            ->withPath('/products?business_id='.$business->id);
         return view("business.info",['business'=>$business,'products'=>$products]);
 
     }
