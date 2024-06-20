@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {drawChart}  from "../common.js";
+import {drawChart}  from "../chartCommon.js";
 
 $(document).ready(function (){
 

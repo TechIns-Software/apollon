@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\Order;
 use App\Models\Product;
 use App\Rules\ValidateBoolean;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,16 +66,24 @@ class BusinessController extends Controller
     }
     public function orderStats(Request $request,int $businesId)
     {
-        $sql = "SELECT count(*) as orders ,MONTH(created_at) as month from `order` where business_id=:business_id group by month;";
-        $result = DB::select($sql,['business_id'=>$businesId]);
+        $year = $request->get('year',[(int)Carbon::now()->format('Y')]);
+
+        $result = DB::table('order')->where('business_id',$businesId)
+            ->selectRaw("count(*) as orders,MONTH(created_at) as `month`,YEAR(created_at) as `year`")
+            ->groupBy(DB::raw("`year`,`month`"))
+            ->where(function($query) use ($year) {
+                foreach ($year as $y) {
+                    $query->orWhereRaw('YEAR(created_at) = ?', [$y]);
+                }
+            })->get();
 
         $monthStats=[];
-        for($i=1;$i<=12;$i++){
-            $monthStats[$i]=0;
-        }
-
-        foreach ($result as $month){
-            $monthStats[$month->month]=$month->orders;
+        
+        foreach ($result as $item){
+            if(!isset($monthStats[$item->year])){
+                $monthStats[$item->year]=array_fill(0,12,0);
+            }
+            $monthStats[$item->year][$item->month]=$item->orders;
         }
 
         return new JsonResponse($monthStats);

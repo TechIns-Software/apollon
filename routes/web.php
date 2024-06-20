@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'list'])->name('business.user');
 
     Route::get('/business/{id}',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
-    Route::get('/business/{id}/order/stats',[\App\Http\Controllers\Panel\BusinessController::class,'orderStats'])->name("products.stats");
+    Route::get('/business/{id}/order/stats',[\App\Http\Controllers\Panel\BusinessController::class,'orderStats'])->name("order.stats");
 
 
     Route::post('/product',[\App\Http\Controllers\Panel\ProductsController::class,'addProduct'])->name("product.add");
