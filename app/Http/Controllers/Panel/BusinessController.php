@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\Order;
 use App\Models\Product;
 use App\Rules\ValidateBoolean;
+use App\Services\Stats\OrderStats;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
@@ -68,28 +69,9 @@ class BusinessController extends Controller
     {
         $years = $request->get('year',[(int)Carbon::now()->format('Y')]);
 
-        $result = DB::table('order')->where('business_id',$businesId)
-            ->selectRaw("count(*) as count,MONTH(created_at) as `month`,YEAR(created_at) as `year`")
-            ->groupBy(DB::raw("`year`,`month`"))
-            ->where(function($query) use ($years) {
-                foreach ($years as $y) {
-                    $query->orWhereRaw('YEAR(created_at) = ?', [$y]);
-                }
-            })->get();
+        $orderStats = new OrderStats($businesId,$years);
 
-        $monthStats=[];
-
-        foreach ($years as $year){
-            $monthStats[$year]=array_fill(0,12,0);
-        }
-
-        foreach ($result as $item){
-            $monthStats[$item->year][$item->month]=$item->count;
-        }
-
-        // Zerofill years that have no data
-
-        return new JsonResponse($monthStats);
+        return new JsonResponse($orderStats->getStats());
     }
 
 
