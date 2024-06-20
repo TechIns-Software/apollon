@@ -74,7 +74,7 @@ function initializeChartJsForYearMonthStats(canvasWrapper){
  * @param {HTMLElement} form
  * @param {Chart} chart
  */
-function updateChartFromAjax(form,chart)
+function updateChartFromAjax(form,chart, successCallback)
 {
     ajaxCall=submitFormAjax(form,(data)=>{
         const finalDataset = []
@@ -90,7 +90,9 @@ function updateChartFromAjax(form,chart)
         console.log(finalDataset);
         chart.data.datasets = finalDataset;
         chart.update();
-
+        if(typeof successCallback == 'function'){
+            successCallback();
+        }
     },()=>{},null,ajaxCall)
 }
 
@@ -145,7 +147,9 @@ function bootstrapYearMonthChart(form,canvasWrapper){
         }
         const input = form.querySelector(".yearInput")
         createLiForYear(input.value,form,chart);
-        updateChartFromAjax(form,chart);
+        updateChartFromAjax(form,chart,()=>{
+            input.value=""
+        });
     })
 }
 
