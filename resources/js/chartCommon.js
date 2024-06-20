@@ -94,23 +94,32 @@ function updateChartFromAjax(form,chart)
     },()=>{},null,ajaxCall)
 }
 
-function createLiForYear(year,form,chart)
+function createLiForYear(year,form,chart,createBtn=true)
 {
     const li = document.createElement('li');
     li.innerText=year;
 
-    const deleteButton = document.createElement('button')
-    deleteButton.classList.add('btn','btn-link','text-danger')
-    deleteButton.innerHTML="<i class='fa fa-trash'></i>"
+    if(createBtn){
+        const deleteButton = document.createElement('button')
+        deleteButton.classList.add('btn','btn-link','text-danger')
+        deleteButton.innerHTML="<i class='fa fa-trash'></i>"
+        li.append(deleteButton);
 
-    li.append(deleteButton);
+        deleteButton.addEventListener('click',function (e){
+            e.preventDefault();
+            e.stopPropagation();
+            li.remove();
+            updateChartFromAjax(form,chart)
+        })
+    }
 
-    deleteButton.addEventListener('click',function (e){
-        e.preventDefault();
-        e.stopPropagation();
-        updateChartFromAjax(form,chart)
-        li.remove()
-    })
+    const input = document.createElement('input')
+    input.type = 'hidden';
+    input.name = "year[]";
+    input.value = year;
+    li.append(input);
+
+
 
     form.querySelector('.form-years').append(li)
 }
@@ -127,7 +136,7 @@ function bootstrapYearMonthChart(form,canvasWrapper){
     form = stringToDomHtml(form);
     const chart = initializeChartJsForYearMonthStats(canvasWrapper)
     ajaxCall = updateChartFromAjax(form,chart)
-    createLiForYear(new Date().getFullYear(),form);
+    createLiForYear(new Date().getFullYear(),form,chart,false);
 
     form.addEventListener('submit',(event)=>{
         event.preventDefault();

@@ -66,25 +66,28 @@ class BusinessController extends Controller
     }
     public function orderStats(Request $request,int $businesId)
     {
-        $year = $request->get('year',[(int)Carbon::now()->format('Y')]);
+        $years = $request->get('year',[(int)Carbon::now()->format('Y')]);
 
         $result = DB::table('order')->where('business_id',$businesId)
-            ->selectRaw("count(*) as orders,MONTH(created_at) as `month`,YEAR(created_at) as `year`")
+            ->selectRaw("count(*) as count,MONTH(created_at) as `month`,YEAR(created_at) as `year`")
             ->groupBy(DB::raw("`year`,`month`"))
-            ->where(function($query) use ($year) {
-                foreach ($year as $y) {
+            ->where(function($query) use ($years) {
+                foreach ($years as $y) {
                     $query->orWhereRaw('YEAR(created_at) = ?', [$y]);
                 }
             })->get();
 
         $monthStats=[];
-        
-        foreach ($result as $item){
-            if(!isset($monthStats[$item->year])){
-                $monthStats[$item->year]=array_fill(0,12,0);
-            }
-            $monthStats[$item->year][$item->month]=$item->orders;
+
+        foreach ($years as $year){
+            $monthStats[$year]=array_fill(0,12,0);
         }
+
+        foreach ($result as $item){
+            $monthStats[$item->year][$item->month]=$item->count;
+        }
+
+        // Zerofill years that have no data
 
         return new JsonResponse($monthStats);
     }
