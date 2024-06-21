@@ -16,7 +16,7 @@
             <label for="active" class="col-form-label">Ενεργό</label>
         </div>
         <div class="col">
-            <input type="checkbox" id="active" @if($business&&$business->is_active) checked @endif  name="active" class="form-check-input">
+            <input type="checkbox" id="active" @if(!empty($business)&&$business->is_active) checked @endif  name="active" class="form-check-input">
             <div class="invalid-tooltip">
             </div>
         </div>
@@ -51,5 +51,5 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-success">Αποθήκευση</button>
+        <button class="btn btn-success">Αποθήκευση</button>
 </form>

@@ -1,11 +1,6 @@
 
 @foreach ($rows as $row)
-    <tr>
-        <td>{{$row->name}}</td>
-        <td>
-            <a class="btn btn-link" href="{{ route('business.info',['id'=>$row->id]) }}">Καρτέλα Επιχείρησης</a>
-        </td>
-    </tr>
+   @include('business.components.listBusinessItem',['row'=>$row])
 @endforeach
 @if ($rows->hasMorePages())
     <tr style="display: none">

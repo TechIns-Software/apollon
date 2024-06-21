@@ -10,10 +10,12 @@ use App\Rules\ValidateBoolean;
 use App\Services\Stats\BusinessStats;
 use App\Services\Stats\OrderStats;
 use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use View;
 
 class BusinessController extends Controller
 {
@@ -21,8 +23,8 @@ class BusinessController extends Controller
     {
         $rules=[
             'name'=>"required",
-            'active'=>["required",new ValidateBoolean()],
-            "expiration_date"=>"required|date",
+            'active'=>["sometimes",new ValidateBoolean()],
+            "expiration_date"=>"sometimes|nullable|date",
             "vat"=>"sometimes|nullable|regex:/^[0-9]{9}$/i'",
             "doy"=>"sometimes|nullable"
         ];
@@ -48,7 +50,7 @@ class BusinessController extends Controller
             return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης"],500);
         }
 
-        return new JsonResponse($business,201);
+        return new Response(View::make('business.components.listBusinessItem',['row'=>$business]), 201);
     }
 
     public function businessStats(Request $request)

@@ -2,7 +2,9 @@ import $ from "jquery";
 import {bootstrapYearMonthChart}  from "../chartCommon.js";
 import {debounce, enableTabs, submitFormAjax} from "@techins/jsutils/utils";
 import {updateQueryParam} from "@techins/jsutils/url";
+import {Modal} from "bootstrap";
 
+// Variable that contains list Ajax.
 let prevAjax;
 function handleSearch()
 {
@@ -16,6 +18,12 @@ function handleSearch()
     }, (xhr)=>{
 
     },null,prevAjax);
+}
+
+function closeAddBusinessModal()
+{
+    const modal = Modal.getInstance(document.getElementById('createBusiness'))
+    modal.hide()
 }
 
 $(document).ready(function (){
@@ -46,5 +54,19 @@ $(document).ready(function (){
         document.getElementById("inputSearchField").value="";
         handleSearch();
     }))
+
+    $("#infoForm").on('submit',function (e){
+        e.preventDefault()
+        const form = e.target
+
+        submitFormAjax(form,(data)=>{
+            const wrapper = document.createElement('template')
+            wrapper.innerHTML=data
+
+            document.getElementById("businessTable").querySelector('tbody').prepend(wrapper.content)
+            closeAddBusinessModal()
+            form.reset()
+        },()=>{})
+    })
 });
 

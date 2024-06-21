@@ -73,6 +73,9 @@
                         <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
                     </div>
                 </form>
+                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createBusiness" >
+                    <i class="fa fa-plus"></i>&nbsp;Προσθήκη
+                </button>
                <table id="businessTable" class="table table-striped">
                    <thead>
                         <tr>
@@ -84,6 +87,19 @@
                         @include('business.components.listBusiness',['rows'=>$businesses])
                    </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-lg fade" id="createBusiness" tabindex="-1" aria-labelledby="Δημιουργία Εταιρείας" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Προσθήκη Εταιρείας</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @include('business.components.businessAddEditForm',['route'=>'business.create'])
+                </div>
             </div>
         </div>
     </div>
