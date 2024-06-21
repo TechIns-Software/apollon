@@ -55,7 +55,7 @@ class BusinessController extends Controller
     {
         $years = $request->input('year');
         $stats = new BusinessStats($years);
-        
+
         return new JsonResponse($stats->getStats());
     }
     public function orderStats(Request $request,int $businesId)
@@ -70,23 +70,27 @@ class BusinessController extends Controller
 
     public function list(Request $request)
     {
-        $searchterm = $request->get('searchterm');
+        $searchterm = $request->get('name');
         $cursor = $request->get('cursor');
 
-        $query = Business::orderBy('id');
-
+        $query = Business::query();
         if(!empty($searchterm)){
             $query = $query->where('name','like',"%".$searchterm."%");
         }
 
+        $query->orderBy('name');
+
         if(!empty($cursor)){
             $result = $query->cursorPaginate(100,['*'], 'cursor',$cursor);
-            return view('components.listBusiness',['rows'=>$result]);
         } else {
             $result = $query->cursorPaginate(100);
         }
 
-        return view('business.list',['businesses'=>$result]);
+        if($request->ajax()){
+            return view('components.listBusiness',['rows'=>$result]);
+        }
+
+        return view('business.list',['businesses'=>$result,'name'=>$searchterm]);
     }
 
 

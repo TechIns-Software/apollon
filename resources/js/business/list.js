@@ -1,24 +1,25 @@
 import $ from "jquery";
 import {bootstrapYearMonthChart}  from "../chartCommon.js";
-import {enableTabs} from "@techins/jsutils/utils";
+import {debounce, enableTabs, submitFormAjax} from "@techins/jsutils/utils";
+import {updateQueryParam} from "@techins/jsutils/url";
+
+let prevAjax;
+function handleSearch()
+{
+    const searchForm = document.getElementById("businessSearchForm");
+    const searchInput = searchForm.querySelector("#inputSearchField");
+    prevAjax=submitFormAjax(searchForm, (data) => {
+        const table = document.getElementById("businessTable").querySelector("tbody")
+        table.innerHTML=data;
+
+        updateQueryParam('name',searchInput.value);
+    }, (xhr)=>{
+
+    },null,prevAjax);
+}
 
 $(document).ready(function (){
 
-    // const chartUrl = document.head.querySelector('meta[name="chart_url"]').content;
-    // $.ajax({
-    //     // I prefer using meta instead of hardcoding the url. I can use the laravel's blade fuintionalities.
-    //     url: chartUrl,
-    //     method: "GET",
-    //     success: function(data) {
-    //         console.log(data);
-    //
-    //         const canvas = document.createElement("canvas");
-    //         document.getElementById("statsContainer").appendChild(canvas)
-    //         const ctx = canvas.getContext("2d");
-    //
-    //         drawChart(data,ctx)
-    //     }
-    // })
     bootstrapYearMonthChart("statsForm","statsContainer")
     enableTabs(document.getElementById("myTab"),"#home-tab-pane")
 
@@ -29,5 +30,21 @@ $(document).ready(function (){
         nextSelector: 'a.jscroll-next:last',
         contentSelector: '#business_container.tbody',
     });
+
+    $("#businessSearchForm").on('submit',function (e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        handleSearch();
+    });
+
+    $("#inputSearchField").on('change',debounce(()=>{
+        handleSearch();
+    }));
+
+    $("#cleanSearch").on('click',debounce(()=>{
+        document.getElementById("inputSearchField").value="";
+        handleSearch();
+    }))
 });
 

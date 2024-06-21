@@ -65,7 +65,15 @@
         <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
             <div id="business_container" class="mt-1 scrollWrapper">
                <h2>Λίστα Επιχειρήσεων</h2>
-               <table class="table table-striped">
+                <form id="businessSearchForm" method="get" class="mt-2 mb-2" action="{{route('business.list')}}">
+                    @csrf
+                    <div class="input-group mb-3">
+                        <input id="inputSearchField" name="name" class="form-control" value="{{$name}}" placeholder="Αναζητήση.. ">
+                        <button id="cleanSearch" class="btn btn-outline-secondary" type="submit"><i class="fa fa-x"></i></button>
+                        <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
+                    </div>
+                </form>
+               <table id="businessTable" class="table table-striped">
                    <thead>
                         <tr>
                             <th>Όνομα Επιχείρησης</th>
