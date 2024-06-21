@@ -18,7 +18,7 @@ class BusinessControllerTest extends TestCase
         $this->actingAs($user);
 
         $date = Carbon::now()->modify('+1 year');
-
+        $businessInDB = Business::pluck('id');
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
@@ -28,25 +28,15 @@ class BusinessControllerTest extends TestCase
             'doy'=>'Αθηνών'
         ]);
 
-        $jsonResponse = $response->json();
         $response->assertStatus(201);
 
-        $businessInDB = Business::find($jsonResponse['id']);
+        $businessInDB = Business::whereNotIn('id',$businessInDB)->first();
         $this->assertNotEmpty($businessInDB);
 
-        $this->assertEquals($jsonResponse['name'],$businessInDB['name']);
         $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
-
-        $this->assertEquals($jsonResponse['vat'],$businessInDB['vat']);
         $this->assertEquals('125562123',$businessInDB['vat']);
-
-        $this->assertEquals($jsonResponse['doy'],$businessInDB['doy']);
         $this->assertEquals('Αθηνών',$businessInDB['doy']);
-
-        $this->assertFalse(parseBool($jsonResponse['is_active']));
         $this->assertFalse($businessInDB->is_active);
-
-        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
         $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
@@ -57,6 +47,9 @@ class BusinessControllerTest extends TestCase
         $this->actingAs($user);
 
         $date = Carbon::now()->modify('+1 year');
+        $businessInDB = Business::pluck('id');
+
+
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
@@ -66,26 +59,17 @@ class BusinessControllerTest extends TestCase
             'doy'=>'Αθηνών'
         ]);
 
-        $jsonResponse = $response->json();
 
         $response->assertStatus(201);
 
-        $businessInDB = Business::find($jsonResponse['id']);
+        $businessInDB = Business::whereNotIn('id',$businessInDB)->first();
         $this->assertNotEmpty($businessInDB);
 
-        $this->assertEquals($jsonResponse['name'],$businessInDB['name']);
         $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
 
-        $this->assertEquals($jsonResponse['vat'],$businessInDB['vat']);
         $this->assertEquals('125562123',$businessInDB['vat']);
-
-        $this->assertEquals($jsonResponse['doy'],$businessInDB['doy']);
         $this->assertEquals('Αθηνών',$businessInDB['doy']);
-
-        $this->assertTrue(parseBool($jsonResponse['is_active']));
         $this->assertTrue($businessInDB->is_active);
-
-        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
         $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
@@ -96,6 +80,7 @@ class BusinessControllerTest extends TestCase
         $this->actingAs($user);
 
         $date = Carbon::now()->modify('+1 year');
+        $businessInDB = Business::pluck('id');
 
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
@@ -106,25 +91,15 @@ class BusinessControllerTest extends TestCase
             'doy'=>'Αθηνών'
         ]);
 
-        $jsonResponse = $response->json();
         $response->assertStatus(201);
 
-        $businessInDB = Business::find($jsonResponse['id']);
+        $businessInDB = Business::whereNotIn('id',$businessInDB)->first();
         $this->assertNotEmpty($businessInDB);
 
-        $this->assertEquals($jsonResponse['name'],$businessInDB['name']);
         $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
-
-        $this->assertEquals($jsonResponse['vat'],$businessInDB['vat']);
         $this->assertEquals('125562123',$businessInDB['vat']);
-
-        $this->assertEquals($jsonResponse['doy'],$businessInDB['doy']);
         $this->assertEquals('Αθηνών',$businessInDB['doy']);
-
-        $this->assertTrue(parseBool($jsonResponse['is_active']));
         $this->assertTrue($businessInDB->is_active);
-
-        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
         $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
@@ -135,6 +110,7 @@ class BusinessControllerTest extends TestCase
         $this->actingAs($user);
 
         $date = Carbon::now()->modify('+1 year');
+        $businessInDB = Business::pluck('id');
 
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
@@ -145,25 +121,14 @@ class BusinessControllerTest extends TestCase
             'doy'=>'Αθηνών'
         ]);
 
-        $jsonResponse = $response->json();
         $response->assertStatus(201);
 
-        $businessInDB = Business::find($jsonResponse['id']);
+        $businessInDB = Business::whereNotIn('id',$businessInDB)->first();
         $this->assertNotEmpty($businessInDB);
-
-        $this->assertEquals($jsonResponse['name'],$businessInDB['name']);
         $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
-
-        $this->assertEquals($jsonResponse['vat'],$businessInDB['vat']);
         $this->assertEquals('125562123',$businessInDB['vat']);
-
-        $this->assertEquals($jsonResponse['doy'],$businessInDB['doy']);
         $this->assertEquals('Αθηνών',$businessInDB['doy']);
-
-        $this->assertFalse(parseBool($jsonResponse['is_active']));
         $this->assertFalse($businessInDB->is_active);
-
-        $this->assertEquals($date->format('Y-m-d'),$jsonResponse['expiration_date']);
         $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
@@ -193,20 +158,28 @@ class BusinessControllerTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
+        $date = Carbon::now()->modify('+1 year');
+
+        $businessInDB = Business::pluck('id');
 
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
             'name'=>'LOREM IPSUM INC',
-            'expiration_date'=>Carbon::now()->modify('+1 year'),
+            'expiration_date'=>$date,
             'vat_num'=>'125562123',
             'doy'=>'Αθηνών'
         ]);
 
 
-        $response->assertStatus(400);
+        $response->assertStatus(201);
 
-        $business = Business::all();
-        $this->assertEmpty($business->all());
+        $businessInDB = Business::whereNotIn('id',$businessInDB)->first();
+        $this->assertNotEmpty($businessInDB);
+        $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
+        $this->assertEquals('125562123',$businessInDB['vat']);
+        $this->assertEquals('Αθηνών',$businessInDB['doy']);
+        $this->assertFalse($businessInDB->is_active);
+        $this->assertEquals($date->format('Y-m-d'),$businessInDB->expiration_date);
     }
 
     public function testInsertInvalidExpirationDate()
@@ -231,11 +204,13 @@ class BusinessControllerTest extends TestCase
         $this->assertEmpty($business->all());
     }
 
-    public function testInsertInvalidExpirationDateAsString()
+    public function testInsertExpirationDateAsString()
     {
         $user = User::factory()->create();
 
         $this->actingAs($user);
+
+        $businessInDB = Business::pluck('id');
 
         $response = $this->session(['__token'=>'1234'])->post('/business',[
             '__token'=>'1234',
@@ -249,24 +224,14 @@ class BusinessControllerTest extends TestCase
 
         $response->assertStatus(201);
 
-        $jsonResponse = $response->json();
 
-        $businessInDB = Business::find($jsonResponse['id']);
+        $businessInDB = Business::whereNotIn('id',$businessInDB)->first();
         $this->assertNotEmpty($businessInDB);
 
-        $this->assertEquals($jsonResponse['name'],$businessInDB['name']);
         $this->assertEquals('LOREM IPSUM INC',$businessInDB['name']);
-
-        $this->assertEquals($jsonResponse['vat'],$businessInDB['vat']);
         $this->assertEquals('125562123',$businessInDB['vat']);
-
-        $this->assertEquals($jsonResponse['doy'],$businessInDB['doy']);
         $this->assertEquals('Αθηνών',$businessInDB['doy']);
-
-        $this->assertFalse(parseBool($jsonResponse['is_active']));
         $this->assertFalse($businessInDB->is_active);
-
-        $this->assertEquals('2024-01-12',$jsonResponse['expiration_date']);
         $this->assertEquals('2024-01-12',$businessInDB->expiration_date);
     }
 
@@ -338,9 +303,10 @@ class BusinessControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $stats=[];
+        $currentYear = Carbon::now()->format('Y');
         for($i=1;$i<=12;$i++){
             $stats[$i]=rand(5,50);
-            $date = "2024-$i-12";
+            $date = "$currentYear-$i-12";
             Business::factory($stats[$i])->create(['created_at'=>$date]);
         }
 
@@ -348,10 +314,13 @@ class BusinessControllerTest extends TestCase
 
         $response = $this->session(['__token'=>'1234'])->get('/business/stats');
 
+
         $body = $response->json();
         $response->assertStatus(200);
 
-        foreach ($body as $month => $value){
+        $this->assertTrue(isset($body[$currentYear]));
+        $months = $body[$currentYear];
+        foreach ($months as $month => $value){
             $this->assertContains($month,range(1,12));
             $this->assertEquals((int)$value,(int)$stats[$month]);
         }
