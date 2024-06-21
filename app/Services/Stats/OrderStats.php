@@ -9,7 +9,7 @@ class OrderStats extends BusinessStatService
 {
     private $business_id;
 
-    public function __construct(int $business_id,array $years)
+    public function __construct(int $business_id,?array $years=[])
     {
         parent::__construct($years);
         $this->business_id = $business_id;

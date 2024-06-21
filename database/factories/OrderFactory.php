@@ -66,6 +66,25 @@ class OrderFactory extends Factory
             }
         });
     }
+
+    public function withBusiness(Business $business)
+    {
+        return $this->afterMaking(function (Order $order) use ($business){
+            $user=null;
+
+            $order->business_id = $business->id;
+
+            if(empty($order->user_id)){
+               $user = SaasUser::whereBusinessId($business->id)->inRandomOrder()->first();
+            }
+
+            if(empty($user)){
+                $user = SaasUser::factory()->create(['business_id'=>$business->id]);
+            }
+
+            $this->setUser($user,$order);
+        });
+    }
     public function configure()
     {
         return $this->afterMaking(function (Order $order){
