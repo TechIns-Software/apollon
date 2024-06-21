@@ -13,36 +13,6 @@ function monthLabels(data){
     return Object.keys(data).map(key => monthNames[key - 1]);
 }
 
-function drawChart(data,ctx){
-
-    // Generate labels using the defined month names
-    const labels = monthLabels(data)
-
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets:[
-                {
-                    label: 'Πλήθος Επιχειρήσεων ανα μήνα',
-                    data: Object.values(data)
-                }
-            ]
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    type: 'time',
-                    position: 'bottom',
-                    time: {
-                        unit: 'month'
-                    }
-                }],
-            }
-        }
-    });
-}
-
 function initializeChartJsForYearMonthStats(canvasWrapper){
     // Generate labels using the defined month names
 
@@ -154,6 +124,5 @@ function bootstrapYearMonthChart(form,canvasWrapper){
 }
 
 export {
-    drawChart,
     bootstrapYearMonthChart
 }

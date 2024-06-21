@@ -10,9 +10,9 @@ abstract class BusinessStatService
 
     private $years;
 
-    public function __construct(array $years=[])
+    public function __construct(?array $years=[])
     {
-        $this->years = empty($years)?$years:[(int)Carbon::now()->format('Y')];
+        $this->years = !empty($years)?$years:[(int)Carbon::now()->format('Y')];
     }
 
     public function getYears()

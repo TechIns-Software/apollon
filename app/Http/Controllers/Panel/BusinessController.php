@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\Order;
 use App\Models\Product;
 use App\Rules\ValidateBoolean;
+use App\Services\Stats\BusinessStats;
 use App\Services\Stats\OrderStats;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -52,18 +53,10 @@ class BusinessController extends Controller
 
     public function businessStats(Request $request)
     {
-        $result = DB::select("select count(*) as business_count,MONTH(created_at) as month from business group by MONTH(created_at);");
-
-        $monthStats=[];
-        for($i=1;$i<=12;$i++){
-            $monthStats[$i]=0;
-        }
-
-        foreach ($result as $month){
-            $monthStats[$month->month]=$month->business_count;
-        }
-
-        return new JsonResponse($monthStats);
+        $years = $request->input('year');
+        $stats = new BusinessStats($years);
+        
+        return new JsonResponse($stats->getStats());
     }
     public function orderStats(Request $request,int $businesId)
     {

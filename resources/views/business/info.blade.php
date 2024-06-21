@@ -163,7 +163,7 @@
                         </ul>
                     </form>
                 </div>
-                <div id="orderStatsWrapper" class="col"></div>
+                <div id="orderStatsWrapper" class="col" style="height: 70vh;"></div>
             </div>
         </div>
     </div>
