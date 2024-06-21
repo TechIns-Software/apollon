@@ -80,7 +80,7 @@ abstract class BusinessStatService
         $monthStats=[];
 
         foreach ($this->years as $year){
-            $monthStats[$year]=array_fill(0,12,0);
+            $monthStats[$year]=array_fill(1,12,0);
         }
 
         foreach ($dbResult as $item){
