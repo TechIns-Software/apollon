@@ -15,7 +15,7 @@ class BusinessStatsTest extends TestCase
     {
         $currentDate = Carbon::now();
         $currentYear = $currentDate->format('Y');
-        $business = Business::factory(5)->create(['created_at'=>$currentYear."-12-05"]);
+        Business::factory(5)->create(['created_at'=>$currentYear."-12-05"]);
 
         $expectedResult = [
             $currentYear=>[
@@ -75,10 +75,12 @@ class BusinessStatsTest extends TestCase
 
     public function testMultipleYears()
     {
+        $currentDate = Carbon::now();
+        $currentYear = $currentDate->format('Y');
 
-        Business::factory(5)->create(['created_at'=>"2024-12-05"]);
-        Business::factory(15)->create(['created_at'=>"2024-02-05"]);
-        Business::factory(153)->create(['created_at'=>"2024-04-05"]);
+        Business::factory(5)->create(['created_at'=>"$currentYear-12-05"]);
+        Business::factory(15)->create(['created_at'=>"$currentYear-02-05"]);
+        Business::factory(153)->create(['created_at'=>"$currentYear-04-05"]);
 
         Business::factory(5)->create(['created_at'=>"2023-12-05"]);
         Business::factory(5)->create(['created_at'=>"2023-06-05"]);
@@ -136,4 +138,33 @@ class BusinessStatsTest extends TestCase
 
     }
 
+    public function testMultipleDatesSameMonth()
+    {
+        $currentDate = Carbon::now();
+        $currentYear = $currentDate->format('Y');
+
+        Business::factory(5)->create(['created_at'=>"$currentYear-12-05"]);
+        Business::factory(33)->create(['created_at'=>"$currentYear-12-09"]);
+
+        $expectedResult = [
+            $currentYear=>[
+                1=>0,
+                2=>0,
+                3=>0,
+                4=>0,
+                5=>0,
+                6=>0,
+                7=>0,
+                8=>0,
+                9=>0,
+                10=>0,
+                11=>0,
+                12=>38,
+            ]
+        ];
+
+        $businessStats = new BusinessStats();
+        $result = $businessStats->getStats();
+        $this->assertEquals($expectedResult,$result);
+    }
 }
