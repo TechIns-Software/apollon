@@ -81,7 +81,7 @@
                         </tr>
                    </thead>
                    <tbody>
-                        @include('components.listBusiness',['rows'=>$businesses])
+                        @include('business.components.listBusiness',['rows'=>$businesses])
                    </tbody>
                 </table>
             </div>

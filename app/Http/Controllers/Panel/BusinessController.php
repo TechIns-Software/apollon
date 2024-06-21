@@ -87,7 +87,7 @@ class BusinessController extends Controller
         }
 
         if($request->ajax()){
-            return view('components.listBusiness',['rows'=>$result]);
+            return view('components.business.listBusiness',['rows'=>$result]);
         }
 
         return view('business.list',['businesses'=>$result,'name'=>$searchterm]);

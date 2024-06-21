@@ -1,5 +1,5 @@
 @foreach ($rows as $row)
-    @include("components.productListItem",['row'=>$row])
+    @include("business.components.productListItem",['row'=>$row])
 @endforeach
 @if ($rows->hasMorePages())
     <tr style="display: none">
