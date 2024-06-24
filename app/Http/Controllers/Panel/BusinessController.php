@@ -35,7 +35,7 @@ class BusinessController extends Controller
             'name.required' => __('validation.required'),
             'active.sometimes' => __('validation.sometimes'),
             'expiration_date.date' => __('validation.date'),
-            'vat_num.regex' => __('validation.regex'),
+            'vat_num.regex' => __('validation.vat_num.regex'),
             'doy.sometimes' => __('validation.sometimes'),
             // Add other specific messages if needed
         ];
@@ -145,9 +145,8 @@ class BusinessController extends Controller
             'name.sometimes' => __('validation.sometimes'),
             'active.sometimes' => __('validation.sometimes'),
             'expiration_date.date' => __('validation.date'),
-            'vat_num.regex' => __('validation.regex'),
+            'vat_num.regex' => __('validation.vat_num.regex'),
             'doy.sometimes' => __('validation.sometimes'),
-            // Add other specific messages if needed
         ];
 
         $validator = Validator::make($request->all(),$rules,$messages);
