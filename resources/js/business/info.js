@@ -3,7 +3,6 @@ import 'jscroll';
 
 import { Modal } from "bootstrap";
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,debounce} from "@techins/jsutils/utils";
-import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 
 import AirDatepicker from "air-datepicker";
@@ -12,30 +11,16 @@ import 'air-datepicker/air-datepicker.css';
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
 
-function createAlert(msg,success=true){
-    const alert = document.createElement("div")
-    alert.className = success?"alert alert-success":"alert alert-danger"
-    alert.innerText = msg
+import {errorFormHandle,createAlert as mkAlert } from "./common.js";
+
+function createAlert(msg,success){
     const msgContainer = document.getElementById("msg");
-    msgContainer.innerHTML=alert.outerHTML
-}
-function formSubmitSuccess(data){
-    createAlert("Επιτυχής αποθήκευση")
+    mkAlert(msgContainer,msg,success);
 }
 
 function formSubmitFail(xhr){
-    const responseJson = JSON.parse(xhr.responseText)['msg']
-
-    if(xhr.status == 400){
-        Object.keys(responseJson).forEach((key)=>{
-            const msg = responseJson[key].join("<br>")
-            addInputErrorMsg(document.querySelector(`input[name=${key}]`),msg)
-        })
-        createAlert("Προέκυψε σφάλμα",false)
-        return
-    }
-
-    createAlert(responseJson??"Αδυναμία Αποθήκευσης",false)
+    const msgContainer = document.getElementById("msg");
+    errorFormHandle(xhr,msgContainer)
 }
 
 function resetProductAddModal() {
@@ -70,10 +55,15 @@ $(document).ready(function () {
         dateFormat: "yyyy-MM-dd"
     });
 
+    const msgContainer = document.getElementById("msg");
+
+
     $("#infoForm").on('submit',function (e){
         e.preventDefault();
         const form = e.target
-        submitFormAjax(form,formSubmitSuccess,formSubmitFail)
+        submitFormAjax(form,(data)=>{
+            createAlert(msgContainer,"Επιτυχής αποθήκευση")
+        },formSubmitFail)
     })
 
     $(".toggle-visibility").on('click',function (e){

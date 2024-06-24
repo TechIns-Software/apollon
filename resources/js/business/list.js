@@ -2,6 +2,7 @@ import $ from "jquery";
 import {bootstrapYearMonthChart}  from "../chartCommon.js";
 import {debounce, enableTabs, submitFormAjax} from "@techins/jsutils/utils";
 import {updateQueryParam} from "@techins/jsutils/url";
+import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {Modal} from "bootstrap";
 
 // Variable that contains list Ajax.
@@ -66,7 +67,16 @@ $(document).ready(function (){
             document.getElementById("businessTable").querySelector('tbody').prepend(wrapper.content)
             closeAddBusinessModal()
             form.reset()
-        },()=>{})
+        },(xhr)=>{
+            const response = JSON.parse(xhr.responseText)['msg'];
+            if(xhr.status == 400){
+                Object.keys(response).forEach((key)=>{
+                    const inputElem = form.querySelector(`input[name="${key}"]`)
+                    response[key].forEach((msg)=>addInputErrorMsg(inputElem,msg))
+                })
+                return;
+            }
+        })
     })
 });
 
