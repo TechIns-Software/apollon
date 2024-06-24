@@ -1,6 +1,6 @@
 import $ from "jquery";
 import {bootstrapYearMonthChart}  from "../chartCommon.js";
-import {debounce, enableTabs, submitFormAjax} from "@techins/jsutils/utils";
+import {debounce, enableTabs, submitFormAjax,resetFormFeedback} from "@techins/jsutils/utils";
 import {updateQueryParam} from "@techins/jsutils/url";
 import {Modal} from "bootstrap";
 import {errorFormHandle, initDatePicker} from "./common.js";
@@ -69,7 +69,6 @@ $(document).ready(function (){
 
     modalWrapper.addEventListener('shown.bs.modal',()=>{
         datepicker = initDatePicker();
-        form.reset()
     })
 
     modalWrapper.addEventListener("hidden.bs.modal",()=>{
@@ -80,6 +79,8 @@ $(document).ready(function (){
         }
 
         form.reset()
+        resetFormFeedback(form);
+        errorWrapper.innerHTML=""
     })
 
 
