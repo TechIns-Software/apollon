@@ -25,7 +25,7 @@ class BusinessController extends Controller
             'name'=>"required",
             'active'=>["sometimes",new ValidateBoolean()],
             "expiration_date"=>"sometimes|nullable|date",
-            "vat_num"=>"sometimes|nullable|regex:/^[0-9]{9}$/i'",
+            "vat_num"=>"sometimes|nullable|regex:/^[0-9]{9}$/i",
             "doy"=>"sometimes|nullable"
         ];
 
