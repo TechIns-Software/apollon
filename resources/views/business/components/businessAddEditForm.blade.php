@@ -36,7 +36,7 @@
             <label for="afm" class="col-form-label">ΑΦΜ</label>
         </div>
         <div class="col">
-            <input type="text" id="afm" name="var_num" value="{{$business->vat??""}}" class="form-control">
+            <input type="text" id="afm" name="vat_num" value="{{$business->vat??""}}" class="form-control">
             <div class="invalid-tooltip">
             </div>
         </div>
