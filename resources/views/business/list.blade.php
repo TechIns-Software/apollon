@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-            <div id="business_container" class="mt-1 scrollWrapper">
+            <div id="business_container" class="mt-1">
                <h2>Λίστα Επιχειρήσεων</h2>
                 <form id="businessSearchForm" method="get" class="mt-2 mb-2" action="{{route('business.list')}}">
                     @csrf
@@ -76,17 +76,19 @@
                 <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createBusiness" >
                     <i class="fa fa-plus"></i>&nbsp;Προσθήκη
                 </button>
-               <table id="businessTable" class="table table-striped">
-                   <thead>
-                        <tr>
-                            <th>Όνομα Επιχείρησης</th>
-                            <th>#</th>
-                        </tr>
-                   </thead>
-                   <tbody>
-                        @include('business.components.listBusiness',['rows'=>$businesses])
-                   </tbody>
-                </table>
+                <div class="scrollWrapper">
+                   <table id="businessTable" class="table table-striped">
+                       <thead>
+                            <tr>
+                                <th>Όνομα Επιχείρησης</th>
+                                <th>#</th>
+                            </tr>
+                       </thead>
+                       <tbody>
+                            @include('business.components.listBusiness',['rows'=>$businesses])
+                       </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
