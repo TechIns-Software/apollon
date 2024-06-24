@@ -11,7 +11,7 @@ import 'air-datepicker/air-datepicker.css';
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
 
-import {errorFormHandle,createAlert as mkAlert } from "./common.js";
+import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
 
 function createAlert(msg,success){
     const msgContainer = document.getElementById("msg");
@@ -50,13 +50,7 @@ $(document).ready(function () {
     enableTabs(document.getElementById("myTab"),"#home-tab-pane")
 
     boolInputUponCheckboxCheckedStatus('active');
-    new AirDatepicker("#expiration_date",{
-        locale: el,
-        dateFormat: "yyyy-MM-dd"
-    });
-
-    const msgContainer = document.getElementById("msg");
-
+    initDatePicker();
 
     $("#infoForm").on('submit',function (e){
         e.preventDefault();

@@ -1,6 +1,10 @@
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {stringToDomHtml} from "@techins/jsutils/utils";
 
+import AirDatepicker from "air-datepicker";
+import el from 'air-datepicker/locale/el';
+import 'air-datepicker/air-datepicker.css';
+
 function errorFormHandle(xhr,msgContainer){
     const responseJson = JSON.parse(xhr.responseText)['msg']
 
@@ -24,7 +28,17 @@ function createAlert(msgContainer, msg,success=true){
     msgContainer.innerHTML=alert.outerHTML
 }
 
+function initDatePicker()
+{
+    return new AirDatepicker("#expiration_date",{
+        locale: el,
+        dateFormat: "yyyy-MM-dd",
+        container: "#datePicker"
+    });
+}
+
 export {
     errorFormHandle,
-    createAlert
+    createAlert,
+    initDatePicker
 }

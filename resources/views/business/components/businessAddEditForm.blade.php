@@ -27,7 +27,8 @@
             </div>
         </div>
         <div class="col">
-            <input type="text" id="expiration_date" name="expiration_date" value="{{$business->expiration_date??""}}" class="form-control">
+            <input type="date" id="expiration_date" name="expiration_date" value="{{$business->expiration_date??""}}" class="form-control">
+            <div id="datePicker"></div>
         </div>
     </div>
     <div class="row mb-1 g-3 align-items-center">

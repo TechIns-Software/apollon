@@ -2,9 +2,12 @@ import $ from "jquery";
 import {bootstrapYearMonthChart}  from "../chartCommon.js";
 import {debounce, enableTabs, submitFormAjax} from "@techins/jsutils/utils";
 import {updateQueryParam} from "@techins/jsutils/url";
-import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {Modal} from "bootstrap";
-import {errorFormHandle} from "./common.js";
+import {errorFormHandle, initDatePicker} from "./common.js";
+
+import AirDatepicker from "air-datepicker";
+import el from 'air-datepicker/locale/el';
+import 'air-datepicker/air-datepicker.css';
 
 // Variable that contains list Ajax.
 let prevAjax;
@@ -59,7 +62,28 @@ $(document).ready(function (){
 
     const errorWrapper = document.getElementById("addBussinessErrorWrapper");
 
-    $("#addBusinessForm").on('submit',function (e){
+    const modalWrapper = document.getElementById('createBusiness');
+    let datepicker = null;
+
+    const form = document.getElementById("addBusinessForm")
+
+    modalWrapper.addEventListener('shown.bs.modal',()=>{
+        datepicker = initDatePicker();
+        form.reset()
+    })
+
+    modalWrapper.addEventListener("hidden.bs.modal",()=>{
+        console.log("Closing Modal")
+        if(datepicker!=null){
+            datepicker.destroy();
+            datepicker=null;
+        }
+
+        form.reset()
+    })
+
+
+   form.addEventListener('submit',function (e){
         e.preventDefault()
         const form = e.target
 
@@ -69,7 +93,6 @@ $(document).ready(function (){
 
             document.getElementById("businessTable").querySelector('tbody').prepend(wrapper.content)
             closeAddBusinessModal()
-            form.reset()
         },(xhr)=>{
             errorFormHandle(xhr,errorWrapper)
         })
