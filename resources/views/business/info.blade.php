@@ -68,7 +68,10 @@
 
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-            @include('business.components.businessAddEditForm',['business'=>$business])
+            <form id="infoForm" class="mt-2" method="POST" action="{{route('business.edit')}}">
+                @include('business.components.businessAddEditForm',['business'=>$business])
+                <button class="btn btn-success">Αποθήκευση</button>
+            </form>
         </div>
         <div class="tab-pane fade show" id="products-tab-pane" role="tabpanel" aria-labelledby="products-tab" tabindex="1">
             <form id="productSearchform" method="get" class="mt-2 mb-2" action="{{route('products.fetch')}}">

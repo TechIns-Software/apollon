@@ -1,4 +1,3 @@
-<form id="infoForm" class="mt-2" method="POST" action="{{route($route??'business.edit')}}">
     @csrf
     <input type="hidden" name="business_id" value="{{$business->id??''}}" />
     <div class="row mb-1 g-3 align-items-center">
@@ -51,5 +50,3 @@
             </div>
         </div>
     </div>
-        <button class="btn btn-success">Αποθήκευση</button>
-</form>
