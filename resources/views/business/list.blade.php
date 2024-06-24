@@ -99,8 +99,10 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Προσθήκη Εταιρείας</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="infoForm" class="mt-2" method="POST" action="{{route('business.create')}}">
+                <form id="addBusinessForm" class="mt-2" method="POST" action="{{route('business.create')}}">
+                    <div id="addBussinessErrorWrapper" class="m-2">
 
+                    </div>
                     <div class="modal-body">
                         @include('business.components.businessAddEditForm',['route'=>'business.create'])
                     </div>

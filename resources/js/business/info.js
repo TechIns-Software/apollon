@@ -62,7 +62,7 @@ $(document).ready(function () {
         e.preventDefault();
         const form = e.target
         submitFormAjax(form,(data)=>{
-            createAlert(msgContainer,"Επιτυχής αποθήκευση")
+            createAlert("Επιτυχής αποθήκευση")
         },formSubmitFail)
     })
 

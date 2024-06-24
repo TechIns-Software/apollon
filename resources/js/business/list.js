@@ -4,6 +4,7 @@ import {debounce, enableTabs, submitFormAjax} from "@techins/jsutils/utils";
 import {updateQueryParam} from "@techins/jsutils/url";
 import {addInputErrorMsg} from "@techins/jsutils/input-error";
 import {Modal} from "bootstrap";
+import {errorFormHandle} from "./common.js";
 
 // Variable that contains list Ajax.
 let prevAjax;
@@ -56,7 +57,9 @@ $(document).ready(function (){
         handleSearch();
     }))
 
-    $("#infoForm").on('submit',function (e){
+    const errorWrapper = document.getElementById("addBussinessErrorWrapper");
+
+    $("#addBusinessForm").on('submit',function (e){
         e.preventDefault()
         const form = e.target
 
@@ -68,14 +71,7 @@ $(document).ready(function (){
             closeAddBusinessModal()
             form.reset()
         },(xhr)=>{
-            const response = JSON.parse(xhr.responseText)['msg'];
-            if(xhr.status == 400){
-                Object.keys(response).forEach((key)=>{
-                    const inputElem = form.querySelector(`input[name="${key}"]`)
-                    response[key].forEach((msg)=>addInputErrorMsg(inputElem,msg))
-                })
-                return;
-            }
+            errorFormHandle(xhr,errorWrapper)
         })
     })
 });
