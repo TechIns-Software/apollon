@@ -1,18 +1,7 @@
 @extends('layout.layout-admin')
 
 @section('css')
-    <style>
-        .scrollWrapper {
-            overflow-y: scroll;
-            max-height: 70vh;
-        }
-
-        .scrollWrapper thead tr th {
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-    </style>
+    @vite("resources/css/scrollWrapper.css")
 @endsection
 
 @section('main')
