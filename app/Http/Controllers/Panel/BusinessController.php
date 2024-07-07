@@ -84,6 +84,13 @@ class BusinessController extends Controller
     }
 
 
+    public function get(Request $request,int $business_id)
+    {
+        $business = Business::findOrFail($business_id);
+
+        return view("business.info",['business'=>$business]);
+
+    }
 
     public function edit(Request $request)
     {

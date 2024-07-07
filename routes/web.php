@@ -61,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/business',[\App\Http\Controllers\Panel\BusinessController::class,'list'])->name('business.list');
     Route::get('/business/stats',[\App\Http\Controllers\Panel\BusinessController::class,'businessStats'])->name('business.stats');
 
+    Route::get('/business/{id}',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
+
 
     Route::post('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'add'])->name('business.user.create');
     Route::post('/business/user/edit',[\App\Http\Controllers\Panel\SaasUserController::class,'edit'])->name('business.user.edit');
