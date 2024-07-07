@@ -5,13 +5,9 @@ import { Modal } from "bootstrap";
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,debounce} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 
-import AirDatepicker from "air-datepicker";
-import el from 'air-datepicker/locale/el';
-import 'air-datepicker/air-datepicker.css';
-
 import {bootstrapYearMonthChart} from '../chartCommon.js';
-
 import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
+
 
 function createAlert(msg,success){
     const msgContainer = document.getElementById("msg");

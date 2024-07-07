@@ -34,12 +34,12 @@ function getFilesFromDir(dir) {
 
 
 // Get all .css and .scss files in the directory
-// const pageStyles = getFilesFromDir('./resources/css');
+const pageStyles = getFilesFromDir('./resources/css');
 const js = getFilesFromDir('./resources/js');
 
 const paths = [
 
-    // ...pageStyles,
+    ...pageStyles,
     ...js,
 
     'node_modules/jquery/dist/jquery.js',

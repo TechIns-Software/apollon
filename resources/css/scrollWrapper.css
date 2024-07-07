@@ -1,0 +1,10 @@
+.scrollWrapper {
+    overflow-y: scroll;
+    max-height: 70vh;
+}
+
+.scrollWrapper thead tr th {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+}
