@@ -24,7 +24,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property string $region
  * @property string $description
  * @property string $map_link
+ * @property string $longitude
+ * @property string $latitude
+ *
  * @property-read int $changes_count
+ *
  * @method static \Database\Factories\ClientFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Client newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Client newQuery()
@@ -63,7 +67,9 @@ class Client extends Model
         "state",
         "region",
         "description",
-        "map_link"
+        "map_link",
+        'longitude',
+        "latitude"
     ];
 
 
