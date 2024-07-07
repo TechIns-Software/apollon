@@ -49,6 +49,21 @@
                 Διαχείρηση Προϊόντων
             </a>
         </li>
+        <li class="nav-item" role="presentation">
+            <a
+                class="nav-link"
+                aria-current="page"
+                data-bs-toggle="tab"
+                data-bs-target="#stats-tab-pane"
+                href="#stats-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="stats-tab-pane"
+                aria-selected="true"
+            >
+                Στατιστικά Παραγγελιών
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content" id="myTabContent">
@@ -136,6 +151,22 @@
                 </table>
             </div>
         </div>
+        <div class="tab-pane fade show" id="stats-tab-pane" role="tabpanel" aria-labelledby="stats-tab" tabindex="1">
+            <div class="row mt-1">
+                <div class="col-3">
+                    <form id="statsForm" method="get" action="{{route('order.stats',['id'=>$business->id])}}">
+                        <div class="input-group mb-3">
+                            <input id="year" type="text" pattern="\d{4}" class="form-control yearInput"  placeholder="Εισαγωγή έτους" required/>
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-calendar-plus"></i></button>
+                        </div>
+                        <ul class="form-years">
+                        </ul>
+                    </form>
+                </div>
+                <div id="orderStatsWrapper" class="col"></div>
+            </div>
+        </div>
+    </div>
 
         <div class="modal fade" id="createProduct" tabindex="-1" aria-labelledby="Δημιουργία Προϊόντος" aria-hidden="true">
             <div class="modal-dialog">
@@ -158,7 +189,6 @@
                 </div>
             </div>
         </div>
-    </div>
 @endsection
 
 @section('js')

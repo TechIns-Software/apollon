@@ -60,13 +60,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/business/edit',[\App\Http\Controllers\Panel\BusinessController::class,'edit'])->name('business.edit');
     Route::get('/business',[\App\Http\Controllers\Panel\BusinessController::class,'list'])->name('business.list');
     Route::get('/business/stats',[\App\Http\Controllers\Panel\BusinessController::class,'businessStats'])->name('business.stats');
-
-    Route::get('/business/{id}',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
-
-
     Route::post('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'add'])->name('business.user.create');
     Route::post('/business/user/edit',[\App\Http\Controllers\Panel\SaasUserController::class,'edit'])->name('business.user.edit');
     Route::get('/business/user',[\App\Http\Controllers\Panel\SaasUserController::class,'list'])->name('business.user');
+
+    Route::get('/business/{id}',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
+    Route::get('/business/{id}/order/stats',[\App\Http\Controllers\Panel\BusinessController::class,'orderStats'])->name("order.stats");
+
 
     Route::post('/product',[\App\Http\Controllers\Panel\ProductsController::class,'addProduct'])->name("product.add");
     Route::get('/products',[\App\Http\Controllers\Panel\ProductsController::class,'listProducts'])->name("products.fetch");

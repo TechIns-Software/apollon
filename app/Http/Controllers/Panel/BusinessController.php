@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\Order;
 use App\Models\Product;
 use App\Rules\ValidateBoolean;
+use App\Services\Stats\OrderStats;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,6 +65,15 @@ class BusinessController extends Controller
 
         return new JsonResponse($monthStats);
     }
+    public function orderStats(Request $request,int $businesId)
+    {
+        $years = $request->get('year',[(int)Carbon::now()->format('Y')]);
+
+        $orderStats = new OrderStats($businesId,$years);
+
+        return new JsonResponse($orderStats->getStats());
+    }
+
 
     public function list(Request $request)
     {
