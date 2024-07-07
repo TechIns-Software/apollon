@@ -13,11 +13,15 @@
             z-index: 99;
         }
     </style>
+    <meta name="chart_url" content="{{route('business.stats')}}">
 @endsection
 
 @section('main')
-    <h1>Επιχειρήσεις</h1>
-    <div id="business_container" class="scrollWrapper">
+    <h1 class="mt-1">Επιχειρήσεις</h1>
+    <div id="statsContainer" class="row justify-content-center align-items-center" style="height: 35vh">
+    </div>
+    <div id="business_container" class="mt-1 scrollWrapper">
+       <h2>Λίστα Επιχειρήσεων</h2>
        <table class="table table-striped">
            <thead>
                 <tr>
