@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Order;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -67,6 +69,51 @@ class ClientController extends Controller
         $client = Client::create($data);
 
         return response()->json($client, 201);
+    }
+
+    public function orders(Request $request, int $client_id)
+    {
+        $user = $request->user();
+
+        $page = $request->get('page')??1;
+        $limit = $request->get('limit')??20;
+
+        if($page <= 0){
+            return new JsonResponse(['msg'=>"Page must have positive value"],400);
+        }
+
+        if($limit <= 0){
+            return new JsonResponse(['msg'=>"Limit must have positive value"],400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'from_date'=>"sometimes|date",
+            "to_date"=>"sometimes|date"
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['msg' => $validator->errors()], 400);
+        }
+
+        $qb = Order::where('client_id',$client_id)
+            ->where('business_id',$user->business_id)
+            ->orderBy('created_at','DESC');
+
+        if($request->has('from_date')){
+            $qb=$qb->where('created_at',">=",$request->get('from_date'));
+        }
+
+        if($request->has('to_date')){
+            $qb=$qb->where('created_at',"<=",$request->get('to_date'));
+        }
+        $sql = $qb->toSql();
+
+        $orders=$qb->offset(($page - 1) * $limit)
+            ->simplePaginate($limit);
+
+        $orders->appends(['limit'=>$limit, 'page' => $page+1]);
+
+        return new JsonResponse($orders,200);
     }
 
     public function edit(Request $request)

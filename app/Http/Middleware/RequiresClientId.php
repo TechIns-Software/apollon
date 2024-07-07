@@ -6,7 +6,7 @@ use App\Models\Client;
 
 class RequiresClientId extends MissingIdBaseMiddleware
 {
-    protected $notFoundMsg="Η παραγγελία δεν Υπάρχει";
+    protected $notFoundMsg="O πελάτης δεν υπάρχει";
     protected $mergeRequestKey="client";
 
     protected function getModel(int $id)

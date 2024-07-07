@@ -5,7 +5,9 @@ namespace Feature\Controllers\API;
 use App\Models\Business;
 use App\Models\SaasUser;
 use App\Models\Client;
+use App\Models\Order;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Support\Facades\DB;
@@ -511,6 +513,134 @@ class ClientControllerTest extends TestCase
 
         foreach ($clientInDb as  $key=>$item) {
             $this->assertEquals($item,$customer->$key);
+        }
+    }
+
+    public function testGetOrdersForASpecificClient()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->withOrders()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id."/orders",[]);
+
+        $result->assertStatus(200);
+
+        $expectedOrdersIds = Order::where('client_id',$customer->id)->get()->pluck('id');
+        $resultOrders = $result->json('data');
+
+        foreach ($resultOrders as $order){
+            $this->assertContains($order['id'],$expectedOrdersIds);
+        }
+    }
+
+    public function testGetOrdersWrongUser()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->withOrders()->create();
+
+        $business = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id."/orders",[]);
+
+        $result->assertStatus(403);
+    }
+
+    public function testGetOrdersUserBelongsIntoSameBusiness()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->withOrders()->create();
+
+        $user2 = SaasUser::factory()->create(['business_id'=>$user->business_id]);
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+
+        $result = $this->get("/api/client/".$customer->id."/orders",[]);
+
+        $result->assertStatus(200);
+
+        $expectedOrdersIds = Order::where('client_id',$customer->id)->get()->pluck('id');
+        $resultOrders = $result->json('data');
+
+        foreach ($resultOrders as $order){
+            $this->assertContains($order['id'],$expectedOrdersIds);
+        }
+    }
+
+    public function testGetOrdersMissingUser()
+    {
+        $user = SaasUser::factory()->create();
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        DB::statement("DELETE FROM client;");
+
+        // Fetch User id 445. Clients is an empty table
+        $result = $this->get("/api/client/445/orders",[]);
+        $result->assertStatus(404);
+    }
+
+    public function testGetOrdersDateRange()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create();
+
+        $date_from = Carbon::now()->modify("-10 days");
+        $date_to = Carbon::now()->modify("+10 days");
+        $date_off = Carbon::now()->modify("+20 days");
+
+        for($date = (new Carbon($date_from));$date->lessThanOrEqualTo($date_off);$date->modify("+1 day")){
+            Order::factory()->withUser($user)->create([
+                'created_at'=>$date,
+                'client_id'=>$customer->id,
+                'business_id'=>$customer->business_id
+            ]);
+        }
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->get("/api/client/".$customer->id."/orders?from_date=".$date_from->format('Y-m-d')."&to_date=".$date_to->format("Y-m-d"), []);
+        $result->assertStatus(200);
+
+        $expectedOrdersIds = Order::where('client_id',$customer->id)
+            ->where('business_id',$customer->business_id)
+            ->where('created_at',">=",$date_from)
+            ->where('created_at',"<=",$date_to)
+            ->orderBy('created_at','DESC');
+
+
+        $expectedOrdersIds=$expectedOrdersIds->pluck('id');
+
+        $unexpectedOrdersIds = Order::where('created_at',">",$date_to)->where('client_id',$customer->id)
+            ->where('business_id',$customer->business_id)
+            ->where('created_at',"<=",$date_off)
+            ->orderBy('created_at','DESC')
+            ->pluck('id');
+
+        $resultOrders = $result->json('data');
+
+        foreach ($resultOrders as $order){
+            $this->assertContains($order['id'],$expectedOrdersIds);
+            $this->assertNotContains($order['id'],$unexpectedOrdersIds);
         }
     }
 }
