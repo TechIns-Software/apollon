@@ -37,7 +37,7 @@ class ProductsController extends Controller
             return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης."], 500);
         }
 
-        return new Response(View::make('components.productListItem',['row'=>$product]), 201);
+        return new Response(View::make('business.components.productListItem',['row'=>$product]), 201);
     }
 
     public function listProducts(Request $request)

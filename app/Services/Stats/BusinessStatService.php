@@ -10,9 +10,9 @@ abstract class BusinessStatService
 
     private $years;
 
-    public function __construct(array $years=[])
+    public function __construct(?array $years=[])
     {
-        $this->years = empty($years)?$years:[(int)Carbon::now()->format('Y')];
+        $this->years = !empty($years)?$years:[(int)Carbon::now()->format('Y')];
     }
 
     public function getYears()
@@ -80,7 +80,7 @@ abstract class BusinessStatService
         $monthStats=[];
 
         foreach ($this->years as $year){
-            $monthStats[$year]=array_fill(0,12,0);
+            $monthStats[$year]=array_fill(1,12,0);
         }
 
         foreach ($dbResult as $item){
