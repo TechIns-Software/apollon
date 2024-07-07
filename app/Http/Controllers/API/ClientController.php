@@ -79,11 +79,11 @@ class ClientController extends Controller
         $limit = $request->get('limit')??20;
 
         if($page <= 0){
-            return new JsonResponse(['msg'=>"Page must have positive value"],400);
+            return new JsonResponse(['msg'=>["page"=>"Page must have positive value"]],400);
         }
 
         if($limit <= 0){
-            return new JsonResponse(['msg'=>"Limit must have positive value"],400);
+            return new JsonResponse(['msg'=>["limit"=>"Limit must have positive value"]],400);
         }
 
         $validator = Validator::make($request->all(), [

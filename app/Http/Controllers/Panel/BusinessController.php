@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\Product;
 use App\Rules\ValidateBoolean;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
@@ -87,8 +88,10 @@ class BusinessController extends Controller
     public function get(Request $request,int $business_id)
     {
         $business = Business::findOrFail($business_id);
-
-        return view("business.info",['business'=>$business]);
+        $products = Product::where("business_id",$business->id)->orderBy('created_at','DESC')->orderBy('name','ASC')
+            ->cursorPaginate(20)
+            ->withPath('/products?business_id='.$business->id);
+        return view("business.info",['business'=>$business,'products'=>$products]);
 
     }
 

@@ -15,6 +15,8 @@ class ProductControllersTest extends TestCase
     {
         $user = User::factory()->create();
         $business = Business::factory()->create();
+        $existingProductIds = $business->products()->pluck('id');
+
         $this->actingAs($user);
 
         $body=[
@@ -25,10 +27,7 @@ class ProductControllersTest extends TestCase
         $response = $this->post('/product',$body);
         $response->assertStatus(201);
 
-        $json = $response->json();
-        $this->assertEquals("Hello",$json['name']);
-
-        $product = Product::find($json['id']);
+        $product = Product::where('business_id',$business->id)->whereNotIn('id',$existingProductIds)->first();
 
         $this->assertEquals("Hello",$product->name);
         $this->assertEquals($business->id,$product->business_id);

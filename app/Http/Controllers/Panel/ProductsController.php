@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use View;
+
 class ProductsController extends Controller
 {
     public function addProduct(Request $request)
@@ -33,7 +37,7 @@ class ProductsController extends Controller
             return new JsonResponse(['msg'=>"Αδυναμία αποθήκευσης."], 500);
         }
 
-        return new JsonResponse($product, 201);
+        return new Response(View::make('components.productListItem',['row'=>$product]), 201);
     }
 
     public function listProducts(Request $request)
@@ -48,10 +52,36 @@ class ProductsController extends Controller
             return new JsonResponse(['errors' => $validator->errors()], 400);
         }
 
-        $products = Product::whereBusinessId($items['business_id'])->get();
-        return new JsonResponse($products, 200);
+        $qb = Product::whereBusinessId($items['business_id']);
+
+        $searchterm = $request->input('name',null);
+        if(!empty($searchterm)){
+           $qb->where('name','like','%'.$searchterm.'%');
+        }
+        $qb->orderBy('created_at','DESC')->orderBy('name','ASC');
+
+        $cursor = $request->input('cursor', null);
+        if(!empty($cursor)) {
+            $products = $qb->cursorPaginate(20, ['*'], 'cursor', $cursor);
+        } else {
+            $products = $qb->cursorPaginate(50);
+        }
+
+        return view('components/listProducts',['rows'=>$products]);;
     }
 
+    /**
+     *
+     * As you'll see upon frontend I edit them mone at a time but this route mass edits products
+     * The frontend has been implemented later because the initial planning was for another person to implement it.
+     *
+     * Also, there was no initial design upon product edit thus I made it generic.
+     *
+     * @author DESYLLAS DIMITRIOS <ddesyllas@techins.gr>
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function editProducts(Request $request)
     {
         $productsToModify = [];
@@ -63,7 +93,7 @@ class ProductsController extends Controller
                 function (string $attribute, mixed $value, \Closure $fail) use (&$productsToModify) {
                     $productId = (int)str_replace('products.',"",$attribute);
                     if($productId < 1){
-                        $fail("Το id του προϊόντος δεν μπορεί να ειναι αρνητικό");
+                        $fail("Το id του προϊόντος δεν μπορεί να είναι αρνητικό");
                         return;
                     }
 
