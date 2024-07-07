@@ -1,0 +1,43 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      php: 8.2
+      nodejs: 20
+  pre_build:
+    commands:
+      - npm install
+      - composer install
+  build:
+    commands:
+      - npm run build
+      - ls -l .env*
+      - cp .env.$ENVIRONMENT .env
+      - php artisan key:generate
+      - sed -i "s/MAIL_HOST=.*/MAIL_HOST=$SMTP_HOST/" .env
+      - sed -i "s/MAIL_USERNAME=.*/MAIL_USERNAME=$SMTP_USER/" .env
+      - sed -i "s/MAIL_PASSWORD=.*/MAIL_PASSWORD=$SMTP_PASSWD/" .env
+      - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
+      - sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
+      - sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_NAME/" .env
+      - composer install --optimize-autoloader --no-dev
+      - cp appspec.$ENVIRONMENT.yml appspec.yml
+
+artifacts:
+  files:
+    - app/**/*
+    - config/*
+    - database/**/*
+    - routes/*
+    - resources/**/*
+    - storage/**/*
+    - vendor/**/*
+    - public/**/*
+    - bootstrap/**/*
+    - composer.json
+    - composer.lock
+    - .env
+    - deploy/**/*
+    - artisan
+    - appspec.yml

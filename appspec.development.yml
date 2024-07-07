@@ -1,0 +1,20 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /var/www/html/app
+
+hooks:
+  ApplicationStop:
+    - location: deploy/application-stop.sh
+      runas: root
+  BeforeInstall:
+    - location: deploy/clean-files.sh
+      runas: root
+  AfterInstall:
+    - location: deploy/install_app.sh
+      runas: root
+  ApplicationStart:
+    - location: deploy/application-start.sh
+      runas: root
