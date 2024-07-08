@@ -46,7 +46,7 @@ return [
     |
     */
 
-    'expiration' => 60,
+    'expiration' => 10080, // 69 minutes * 24 Hours * 7 Days. Expiration is needed to be after a week.
 
     /*
     |--------------------------------------------------------------------------
