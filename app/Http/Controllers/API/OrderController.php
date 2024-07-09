@@ -127,7 +127,7 @@ class OrderController extends Controller implements HasMiddleware
 
         $qb = Order::whereBusinessId($user->business_id);
 
-        $without_delivery = $request->get("without_delivery")??false;
+        $without_delivery = parseBool($request->get("without_delivery"))??false;
         if(!$without_delivery){
             $qb->whereNotIn('id',function(\Illuminate\Database\Query\Builder $q) use ($user){
                 $q->select('order_id')

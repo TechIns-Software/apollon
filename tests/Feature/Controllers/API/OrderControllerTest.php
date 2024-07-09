@@ -4,12 +4,14 @@ namespace Feature\Controllers\API;
 
 use App\Models\Business;
 use App\Models\Client;
+use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SaasUser;
 use App\Models\ProductOrder;
+use App\Models\DeliveryOrder;
 
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -430,5 +432,30 @@ class OrderControllerTest extends TestCase
 
         $existingProducts = ProductOrder::where('order_id',$order->id)->pluck('product_id')->count();
         $this->assertNotEquals(0,$existingProducts);
+    }
+
+    public function testGetOrdersWithoutDelivery()
+    {
+        $user = SaasUser::factory()->create();
+
+        $delivery = Delivery::factory(2)->withOrders()->create(['business_id'=>$user->business_id]);
+        $ordersWithDelivery = DeliveryOrder::pluck('order_id')->toArray();
+
+        $orderWithoutDelivery = Order::factory()->create();
+        DeliveryOrder::where('order_id',$orderWithoutDelivery->id)->delete();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->get('/api/order?without_delivery=false');
+        $responseBody = $response->json('data');
+        $response->assertStatus(200);
+
+        $this->assertCount(1,$responseBody);
+        $responseOrder = $responseBody[0];
+        $this->assertNotContains($responseOrder['id'],$ordersWithDelivery);
+        $this->assertEquals($orderWithoutDelivery->id,$responseOrder['id']);
     }
 }
