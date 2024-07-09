@@ -76,15 +76,13 @@
             </form>
         </div>
         <div class="tab-pane fade show" id="products-tab-pane" role="tabpanel" aria-labelledby="products-tab" tabindex="1">
-            <form id="productSearchform" method="get" class="mt-2 mb-2" action="{{route('products.fetch')}}">
-                @csrf
-                <input type="hidden" name="business_id" value="{{$business->id}}">
-                <div class="input-group mb-3">
-                    <input id="inputSearchField" name="name" class="form-control" placeholder="Αναζητήστε ένα προϊόν ">
-                    <button id="cleanSearch" class="btn btn-outline-secondary" type="submit"><i class="fa fa-x"></i></button>
-                    <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
-                </div>
-            </form>
+            @include("business.components.searchForm",[
+                'action'=>'products.fetch',
+                'id'=>"productSearchform",
+                'business'=>$business,
+                'placeholder'=>"Αναζητήστε έναν προϊόν",
+                "inputSearchId"=>"productSearch"
+            ])
             <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createProduct" >
                 <i class="fa fa-plus"></i>&nbsp;Προσθήκη Προϊόντος
             </button>
@@ -103,15 +101,14 @@
             </div>
         </div>
         <div class="tab-pane fade show" id="users-tab-pane" role="tabpanel" aria-labelledby="users-tab" tabindex="1">
-            <form id="userSearchFomr" method="get" class="mt-2 mb-2" action="{{route('business.user')}}">
-                @csrf
-                <input type="hidden" name="business_id" value="{{$business->id}}">
-                <div class="input-group mb-3">
-                    <input id="inputSearchField" name="name" class="form-control" placeholder="Αναζητήστε έναν χρήστη ">
-                    <button id="cleanSearch" class="btn btn-outline-secondary" type="submit"><i class="fa fa-x"></i></button>
-                    <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
-                </div>
-            </form>
+            @include("business.components.searchForm",[
+                'action'=>"business.user",
+                'id'=>"userSearchForm",
+                'business'=>$business,
+                'searchValName'=>'searchterm',
+                'placeholder'=>"Αναζητήστε έναν Χρήστη",
+                "inputSearchId"=>"userSearch"
+            ])
             <div id="userScroll" class="scrollWrapper">
                 <table id="userListTable" class="table">
                     <thead>

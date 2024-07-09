@@ -7,6 +7,7 @@ import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
 import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
+import SearchForm from "./searchForm.js";
 
 
 function createAlert(msg,success){
@@ -107,25 +108,16 @@ $(document).ready(function () {
         contentSelector: '#productScroll.tbody',}
     );
 
-    const searchForm = document.getElementById("productSearchform");
-
-    $("#productSearchform").on('submit',function (e){
-        e.preventDefault();
-        e.stopPropagation();
-
-        handleSearch();
+    $("#userScroll").jscroll({
+        loadingHtml: '<tr>' +
+            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
+            '</tr>',
+        nextSelector: 'a.jscroll-next:last',
+        contentSelector: '#userScroll.tbody'
     });
 
-    $("#inputSearchField").on('change',debounce(()=>{
-        handleSearch();
-    }));
-
-    $("#cleanSearch").on('click',debounce(()=>{
-        console.log("Here")
-        document.getElementById("inputSearchField").value="";
-        handleSearch();
-    }))
-
+    new SearchForm("productSearchform","productListTable",()=>{})
+    new SearchForm("userSearchForm","userListTable",()=>{})
 
     bootstrapYearMonthChart("statsForm","orderStatsWrapper");
 })
