@@ -76,6 +76,11 @@ class SaasUserController extends Controller
         return new JsonResponse($user,201);
     }
 
+    public function userInfo(Request $request,$user_id)
+    {
+        return "Hello";
+    }
+
     public function edit(Request $request)
     {
         /**

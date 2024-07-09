@@ -103,7 +103,30 @@
             </div>
         </div>
         <div class="tab-pane fade show" id="users-tab-pane" role="tabpanel" aria-labelledby="users-tab" tabindex="1">
-            Χρήστες
+            <form id="userSearchFomr" method="get" class="mt-2 mb-2" action="{{route('business.user')}}">
+                @csrf
+                <input type="hidden" name="business_id" value="{{$business->id}}">
+                <div class="input-group mb-3">
+                    <input id="inputSearchField" name="name" class="form-control" placeholder="Αναζητήστε έναν χρήστη ">
+                    <button id="cleanSearch" class="btn btn-outline-secondary" type="submit"><i class="fa fa-x"></i></button>
+                    <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+            <div id="userScroll" class="scrollWrapper">
+                <table id="userListTable" class="table">
+                    <thead>
+                    <tr>
+                        <th>Ον/νυμο</th>
+                        <th>email</th>
+                        <th>Ημ/νια Δημιουργίας</th>
+                        <th>#</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @include('business.components.userList',['rows'=>$users])
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="tab-pane fade show" id="stats-tab-pane" role="tabpanel" aria-labelledby="stats-tab" tabindex="1">
             <div class="row mt-1">
