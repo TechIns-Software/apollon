@@ -482,6 +482,24 @@ class OrderControllerTest extends TestCase
             $this->assertNotEquals($orderWithoutDelivery->id,$deliveryInResponse['id']);
             $this->assertContains($deliveryInResponse['id'],$ordersWithDelivery);
         }
+    }
 
+    public function testValidateWrongWithoutDelivery()
+    {
+        $user = SaasUser::factory()->create();
+
+        $delivery = Delivery::factory(2)->withOrders()->create(['business_id'=>$user->business_id]);
+        $ordersWithDelivery = DeliveryOrder::pluck('order_id')->toArray();
+
+        $orderWithoutDelivery = Order::factory()->withUser($user)->create();
+        DeliveryOrder::where('order_id',$orderWithoutDelivery->id)->delete();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $response = $this->get('/api/order?without_delivery=lalalala');
+        $response->assertStatus(400);
+        $response->assertJsonMissing(['data']);
     }
 }
