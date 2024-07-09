@@ -85,6 +85,8 @@ class OrderFactory extends Factory
             $this->setUser($user,$order);
         });
     }
+
+
     public function configure()
     {
         return $this->afterMaking(function (Order $order){

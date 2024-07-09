@@ -11,7 +11,10 @@ use App\Models\Client;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductOrder;
+use App\Models\Delivery;
+use App\Models\DeliveryOrder;
 
+use App\Rules\ValidateBoolean;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\Controller;
@@ -112,21 +115,49 @@ class OrderController extends Controller implements HasMiddleware
     {
         $user = $request->user();
 
+        $errors = [
+            'page'=>"Page must have positive value",
+            'limit'=>"Limit must have positive value",
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'page'=>"sometimes|integer|min:1",
+            "limit"=>"sometimes|integer|min:1",
+            "without_delivery"=>[
+                'sometimes',
+                new ValidateBoolean()
+            ]
+        ],$errors);
+
+        if($validator->fails()){
+            return new JsonResponse($validator->errors(), 400);
+        }
+
+        // Input is validated Above
         $page = $request->get('page')??1;
         $limit = $request->get('limit')??20;
 
-        if($page <= 0){
-            return new JsonResponse(['msg'=>"Page must have positive value"],400);
+        $qb = Order::whereBusinessId($user->business_id);
+
+        if($request->has('without_delivery')){
+
+            $closure = function(\Illuminate\Database\Query\Builder $q) use ($user){
+                $q->select('order_id')
+                    ->from(DeliveryOrder::TABLE)
+                    ->join(Delivery::TABLE,Delivery::TABLE.".id","=",DeliveryOrder::TABLE.".delivery_id")
+                    ->where(Delivery::TABLE.".business_id",$user->business_id);
+            };
+            $without_delivery = parseBool($request->get("without_delivery"))??false;
+
+            if($without_delivery){
+                $qb->whereNotIn('id',$closure);
+            } else {
+                $qb->whereIn('id',$closure);
+            }
         }
 
-        if($limit <= 0){
-            return new JsonResponse(['msg'=>"Limit must have positive value"],400);
-        }
-
-        $orders = Order::whereBusinessId($user->business_id)
-            ->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
+        $orders = $qb->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
             ->simplePaginate($limit);
-
         $orders->appends(['limit'=>$limit, 'page' => $page+1]);
 
         return new JsonResponse($orders,200);

@@ -33,7 +33,8 @@ class Delivery extends Model
 {
     use HasFactory,SoftDeletes;
 
-    protected $table="delivery";
+    const TABLE="delivery";
+    protected $table=self::TABLE;
 
     protected $fillable=[
         'driver_name',
