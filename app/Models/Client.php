@@ -69,7 +69,9 @@ class Client extends Model
         "description",
         "map_link",
         'longitude',
-        "latitude"
+        "latitude",
+        "email",
+        "nomos"
     ];
 
 
