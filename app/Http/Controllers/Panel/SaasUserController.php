@@ -173,10 +173,20 @@ class SaasUserController extends Controller
 
         $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
 
-        $page = $request->get('page')??1;
-        $limit = $request->get('limit')??10;
-        $paginationResult = $qb->offset(($page - 1) * $limit)->paginate($limit);
+        $searchterm = $request->get('searchterm');
 
-        return new JsonResponse($paginationResult,200);
+        if(!empty($searchterm)){
+            $qb->where('name','like','%'.$searchterm.'%')
+                ->orWhere('email','like','%'.$searchterm.'%');
+        }
+
+        $cursor = $request->input('cursor', null);
+        if(!empty($cursor)) {
+            $paginationResult = $qb->cursorPaginate(50, ['*'], 'cursor', $cursor);
+        } else {
+            $paginationResult = $qb->cursorPaginate(50);
+        }
+
+        return view('business.components.userList',['rows'=>$paginationResult]);
     }
 }
