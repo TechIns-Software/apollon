@@ -26,6 +26,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property string $map_link
  * @property string $longitude
  * @property string $latitude
+ * @property string $email
+ * @property string $nomos
+ * @property string $afm
  *
  * @property-read int $changes_count
  *
@@ -71,7 +74,8 @@ class Client extends Model
         'longitude',
         "latitude",
         "email",
-        "nomos"
+        "nomos",
+        'afm'
     ];
 
 

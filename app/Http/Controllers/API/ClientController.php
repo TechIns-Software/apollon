@@ -59,6 +59,7 @@ class ClientController extends Controller
             'longitude' => 'required_with:latitude|string',
             "email"=>"sometimes|nullable|string|email",
             "nomos"=>"sometimes|nullable|string",
+            'afm'=>"sometimes|numeric"
         ]);
 
         if ($validator->fails()) {
@@ -144,6 +145,7 @@ class ClientController extends Controller
             'longitude' => 'required_with:latitude|string',
             "email"=>"sometimes|nullable|string|email",
             "nomos"=>"sometimes|nullable|string",
+            'afm'=>"sometimes|nullable|numeric"
         ]);
 
         if ($validator->fails()) {
