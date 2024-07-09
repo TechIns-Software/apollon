@@ -43,6 +43,19 @@
                 class="nav-link"
                 aria-current="page"
                 data-bs-toggle="tab"
+                data-bs-target="#users-tab-pane"
+                href="#users-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="users-tab-pane" aria-selected="true">
+                Διαχείρηση Χρηστών
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a
+                class="nav-link"
+                aria-current="page"
+                data-bs-toggle="tab"
                 data-bs-target="#stats-tab-pane"
                 href="#stats-tab-pane"
                 type="button"
@@ -88,6 +101,9 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="tab-pane fade show" id="users-tab-pane" role="tabpanel" aria-labelledby="users-tab" tabindex="1">
+            Χρήστες
         </div>
         <div class="tab-pane fade show" id="stats-tab-pane" role="tabpanel" aria-labelledby="stats-tab" tabindex="1">
             <div class="row mt-1">
