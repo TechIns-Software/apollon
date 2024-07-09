@@ -9,8 +9,9 @@ use Thiagoprz\EloquentCompositeKey\HasCompositePrimaryKey;
 class ProductOrder extends Model
 {
     use HasFactory;
+    const TABLE = 'product_order';
 
-    protected $table='product_order';
+    protected $table=self::TABLE;
 
     public $incrementing = false;
     protected $primaryKey = ['order_id', 'product_id'];

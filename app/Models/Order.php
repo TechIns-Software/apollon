@@ -42,7 +42,8 @@ class Order extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table="order";
+    const TABLE = 'order';
+    protected $table=self::TABLE;
 
     protected $fillable = [
         'client_id',

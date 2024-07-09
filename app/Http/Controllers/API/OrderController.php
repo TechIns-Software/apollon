@@ -11,6 +11,8 @@ use App\Models\Client;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductOrder;
+use App\Models\Delivery;
+use App\Models\DeliveryOrder;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -123,10 +125,20 @@ class OrderController extends Controller implements HasMiddleware
             return new JsonResponse(['msg'=>"Limit must have positive value"],400);
         }
 
-        $orders = Order::whereBusinessId($user->business_id)
-            ->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
-            ->simplePaginate($limit);
+        $qb = Order::whereBusinessId($user->business_id);
 
+        $without_delivery = $request->get("without_delivery")??false;
+        if(!$without_delivery){
+            $qb->whereNotIn('id',function(\Illuminate\Database\Query\Builder $q) use ($user){
+                $q->select('order_id')
+                    ->from(DeliveryOrder::TABLE)
+                    ->join(Delivery::TABLE,Delivery::TABLE.".id","=",DeliveryOrder::TABLE.".delivery_id")
+                    ->where(Delivery::TABLE.".business_id",$user->business_id);
+            });
+        }
+
+        $orders = $qb->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
+            ->simplePaginate($limit);
         $orders->appends(['limit'=>$limit, 'page' => $page+1]);
 
         return new JsonResponse($orders,200);

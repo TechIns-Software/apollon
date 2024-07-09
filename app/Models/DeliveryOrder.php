@@ -29,7 +29,10 @@ use Illuminate\Database\Eloquent\Model;
 class DeliveryOrder extends Model
 {
     use HasFactory;
-    protected $table="delivery_order";
+
+    const TABLE = 'delivery_order';
+
+    protected $table=self::TABLE;
 
     protected $fillable = ['order_id','delivery_id','delivery_sequence'];
 
