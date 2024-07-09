@@ -127,14 +127,21 @@ class OrderController extends Controller implements HasMiddleware
 
         $qb = Order::whereBusinessId($user->business_id);
 
-        $without_delivery = parseBool($request->get("without_delivery"))??false;
-        if(!$without_delivery){
-            $qb->whereNotIn('id',function(\Illuminate\Database\Query\Builder $q) use ($user){
+        if($request->has('without_delivery')){
+
+            $closure = function(\Illuminate\Database\Query\Builder $q) use ($user){
                 $q->select('order_id')
                     ->from(DeliveryOrder::TABLE)
                     ->join(Delivery::TABLE,Delivery::TABLE.".id","=",DeliveryOrder::TABLE.".delivery_id")
                     ->where(Delivery::TABLE.".business_id",$user->business_id);
-            });
+            };
+            $without_delivery = parseBool($request->get("without_delivery"))??false;
+
+            if($without_delivery){
+                $qb->whereNotIn('id',$closure);
+            } else {
+                $qb->whereIn('id',$closure);
+            }
         }
 
         $orders = $qb->orderBy('created_at','DESC')->offset(($page - 1) * $limit)

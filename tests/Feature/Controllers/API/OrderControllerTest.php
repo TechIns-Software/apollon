@@ -441,7 +441,31 @@ class OrderControllerTest extends TestCase
         $delivery = Delivery::factory(2)->withOrders()->create(['business_id'=>$user->business_id]);
         $ordersWithDelivery = DeliveryOrder::pluck('order_id')->toArray();
 
-        $orderWithoutDelivery = Order::factory()->create();
+        $orderWithoutDelivery = Order::factory()->withUser($user)->create();
+        DeliveryOrder::where('order_id',$orderWithoutDelivery->id)->delete();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->get('/api/order?without_delivery=true');
+        $responseBody = $response->json('data');
+        $response->assertStatus(200);
+
+        $this->assertCount(1,$responseBody);
+        $responseOrder = $responseBody[0];
+        $this->assertNotContains($responseOrder['id'],$ordersWithDelivery);
+        $this->assertEquals($orderWithoutDelivery->id,$responseOrder['id']);
+    }
+    public function testGetOrdersWithoutDeliveryAsFalse()
+    {
+        $user = SaasUser::factory()->create();
+
+        $delivery = Delivery::factory(2)->withOrders()->create(['business_id'=>$user->business_id]);
+        $ordersWithDelivery = DeliveryOrder::pluck('order_id')->toArray();
+
+        $orderWithoutDelivery = Order::factory()->withUser($user)->create();
         DeliveryOrder::where('order_id',$orderWithoutDelivery->id)->delete();
 
         Sanctum::actingAs(
@@ -453,9 +477,11 @@ class OrderControllerTest extends TestCase
         $responseBody = $response->json('data');
         $response->assertStatus(200);
 
-        $this->assertCount(1,$responseBody);
-        $responseOrder = $responseBody[0];
-        $this->assertNotContains($responseOrder['id'],$ordersWithDelivery);
-        $this->assertEquals($orderWithoutDelivery->id,$responseOrder['id']);
+        foreach ($responseBody as $deliveryInResponse){
+
+            $this->assertNotEquals($orderWithoutDelivery->id,$deliveryInResponse['id']);
+            $this->assertContains($deliveryInResponse['id'],$ordersWithDelivery);
+        }
+
     }
 }
