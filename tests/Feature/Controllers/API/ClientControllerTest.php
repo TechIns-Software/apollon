@@ -34,12 +34,14 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu"
+            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
+            "email"=>"user@example.com",
+            "nomos"=>"Αττική",
+            "afm"=>"1234"
         ];
 
         $result = $this->post(route('client.create'),$payload);
         $jsonResult = $result->json();
-
         $result->assertStatus(201);
         $result->assertJson($payload);
         $itemInDb = Client::find($jsonResult['id']);
@@ -51,6 +53,37 @@ class ClientControllerTest extends TestCase
         foreach ($payload as $key => $value) {
            $this->assertEquals($value, $itemInDb->$key);
         }
+    }
+
+    public function testInsertEmail()
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
+            "email"=>"dsaddsdsdsa",
+            "nomos"=>"Αττική"
+        ];
+
+        $result = $this->post(route('client.create'),$payload);
+
+        $result->assertStatus(400);
+
+        $clients = Client::count();
+        $this->assertEquals(0,$clients);
     }
 
     public function testInsertCoords()
@@ -244,7 +277,10 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu"
+            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
+            "email"=>"user@example.com",
+            "nomos"=>"Attica",
+            "afm"=>'1234'
         ];
 
         $result = $this->post("/api/client/".$customer->id,$payload);
@@ -265,6 +301,47 @@ class ClientControllerTest extends TestCase
         }
     }
 
+    public function testUpdateWrongEmail()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create(['email'=>"user@example.com"])->refresh();
+        $origCount = $customer->changes_count;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=['email'=>"dsasaddsadassad"];
+
+        $result = $this->post("/api/client/".$customer->id,$payload);
+        $result->assertStatus(400);
+
+        $customer = Client::find($customer->id);
+
+        $this->assertEquals('user@example.com',$customer->email);
+
+    }
+
+    public function testUpdateEmailOnlySuccess()
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create(['email'=>"user@example.com"])->refresh();
+        $origCount = $customer->changes_count;
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=['email'=>"user12@example.com"];
+
+        $result = $this->post("/api/client/".$customer->id,$payload);
+        $result->assertStatus(200);
+
+        $customer = Client::find($customer->id);
+
+        $this->assertEquals('user12@example.com',$customer->email);
+
+    }
     public function testUpdateCoordinatesSuccess()
     {
         $user = SaasUser::factory()->create();
