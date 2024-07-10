@@ -5,7 +5,7 @@ import { Modal } from "bootstrap";
 
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
-import {errorResponseHandler} from "@techins/jsutils/input-error";
+import {clearInputErrorMessage, errorResponseHandler,} from "@techins/jsutils/input-error";
 import SearchForm from "@techins/jsutils/searchForm";
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
@@ -109,8 +109,13 @@ $(document).ready(function () {
                     resetProductAddModal()
                 }
             })
+        },()=>{
+            form.querySelectorAll('input').forEach((item)=>{
+                console.log("Before Send",item)
+                clearInputErrorMessage(item)
+            });
         });
-    });
+    },);
 
     $("#productScroll").jscroll( {
         loadingHtml: '<tr>' +
