@@ -2,13 +2,14 @@ import $ from "jquery";
 import 'jscroll';
 
 import { Modal } from "bootstrap";
+
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
-
-import {bootstrapYearMonthChart} from '../chartCommon.js';
-import {errorFormHandle, createAlert as mkAlert, initDatePicker,} from "./common.js";
+import {errorResponseHandler} from "@techins/jsutils/input-error";
 import SearchForm from "@techins/jsutils/searchForm";
 
+import {bootstrapYearMonthChart} from '../chartCommon.js';
+import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
 
 function createAlert(msg,success){
     const msgContainer = document.getElementById("msg");
@@ -27,6 +28,14 @@ function resetProductAddModal() {
 
     const inputElement = document.querySelector("#createProductForm").querySelector(" input[name='name']");
     inputElement.value="";
+}
+
+function resetUserModal(form){
+    const modalElem = document.getElementById('createUser');
+    const modal = Modal.getInstance(modalElem)
+    modal.hide()
+
+    modalElem.querySelector('form').reset();
 }
 
 $(document).ready(function () {
@@ -77,12 +86,31 @@ $(document).ready(function () {
             prependHtmlRowIntoATable("productListTable",data)
             createAlert("Επιτυχής αποθήκευση")
 
-            resetProductAddModal()
+            resetUserModal()
         }, (xhr)=>{
             formSubmitFail(xhr)
-            resetProductAddModal()
+            resetUserModal()
         });
     })
+
+    document.getElementById("createUser").querySelector('form').addEventListener('submit',function (e){
+        e.preventDefault();
+        const form = this;
+        submitFormAjax(form, (data) => {
+
+            prependHtmlRowIntoATable("userListTable",data)
+            createAlert("Επιτυχής αποθήκευση χρήστη")
+
+            resetUserModal()
+        }, (xhr)=>{
+            errorResponseHandler(xhr,(is400,msg)=>{
+                if(!is400){
+                    formSubmitFail(xhr)
+                    resetProductAddModal()
+                }
+            })
+        });
+    });
 
     $("#productScroll").jscroll( {
         loadingHtml: '<tr>' +

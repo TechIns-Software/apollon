@@ -22,12 +22,12 @@ class SaasUserController extends Controller
             'email'=>[
                 "required",
                 "string",
-                "email"
+                "email",
+                "unique:saas_user,email"
             ],
             "password"=>[
                 "required",
                 "string",
-                "confirmed"
             ],
             "name"=>[
                 "required",
@@ -38,6 +38,7 @@ class SaasUserController extends Controller
         $errors = [
             "email.required"=>"Το email απαιτείτε.",
             "email"=>"H τιμή δεν είναι έγγυρη.",
+            "email.unique"=>"Ο χρήστης με το email αυτό ήδη υπάρχει",
             "password.required"=>"Η τιμή απαιτείτε",
             "password.confirmed"=>"Οι τιμές δεν ταιριάζουν",
             'name.required' => "Η τιμή απαιτείτε"
@@ -46,28 +47,24 @@ class SaasUserController extends Controller
         $verifier = Validator::make($request->all(),$rules,$errors);
 
         if($verifier->fails()){
-            return new JsonResponse($verifier->errors(),400);
+            return new JsonResponse(['msg'=>$verifier->errors()],400);
         }
 
         $email = $request->get('email');
-        $userExists = SaasUser::whereEmail($email)->exists();
-        if($userExists){
-            return new JsonResponse(['msg'=>"User with email {$email} already exists."],500);
-        }
 
         try{
             $user = SaasUser::create([
                 'email'=>$email,
                 'password'=>Hash::make($request->get('password')),
                 'name'=>$request->get('name'),
-                'business_id'=>$request->get('business_id')
+                'business_id'=>$business->id
             ]);
         } catch (\Exception $e){
             report($e);
             return new JsonResponse(['msg'=>"An intenral error has occured"],500);
         }
 
-        return new JsonResponse($user,201);
+        return response()->view('business.components.userListItem',['item'=>$user])->setStatusCode(201);
     }
 
     public function userInfo(Request $request,$user_id)
