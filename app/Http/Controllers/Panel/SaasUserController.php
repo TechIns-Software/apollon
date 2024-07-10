@@ -69,7 +69,8 @@ class SaasUserController extends Controller
 
     public function userInfo(Request $request,$user_id)
     {
-        return "Hello";
+        $user = SaasUser::findOrFail($user_id);
+        return view('saasUser.saasUserEdit',['user'=>$user]);
     }
 
     public function edit(Request $request)

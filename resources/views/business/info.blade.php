@@ -175,20 +175,7 @@
                     </div>
                     <form method="POST" action="{{route('business.user.create',['id'=>$business->id])}}">
                         <div class="modal-body">
-                            @csrf
-                            <div class="mb-3">
-                                <label CLASS="form-label">Ον/νυμο Χρήστη*</label>
-                                <input type="text" name="name" class="form-control" placeholder="Ον/νυμο Χρήστη">
-                            </div>
-                            <div class="mb-3">
-                                <label CLASS="form-label">Email Χρήστη*</label>
-                                <input type="email" name="email" class="form-control" placeholder="email χρήστη">
-                            </div>
-                            <div class="mb-3">
-                                <label CLASS="form-label">Password Χρήστη*</label>
-                                <input type="password" name="password" class="form-control" placeholder="password χρήστη">
-                                <span class="form-text">Ο κωδικός αυτός δεν αποστέλλετε μέσω email</span>
-                            </div>
+                           @include('saasUser.components.userFormContents')
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
