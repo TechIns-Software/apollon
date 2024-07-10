@@ -61,9 +61,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/business',[\App\Http\Controllers\Panel\BusinessController::class,'list'])->name('business.list');
     Route::get('/business/stats',[\App\Http\Controllers\Panel\BusinessController::class,'businessStats'])->name('business.stats');
 
-    Route::prefix("/business/{id}")->group(function (){
+    Route::prefix("/business/{id}")->middleware([\App\Http\Middleware\AdminPanelCheckBusiness::class])->group(function (){
         Route::get('/',[\App\Http\Controllers\Panel\BusinessController::class,'get'])->name('business.info');
         Route::get('/order/stats',[\App\Http\Controllers\Panel\BusinessController::class,'orderStats'])->name("order.stats");
+        Route::post('/saasuser',[\App\Http\Controllers\Panel\SaasUserController::class,'add'])->name('business.user.create');
     });
 
 
@@ -72,7 +73,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/product/edit',[\App\Http\Controllers\Panel\ProductsController::class,'editProducts'])->name("product.edit");
 
     Route::prefix("/saasuser")->group(function (){
-        Route::post('/',[\App\Http\Controllers\Panel\SaasUserController::class,'add'])->name('business.user.create');
         Route::get('/',[\App\Http\Controllers\Panel\SaasUserController::class,'list'])->name('business.user');
         Route::get("/{id}",[\App\Http\Controllers\Panel\SaasUserController::class,'userInfo'])->name("saasuser.info");
         Route::post('/{id}',[\App\Http\Controllers\Panel\SaasUserController::class,'edit'])->name('business.user.edit');

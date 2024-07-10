@@ -15,15 +15,10 @@ use Illuminate\Validation\Rule;
 class SaasUserController extends Controller
 {
 
-    public function add(Request $request)
+    public function add(Request $request,int $id)
     {
+        $business = $request->attributes->get('business');
         $rules = [
-            'business_id'=>[
-                "required",
-                "integer",
-                "min:1",
-                Rule::exists("business","id")
-            ],
             'email'=>[
                 "required",
                 "string",
@@ -41,7 +36,6 @@ class SaasUserController extends Controller
         ];
 
         $errors = [
-            "business_id"=>"Παρακαλώ δώστε ένα έγκυρο Id Εταιρείας",
             "email.required"=>"Το email απαιτείτε.",
             "email"=>"H τιμή δεν είναι έγγυρη.",
             "password.required"=>"Η τιμή απαιτείτε",

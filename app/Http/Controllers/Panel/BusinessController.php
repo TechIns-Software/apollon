@@ -110,7 +110,8 @@ class BusinessController extends Controller
 
     public function get(Request $request,int $business_id)
     {
-        $business = Business::findOrFail($business_id);
+        // I get business from Middleware
+        $business = $request->attributes->get('business');
 
         $products = Product::where("business_id",$business->id)->orderBy('created_at','DESC')->orderBy('name','ASC')
             ->cursorPaginate(20)
