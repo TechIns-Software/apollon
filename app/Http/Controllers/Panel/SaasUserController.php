@@ -73,35 +73,33 @@ class SaasUserController extends Controller
         return view('saasUser.saasUserEdit',['user'=>$user]);
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request,$user_id)
     {
         /**
          * @var SaasUser|null
          */
-        $user = null;
+        $user = SaasUser::findOrFail($user_id);
         $rules = [
-            'user_id'=>[
-                "required",
-                "integer",
-                "min:1",
-                function ($attribute, $value, $fail)  use (&$user){
-                    $user = SaasUser::find($value);
-                    if(empty($user)){
-                        $fail("Ο χρήστης δεν υπάρχει");
-                    }
-                }
-            ],
             'email'=>[
                 "sometimes",
                 "nullable",
                 "string",
-                "email"
+                "email",
+                function ($attribute, $value, $fail) use ($user) {
+                    if ($value !== $user->email) {
+                        $validator = Validator::make([$attribute => $value], [
+                            $attribute => 'unique:saas_user,email'
+                        ]);
+                        if ($validator->fails()) {
+                            $fail($validator->errors()->first($attribute));
+                        }
+                    }
+                }
             ],
             "password"=>[
                 "sometimes",
                 "nullable",
-                "string",
-                "confirmed"
+                "string"
             ],
             "name"=>[
                 "sometimes",
@@ -113,17 +111,14 @@ class SaasUserController extends Controller
         $errors = [
             "user_id"=>"Παρακαλώ δώστε ένα έγκυρο Id Εταιρείας",
             "email"=>"H τιμή δεν είναι έγγυρη.",
-            "password.confirmed"=>"Οι τιμές δεν υπάρχουν"
+            "email.unique"=>"Ο χρήστης με το email αυτό ήδη υπάρχει",
         ];
 
         $verifier = Validator::make($request->all(),$rules,$errors);
 
         if($verifier->fails()){
             $errors = $verifier->errors();
-            if($errors->has('user_id')){
-                return new JsonResponse(['msg'=>"Ο χρήστης δεν υπάρχει."],404);
-            }
-            return new JsonResponse($errors,400);
+            return redirect()->back()->withErrors($errors);
         }
 
         $save=false;
@@ -143,17 +138,17 @@ class SaasUserController extends Controller
         }
 
         if(!$save){
-            return new JsonResponse(['msg'=>"Δεν δώθηκαν στοιχεία για αποθήκευση"],422);
+            return redirect()->back()->withErrors(['msg'=>"Δεν δώθηκαν στοιχεία για αποθήκευση"]);
         }
 
         try{
             $user->save();
         }catch (\Exception $e){
             report($e);
-            return new JsonResponse(['msg'=>"Αδυναμίας αποθήκευσης"],500);
+            return redirect()->back()->withErrors(['msg'=>"Αδυναμίας αποθήκευσης"]);
         }
 
-        return new JsonResponse($user,200);
+        return redirect()->back()->with('message',"Ο χρήστης ενημερώθηκε επιτυχώς");
     }
 
     public function list(Request $request)

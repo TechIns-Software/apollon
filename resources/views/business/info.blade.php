@@ -7,9 +7,7 @@
 @section('main')
     <h1>{{$business->name}}</h1>
 
-    <div id="msg">
-
-    </div>
+    @include('components.msg')
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
