@@ -2,12 +2,12 @@ import $ from "jquery";
 import 'jscroll';
 
 import { Modal } from "bootstrap";
-import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,debounce} from "@techins/jsutils/utils";
+import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
-import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
-import SearchForm from "./searchForm.js";
+import {errorFormHandle, createAlert as mkAlert, initDatePicker,} from "./common.js";
+import SearchForm from "@techins/jsutils/searchForm";
 
 
 function createAlert(msg,success){
@@ -27,19 +27,6 @@ function resetProductAddModal() {
 
     const inputElement = document.querySelector("#createProductForm").querySelector(" input[name='name']");
     inputElement.value="";
-}
-
-let prevAjax=null
-
-function handleSearch(){
-    const searchForm = document.getElementById("productSearchform");
-
-    prevAjax=submitFormAjax(searchForm, (data) => {
-        const table = document.getElementById("productListTable").querySelector("tbody")
-        table.innerHTML=data;
-    }, (xhr)=>{
-
-    },null,prevAjax);
 }
 
 $(document).ready(function () {
@@ -86,11 +73,12 @@ $(document).ready(function () {
 
         const form = this;
         submitFormAjax(form, (data) => {
-            const tableBody=document.getElementById("productListTable").querySelector("tbody");
-            const element = document.createElement("template")
-            element.innerHTML=data
-
-            tableBody.prepend(element.content.firstChild)
+            // const tableBody=document.getElementById("productListTable").querySelector("tbody");
+            // const element = document.createElement("template")
+            // element.innerHTML=data
+            //
+            // tableBody.prepend(element.content.firstChild)
+            prependHtmlRowIntoATable("productListTable",data)
             createAlert("Επιτυχής αποθήκευση")
 
             resetProductAddModal()
