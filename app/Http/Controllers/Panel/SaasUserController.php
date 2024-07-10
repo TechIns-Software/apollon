@@ -75,6 +75,7 @@ class SaasUserController extends Controller
 
     public function edit(Request $request,$user_id)
     {
+
         /**
          * @var SaasUser|null
          */
