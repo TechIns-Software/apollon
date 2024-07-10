@@ -30,12 +30,21 @@ function resetProductAddModal() {
     inputElement.value="";
 }
 
-function resetUserModal(form){
+function resetUserModal(){
     const modalElem = document.getElementById('createUser');
     const modal = Modal.getInstance(modalElem)
     modal.hide()
 
-    modalElem.querySelector('form').reset();
+    const form = modalElem.querySelector('form');
+    resetUserForm(form);
+}
+
+function resetUserForm(form){
+    form.reset();
+    form.querySelectorAll('input').forEach((item)=>{
+        console.log("Before Send",item)
+        clearInputErrorMessage(item)
+    });
 }
 
 $(document).ready(function () {
@@ -86,14 +95,22 @@ $(document).ready(function () {
             prependHtmlRowIntoATable("productListTable",data)
             createAlert("Επιτυχής αποθήκευση")
 
-            resetUserModal()
+            resetProductAddModal()
         }, (xhr)=>{
             formSubmitFail(xhr)
-            resetUserModal()
+            resetProductAddModal()
         });
     })
 
-    document.getElementById("createUser").querySelector('form').addEventListener('submit',function (e){
+    const createUserModal = document.getElementById("createUser");
+    const newUserform = createUserModal.querySelector('form');
+
+    createUserModal.addEventListener('shown.bs.modal', () => {
+        resetUserForm(newUserform)
+        createUserModal.focus()
+    });
+
+    newUserform.querySelector('form').addEventListener('submit',function (e){
         e.preventDefault();
         const form = this;
         submitFormAjax(form, (data) => {
@@ -116,6 +133,8 @@ $(document).ready(function () {
             });
         });
     },);
+
+
 
     $("#productScroll").jscroll( {
         loadingHtml: '<tr>' +
