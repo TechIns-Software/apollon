@@ -109,6 +109,9 @@
                 'placeholder'=>"Αναζητήστε έναν Χρήστη",
                 "inputSearchId"=>"userSearch"
             ])
+            <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createUser" >
+                <i class="fa-solid fa-user-plus"></i>&nbsp;Προσθήκη Χρήστη
+            </button>
             <div id="userScroll" class="scrollWrapper">
                 <table id="userListTable" class="table">
                     <thead>
@@ -154,6 +157,38 @@
                             @csrf
                             <input type="hidden" name="business_id" value="{{$business->id}}">
                             <input name="name" class="form-control" placeholder="Ονομα Προϊόντος ">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
+                            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;Αποθήκευση</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="createUser" tabindex="-1" aria-labelledby="Δημιουργία Χρήστη" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Προσθήκη Προϊόντος</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{{route('business.user.create',['id'=>$business->id])}}">
+                        <div class="modal-body">
+                            @csrf
+                            <div class="mb-3">
+                                <label CLASS="form-label">Ον/νυμο Χρήστη*</label>
+                                <input name="name" class="form-control" placeholder="Ον/νυμο Χρήστη">
+                            </div>
+                            <div class="mb-3">
+                                <label CLASS="form-label">Email Χρήστη*</label>
+                                <input type="email" class="form-control" placeholder="email χρήστη">
+                            </div>
+                            <div class="mb-3">
+                                <label CLASS="form-label">Password Χρήστη*</label>
+                                <input type="password" class="form-control" placeholder="password χρήστη">
+                                <span class="form-text">Ο κωδικός αυτός δεν αποστέλλετε μέσω email</span>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
