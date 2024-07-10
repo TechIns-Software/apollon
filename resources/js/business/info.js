@@ -73,11 +73,7 @@ $(document).ready(function () {
 
         const form = this;
         submitFormAjax(form, (data) => {
-            // const tableBody=document.getElementById("productListTable").querySelector("tbody");
-            // const element = document.createElement("template")
-            // element.innerHTML=data
-            //
-            // tableBody.prepend(element.content.firstChild)
+
             prependHtmlRowIntoATable("productListTable",data)
             createAlert("Επιτυχής αποθήκευση")
 
