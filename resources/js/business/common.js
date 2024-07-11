@@ -1,22 +1,36 @@
-import {addInputErrorMsg} from "@techins/jsutils/input-error";
+import {errorResponseHandler} from "@techins/jsutils/input-error";
 import {stringToDomHtml} from "@techins/jsutils/utils";
 
 import AirDatepicker from "air-datepicker";
 import el from 'air-datepicker/locale/el';
 import 'air-datepicker/air-datepicker.css';
 
-function errorFormHandle(xhr,msgContainer){
-    const responseJson = JSON.parse(xhr.responseText)['msg']
-
-    if(xhr.status == 400){
-        Object.keys(responseJson).forEach((key)=>{
-            const msg = responseJson[key].join("<br>")
-            addInputErrorMsg(document.querySelector(`input[name=${key}]`),msg)
-        })
-        createAlert(msgContainer,"Προέκυψε σφάλμα",false)
-        return
-    }
-    createAlert(msgContainer,responseJson??"Αδυναμία Αποθήκευσης",false)
+/**
+ * A unique form submission error handler. In order for this to work the response must be a JSon containing this format:
+ * {
+ *    msg: string|object
+ * }
+ *
+ * If error is 400 then msg must be an object containing:
+ *
+ * ^column_name^: ^message^
+ *
+ *
+ * Upon failure is display a message
+ *
+ * @param xhr Ajax response
+ * @param msgContainer message container
+ * @param msgFor400 If true display message for error 400
+ */
+function errorFormHandle(xhr,msgContainer,msgFor400=true){
+    errorResponseHandler(xhr,(is400,message)=>{
+        if(is400){
+            if(msgFor400){
+                createAlert(msgContainer,"Προέκυψε σφάλμα",false)
+            }
+        }
+        createAlert(msgContainer,message??"Αδυναμία Αποθήκευσης",false)
+    })
 }
 
 function createAlert(msgContainer, msg,success=true){
@@ -40,5 +54,5 @@ function initDatePicker()
 export {
     errorFormHandle,
     createAlert,
-    initDatePicker
+    initDatePicker,
 }

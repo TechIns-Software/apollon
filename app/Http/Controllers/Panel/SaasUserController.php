@@ -15,24 +15,19 @@ use Illuminate\Validation\Rule;
 class SaasUserController extends Controller
 {
 
-    public function add(Request $request)
+    public function add(Request $request,int $id)
     {
+        $business = $request->attributes->get('business');
         $rules = [
-            'business_id'=>[
-                "required",
-                "integer",
-                "min:1",
-                Rule::exists("business","id")
-            ],
             'email'=>[
                 "required",
                 "string",
-                "email"
+                "email",
+                "unique:saas_user,email"
             ],
             "password"=>[
                 "required",
                 "string",
-                "confirmed"
             ],
             "name"=>[
                 "required",
@@ -41,9 +36,9 @@ class SaasUserController extends Controller
         ];
 
         $errors = [
-            "business_id"=>"Παρακαλώ δώστε ένα έγκυρο Id Εταιρείας",
             "email.required"=>"Το email απαιτείτε.",
             "email"=>"H τιμή δεν είναι έγγυρη.",
+            "email.unique"=>"Ο χρήστης με το email αυτό ήδη υπάρχει",
             "password.required"=>"Η τιμή απαιτείτε",
             "password.confirmed"=>"Οι τιμές δεν ταιριάζουν",
             'name.required' => "Η τιμή απαιτείτε"
@@ -52,59 +47,60 @@ class SaasUserController extends Controller
         $verifier = Validator::make($request->all(),$rules,$errors);
 
         if($verifier->fails()){
-            return new JsonResponse($verifier->errors(),400);
+            return new JsonResponse(['msg'=>$verifier->errors()],400);
         }
 
         $email = $request->get('email');
-        $userExists = SaasUser::whereEmail($email)->exists();
-        if($userExists){
-            return new JsonResponse(['msg'=>"User with email {$email} already exists."],500);
-        }
 
         try{
             $user = SaasUser::create([
                 'email'=>$email,
                 'password'=>Hash::make($request->get('password')),
                 'name'=>$request->get('name'),
-                'business_id'=>$request->get('business_id')
+                'business_id'=>$business->id
             ]);
         } catch (\Exception $e){
             report($e);
             return new JsonResponse(['msg'=>"An intenral error has occured"],500);
         }
 
-        return new JsonResponse($user,201);
+        return response()->view('business.components.userListItem',['item'=>$user])->setStatusCode(201);
     }
 
-    public function edit(Request $request)
+    public function userInfo(Request $request,$user_id)
     {
+        $user = SaasUser::findOrFail($user_id);
+        return view('saasUser.saasUserEdit',['user'=>$user]);
+    }
+
+    public function edit(Request $request,$user_id)
+    {
+
         /**
          * @var SaasUser|null
          */
-        $user = null;
+        $user = SaasUser::findOrFail($user_id);
         $rules = [
-            'user_id'=>[
-                "required",
-                "integer",
-                "min:1",
-                function ($attribute, $value, $fail)  use (&$user){
-                    $user = SaasUser::find($value);
-                    if(empty($user)){
-                        $fail("Ο χρήστης δεν υπάρχει");
-                    }
-                }
-            ],
             'email'=>[
                 "sometimes",
                 "nullable",
                 "string",
-                "email"
+                "email",
+                function ($attribute, $value, $fail) use ($user) {
+                    if ($value !== $user->email) {
+                        $validator = Validator::make([$attribute => $value], [
+                            $attribute => 'unique:saas_user,email'
+                        ]);
+                        if ($validator->fails()) {
+                            $fail($validator->errors()->first($attribute));
+                        }
+                    }
+                }
             ],
             "password"=>[
                 "sometimes",
                 "nullable",
-                "string",
-                "confirmed"
+                "string"
             ],
             "name"=>[
                 "sometimes",
@@ -116,17 +112,14 @@ class SaasUserController extends Controller
         $errors = [
             "user_id"=>"Παρακαλώ δώστε ένα έγκυρο Id Εταιρείας",
             "email"=>"H τιμή δεν είναι έγγυρη.",
-            "password.confirmed"=>"Οι τιμές δεν υπάρχουν"
+            "email.unique"=>"Ο χρήστης με το email αυτό ήδη υπάρχει",
         ];
 
         $verifier = Validator::make($request->all(),$rules,$errors);
 
         if($verifier->fails()){
             $errors = $verifier->errors();
-            if($errors->has('user_id')){
-                return new JsonResponse(['msg'=>"Ο χρήστης δεν υπάρχει."],404);
-            }
-            return new JsonResponse($errors,400);
+            return redirect()->back()->withErrors($errors);
         }
 
         $save=false;
@@ -146,17 +139,17 @@ class SaasUserController extends Controller
         }
 
         if(!$save){
-            return new JsonResponse(['msg'=>"Δεν δώθηκαν στοιχεία για αποθήκευση"],422);
+            return redirect()->back()->withErrors(['msg'=>"Δεν δώθηκαν στοιχεία για αποθήκευση"]);
         }
 
         try{
             $user->save();
         }catch (\Exception $e){
             report($e);
-            return new JsonResponse(['msg'=>"Αδυναμίας αποθήκευσης"],500);
+            return redirect()->back()->withErrors(['msg'=>"Αδυναμίας αποθήκευσης"]);
         }
 
-        return new JsonResponse($user,200);
+        return redirect()->back()->with('message',"Ο χρήστης ενημερώθηκε επιτυχώς");
     }
 
     public function list(Request $request)
@@ -168,10 +161,20 @@ class SaasUserController extends Controller
 
         $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
 
-        $page = $request->get('page')??1;
-        $limit = $request->get('limit')??10;
-        $paginationResult = $qb->offset(($page - 1) * $limit)->paginate($limit);
+        $searchterm = $request->get('searchterm');
 
-        return new JsonResponse($paginationResult,200);
+        if(!empty($searchterm)){
+            $qb->where('name','like','%'.$searchterm.'%')
+                ->orWhere('email','like','%'.$searchterm.'%');
+        }
+
+        $cursor = $request->input('cursor', null);
+        if(!empty($cursor)) {
+            $paginationResult = $qb->cursorPaginate(50, ['*'], 'cursor', $cursor);
+        } else {
+            $paginationResult = $qb->cursorPaginate(50);
+        }
+
+        return view('business.components.userList',['rows'=>$paginationResult]);
     }
 }

@@ -20,26 +20,21 @@ class SaasUserControllerTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->session(['__token'=>'sadsadasdsa'])
-            ->post(route('business.user.create'),[
+            ->post(route('business.user.create',['id'=>$business->id]),[
                 '__token'=>'sadsadasdsa',
                 'name' =>"Lalala",
                 'email'=>'user@example.com',
                 'password'=>'1234',
                 'password_confirmation'=>'1234',
-                'business_id' => $business->id
             ]);
 
-        $json = $response->json();
         $response->assertStatus(201);
 
-        $this->assertNotEmpty($json['id']);
+        $userInDb = SaasUser::whereBusinessId($business->id)
+            ->whereEmail('user@example.com')
+            ->orderBy('created_at','DESC')
+            ->first();
 
-        $this->assertFalse(isset($json['password']));
-
-        $this->assertEquals('Lalala',$json['name']);
-        $this->assertEquals('user@example.com',$json['email']);
-
-        $userInDb = SaasUser::find($json['id']);
         $this->assertNotEmpty($userInDb);
 
         $this->assertEquals('Lalala',$userInDb->name);
@@ -64,13 +59,12 @@ class SaasUserControllerTest extends TestCase
         $password = '1234';
         $authBasicCredentials = base64_encode($email.":".$password);
         $response = $this->session(['__token'=>'sadsadasdsa'])
-            ->post(route('business.user.create'),[
+            ->post(route('business.user.create',['id'=>$business->id]),[
                 '__token'=>'sadsadasdsa',
                 'name' =>"Lalala",
                 'email'=>$email,
                 'password'=>$password,
-                'password_confirmation'=>$password,
-                'business_id' => $business->id
+                'password_confirmation'=>$password
             ]);
 
         $response->assertStatus(201);
@@ -92,11 +86,10 @@ class SaasUserControllerTest extends TestCase
             'name' =>"Lalala",
             'email'=>$email,
             'password'=>$password,
-            'password_confirmation'=>$password
         ];
 
 
-        $keysToRemove = ['name','email','password','password_confirmation'];
+        $keysToRemove = ['name','email','password'];
 
         $inputCombinations = [];
 
@@ -118,30 +111,8 @@ class SaasUserControllerTest extends TestCase
             [[
                 '__token'=>'sadsadasdsa',
                 'name' =>"Lalala",
-                'email'=> 'user@example.com',
-                'password'=>'1234',
-                'password_confirmation'=>'12345'
-            ]],
-            [[
-                '__token'=>'sadsadasdsa',
-                'name' =>"Lalala",
-                'email'=> 'user@example.com',
-                'password'=>'12345',
-                'password_confirmation'=>'1234'
-            ]],
-            [[
-                '__token'=>'sadsadasdsa',
-                'name' =>"Lalala",
                 'email'=> 'hgahaha',
                 'password'=>'1234',
-                'password_confirmation'=>'1234'
-            ]],
-            [[
-                '__token'=>'sadsadasdsa',
-                'name' =>"Lalala",
-                'email'=> 'hgahaha',
-                'password'=>'12345',
-                'password_confirmation'=>'1234'
             ]]
         ];
     }
@@ -157,10 +128,8 @@ class SaasUserControllerTest extends TestCase
 
         $business = Business::factory()->create();
 
-        $input['business_id'] = $business->id;
-
         $response = $this->session(['__token'=> $input["__token"]])
-            ->post(route('business.user.create'),$input);
+            ->post(route('business.user.create',['id'=>$business->id]),$input);
 
         $response->assertStatus(400);
 
@@ -168,11 +137,61 @@ class SaasUserControllerTest extends TestCase
         $this->assertFalse($saasUser);
     }
 
+    public function testInsertFails400UponInsertingaSaasUserWithExistingEmail()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
 
-    /**
-     * @dataProvider wrongInput
-     */
-    public function testEditWrongInput(array $input)
+        $business = Business::factory()->create();
+
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        $input = [
+            '__token'=>'sadsadasdsa',
+            'email'=>$saasUser->email,
+            'password'=>'1234',
+            'name'=>"Lalalalal"
+        ];
+
+        $response = $this->session(['__token'=> $input["__token"]])
+            ->post(route('business.user.create',['id'=>$business->id]),$input);
+
+        $response->assertStatus(400);
+
+        $saasUserCount = SaasUser::whereBusinessId($business->id)->where('email',$saasUser->email)->count();
+        $this->assertEquals(1, $saasUserCount);
+    }
+
+    public function testInsertUserSameEmailDifferentBusiness()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+
+        $business2 = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business2->id]);
+
+        $input = [
+            '__token'=>'sadsadasdsa',
+            'email'=>$saasUser->email,
+            'password'=>'1234',
+            'name'=>"Lalalalal"
+        ];
+
+        $response = $this->session(['__token'=> $input["__token"]])
+            ->post(route('business.user.create',['id'=>$business->id]),$input);
+        $json = $response->json();
+        $response->assertStatus(400);
+
+        $saasUserCount = SaasUser::whereBusinessId($business->id)->where('email',$saasUser->email)->count();
+        $this->assertEquals(0, $saasUserCount);
+
+        $saasUserCount = SaasUser::whereBusinessId($business2->id)->where('email',$saasUser->email)->count();
+        $this->assertEquals(1, $saasUserCount);
+    }
+
+    public function testEditWrongEmail()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -180,13 +199,70 @@ class SaasUserControllerTest extends TestCase
         $business = Business::factory()->create();
         $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
         $input['user_id'] = $saasUser->id;
-        $response = $this->session(['__token'=> $input["__token"]])
-            ->post(route('business.user.edit'),$input);
 
-        $response->assertStatus(400);
+        $input = [
+            '__token'=>'sadsadasdsa',
+            'name' =>"Lalala",
+            'email'=> 'hgahaha',
+            'password'=>'1234',
+        ];
+
+        $response = $this->session(['__token'=> $input["__token"]])
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),$input);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors(['email']);
 
         $userInDB = SaasUser::find($saasUser->id);
 
+        $this->assertEquals($saasUser->name,$userInDB->name);
+        $this->assertEquals($saasUser->email,$userInDB->email);
+        $this->assertEquals($saasUser->password,$userInDB->password);
+    }
+
+    public function testUserUpdateSameEmailProvided()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id,'email'=>'lslsls@example.com']);
+
+        $input = [
+            '__token'=> '12234',
+            'email'=>$saasUser->email,
+            'name'=>"hahahaha",
+            'password'=>"55555"
+        ];
+
+        $response = $this->session(['__token'=> '12234'])
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),$input);
+
+        $response->assertStatus(302);
+
+        $userInDB = SaasUser::find($saasUser->id);
+
+        $this->assertEquals("hahahaha",$userInDB->name);
+        $this->assertEquals('lslsls@example.com',$userInDB->email);
+        $this->assertNotEquals($saasUser->password,$userInDB->password);
+        $this->assertTrue(password_verify("55555",$userInDB->password));
+    }
+
+    public function testNoInputGivenFails()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id,'email'=>'lslsls@example.com']);
+
+        $response = $this->session(['__token'=> '12234'])
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),[]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors(['msg'=>"Δεν δώθηκαν στοιχεία για αποθήκευση"]);
+
+        $userInDB = SaasUser::find($saasUser->id);
         $this->assertEquals($saasUser->name,$userInDB->name);
         $this->assertEquals($saasUser->email,$userInDB->email);
         $this->assertEquals($saasUser->password,$userInDB->password);
@@ -202,13 +278,13 @@ class SaasUserControllerTest extends TestCase
 
         $input = [
             '__token'=> '12234',
-            'user_id'=>$saasUser->id,
             'email'=>'lslsls@example.com',
             'name'=>"hahahaha"
         ];
 
+
         $response = $this->session(['__token'=> '12234'])
-            ->post(route('business.user.edit'),$input);
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),$input);
 
         $userInDB = SaasUser::find($saasUser->id);
 
@@ -227,19 +303,58 @@ class SaasUserControllerTest extends TestCase
 
         $input = [
             '__token'=> '12234',
-            'user_id'=>$saasUser->id,
             'password'=>'55555',
             'password_confirmation'=>"55555"
         ];
 
         $response = $this->session(['__token'=> '12234'])
-            ->post(route('business.user.edit'),$input);
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),$input);
 
         $userInDB = SaasUser::find($saasUser->id);
 
         $this->assertEquals($saasUser->name,$userInDB->name);
         $this->assertEquals($saasUser->email,$userInDB->email);
         $this->assertTrue(password_verify('55555',$userInDB->password));
+    }
+
+    /**
+     * @dataProvider missingInput
+     */
+    public function testUpdateMissingPart(array $input)
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $business = Business::factory()->create();
+        $saasUser = SaasUser::factory()->create(['business_id'=>$business->id]);
+
+        $allKeys = ['name','email','password'];
+
+        $missingKeys=[];
+        foreach ($allKeys as $key) {
+            if(!isset($input[$key])){
+                $missingKeys[] = $key;
+            }
+        }
+
+        $this->session(['__token'=> $input['__token']])
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),$input);
+        $userInDB = SaasUser::find($saasUser->id);
+
+        foreach($missingKeys as $key){
+            $this->assertEquals($saasUser->$key,$userInDB->$key);
+        }
+
+        foreach($input as $key=>$value){
+            if($key=="__token"){
+                continue;
+            }
+            if($key=="password"){
+                $this->assertTrue(password_verify($value,$userInDB->$key));
+                continue;
+            }
+            $this->assertEquals($value,$userInDB->$key);
+        }
     }
 
     /**
@@ -255,13 +370,12 @@ class SaasUserControllerTest extends TestCase
 
         $input = [
             '__token'=> '12234',
-            'user_id'=>$saasUser->id,
             'password'=>'55555',
             'password_confirmation'=>"55555"
         ];
 
         $response = $this->session(['__token'=> '12234'])
-            ->post(route('business.user.edit'),$input);
+            ->post(route('business.user.edit',['id'=>$saasUser->id]),$input);
 
         $userInDB = SaasUser::find($saasUser->id);
 

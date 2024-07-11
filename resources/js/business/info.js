@@ -2,12 +2,14 @@ import $ from "jquery";
 import 'jscroll';
 
 import { Modal } from "bootstrap";
-import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,debounce} from "@techins/jsutils/utils";
+
+import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
+import {clearInputErrorMessage, errorResponseHandler,} from "@techins/jsutils/input-error";
+import SearchForm from "@techins/jsutils/searchForm";
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
 import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
-
 
 function createAlert(msg,success){
     const msgContainer = document.getElementById("msg");
@@ -28,17 +30,21 @@ function resetProductAddModal() {
     inputElement.value="";
 }
 
-let prevAjax=null
+function resetUserModal(){
+    const modalElem = document.getElementById('createUser');
+    const modal = Modal.getInstance(modalElem)
+    modal.hide()
 
-function handleSearch(){
-    const searchForm = document.getElementById("productSearchform");
+    const form = modalElem.querySelector('form');
+    resetUserForm(form);
+}
 
-    prevAjax=submitFormAjax(searchForm, (data) => {
-        const table = document.getElementById("productListTable").querySelector("tbody")
-        table.innerHTML=data;
-    }, (xhr)=>{
-
-    },null,prevAjax);
+function resetUserForm(form){
+    form.reset();
+    form.querySelectorAll('input').forEach((item)=>{
+        console.log("Before Send",item)
+        clearInputErrorMessage(item)
+    });
 }
 
 $(document).ready(function () {
@@ -85,11 +91,8 @@ $(document).ready(function () {
 
         const form = this;
         submitFormAjax(form, (data) => {
-            const tableBody=document.getElementById("productListTable").querySelector("tbody");
-            const element = document.createElement("template")
-            element.innerHTML=data
 
-            tableBody.prepend(element.content.firstChild)
+            prependHtmlRowIntoATable("productListTable",data)
             createAlert("Επιτυχής αποθήκευση")
 
             resetProductAddModal()
@@ -99,6 +102,40 @@ $(document).ready(function () {
         });
     })
 
+    const createUserModal = document.getElementById("createUser");
+    const newUserform = createUserModal.querySelector('form');
+
+    createUserModal.addEventListener('shown.bs.modal', () => {
+        resetUserForm(newUserform)
+        createUserModal.focus()
+    });
+
+    newUserform.querySelector('form').addEventListener('submit',function (e){
+        e.preventDefault();
+        const form = this;
+        submitFormAjax(form, (data) => {
+
+            prependHtmlRowIntoATable("userListTable",data)
+            createAlert("Επιτυχής αποθήκευση χρήστη")
+
+            resetUserModal()
+        }, (xhr)=>{
+            errorResponseHandler(xhr,(is400,msg)=>{
+                if(!is400){
+                    formSubmitFail(xhr)
+                    resetProductAddModal()
+                }
+            })
+        },()=>{
+            form.querySelectorAll('input').forEach((item)=>{
+                console.log("Before Send",item)
+                clearInputErrorMessage(item)
+            });
+        });
+    },);
+
+
+
     $("#productScroll").jscroll( {
         loadingHtml: '<tr>' +
             '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
@@ -107,25 +144,16 @@ $(document).ready(function () {
         contentSelector: '#productScroll.tbody',}
     );
 
-    const searchForm = document.getElementById("productSearchform");
-
-    $("#productSearchform").on('submit',function (e){
-        e.preventDefault();
-        e.stopPropagation();
-
-        handleSearch();
+    $("#userScroll").jscroll({
+        loadingHtml: '<tr>' +
+            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
+            '</tr>',
+        nextSelector: 'a.jscroll-next:last',
+        contentSelector: '#userScroll.tbody'
     });
 
-    $("#inputSearchField").on('change',debounce(()=>{
-        handleSearch();
-    }));
-
-    $("#cleanSearch").on('click',debounce(()=>{
-        console.log("Here")
-        document.getElementById("inputSearchField").value="";
-        handleSearch();
-    }))
-
+    new SearchForm("productSearchform","productListTable",()=>{})
+    new SearchForm("userSearchForm","userListTable",()=>{})
 
     bootstrapYearMonthChart("statsForm","orderStatsWrapper");
 })

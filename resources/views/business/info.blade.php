@@ -7,9 +7,7 @@
 @section('main')
     <h1>{{$business->name}}</h1>
 
-    <div id="msg">
-
-    </div>
+    @include('components.msg')
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -43,6 +41,19 @@
                 class="nav-link"
                 aria-current="page"
                 data-bs-toggle="tab"
+                data-bs-target="#users-tab-pane"
+                href="#users-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="users-tab-pane" aria-selected="true">
+                Διαχείρηση Χρηστών
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a
+                class="nav-link"
+                aria-current="page"
+                data-bs-toggle="tab"
                 data-bs-target="#stats-tab-pane"
                 href="#stats-tab-pane"
                 type="button"
@@ -63,15 +74,13 @@
             </form>
         </div>
         <div class="tab-pane fade show" id="products-tab-pane" role="tabpanel" aria-labelledby="products-tab" tabindex="1">
-            <form id="productSearchform" method="get" class="mt-2 mb-2" action="{{route('products.fetch')}}">
-                @csrf
-                <input type="hidden" name="business_id" value="{{$business->id}}">
-                <div class="input-group mb-3">
-                    <input id="inputSearchField" name="name" class="form-control" placeholder="Αναζητήστε ένα προϊόν ">
-                    <button id="cleanSearch" class="btn btn-outline-secondary" type="submit"><i class="fa fa-x"></i></button>
-                    <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
-                </div>
-            </form>
+            @include("business.components.searchForm",[
+                'action'=>'products.fetch',
+                'id'=>"productSearchform",
+                'business'=>$business,
+                'placeholder'=>"Αναζητήστε έναν προϊόν",
+                "inputSearchId"=>"productSearch"
+            ])
             <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createProduct" >
                 <i class="fa fa-plus"></i>&nbsp;Προσθήκη Προϊόντος
             </button>
@@ -85,6 +94,34 @@
                     </thead>
                     <tbody>
                         @include('business.components.listProducts',['rows'=>$products])
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade show" id="users-tab-pane" role="tabpanel" aria-labelledby="users-tab" tabindex="1">
+            @include("business.components.searchForm",[
+                'action'=>"business.user",
+                'id'=>"userSearchForm",
+                'business'=>$business,
+                'searchValName'=>'searchterm',
+                'placeholder'=>"Αναζητήστε έναν Χρήστη",
+                "inputSearchId"=>"userSearch"
+            ])
+            <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createUser" >
+                <i class="fa-solid fa-user-plus"></i>&nbsp;Προσθήκη Χρήστη
+            </button>
+            <div id="userScroll" class="scrollWrapper">
+                <table id="userListTable" class="table">
+                    <thead>
+                    <tr>
+                        <th>Ον/νυμο</th>
+                        <th>email</th>
+                        <th>Ημ/νια Δημιουργίας</th>
+                        <th>#</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @include('business.components.userList',['rows'=>$users])
                     </tbody>
                 </table>
             </div>
@@ -118,6 +155,25 @@
                             @csrf
                             <input type="hidden" name="business_id" value="{{$business->id}}">
                             <input name="name" class="form-control" placeholder="Ονομα Προϊόντος ">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
+                            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;Αποθήκευση</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="createUser" tabindex="-1" aria-labelledby="Δημιουργία Χρήστη" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Δημιουργία Νέου χρήστη</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{{route('business.user.create',['id'=>$business->id])}}">
+                        <div class="modal-body">
+                           @include('saasUser.components.userFormContents')
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
