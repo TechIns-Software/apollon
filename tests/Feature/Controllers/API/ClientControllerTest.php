@@ -36,7 +36,8 @@ class ClientControllerTest extends TestCase
             "description"=>"Ηαηαηα",
             "email"=>"user@example.com",
             "nomos"=>"Αττική",
-            "afm"=>"1234"
+            "afm"=>"1234",
+            'stars'=>3
         ];
 
         $result = $this->post(route('client.create'),$payload);
@@ -73,7 +74,8 @@ class ClientControllerTest extends TestCase
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
             "email"=>"dsaddsdsdsa",
-            "nomos"=>"Αττική"
+            "nomos"=>"Αττική",
+            'stars'=>3
         ];
 
         $result = $this->post(route('client.create'),$payload);
@@ -246,7 +248,8 @@ class ClientControllerTest extends TestCase
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
             "longitude"=>"12.5",
-            "latitude"=>"12.5"
+            "latitude"=>"12.5",
+            'stars'=>3.5
         ];
 
         $result = $this->post("/api/client/".$customer->id,$payload);
@@ -275,7 +278,8 @@ class ClientControllerTest extends TestCase
             "description"=>"Ηαηαηα",
             "email"=>"user@example.com",
             "nomos"=>"Attica",
-            "afm"=>'1234'
+            "afm"=>'1234',
+            'stars'=>3
         ];
 
         $result = $this->post("/api/client/".$customer->id,$payload);
@@ -490,8 +494,7 @@ class ClientControllerTest extends TestCase
     public static function missingInputs()
     {
         return [
-            [
-            [
+            [[
                 'surname'=>'lalala',
                 'telephone'=>"6940000000",
                 'phone1'=>"6940000000",
@@ -500,8 +503,7 @@ class ClientControllerTest extends TestCase
                 'region'=>"Αθήνα",
                 "description"=>"Ηαηαηα",
             ]],
-            [
-            [
+            [[
                 'name'=>'lalala',
                 'telephone'=>"6940000000",
                 'phone1'=>"6940000000",
@@ -660,7 +662,7 @@ class ClientControllerTest extends TestCase
 
         DB::statement("DELETE FROM client;");
 
-        // Fetch User id 445. Clients is an empty table
+        // Fetch Client id 445. Clients is an empty table
         $result = $this->get("/api/client/445/orders",[]);
         $result->assertStatus(404);
     }
@@ -712,5 +714,76 @@ class ClientControllerTest extends TestCase
             $this->assertContains($order['id'],$expectedOrdersIds);
             $this->assertNotContains($order['id'],$unexpectedOrdersIds);
         }
+    }
+
+    public static function wrongStarValues()
+    {
+        return [
+            [-1],
+            [10]
+        ];
+    }
+
+    /**
+     * @dataProvider wrongStarValues
+     * @param $stars The number of Stars
+     * @return void
+     */
+    public function testInsertStartsWrongValue(int $stars)
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "email"=>"user@example.com",
+            "nomos"=>"Attica",
+            "afm"=>'1234',
+            'stars'=>$stars
+        ];
+
+        $result = $this->post(route('client.create'),$payload);
+
+        $result->assertStatus(400);
+
+        // Because we soft delete the clients we
+        $clients = DB::table('client')->count();
+        $this->assertEmpty($clients);
+
+    }
+
+    /**
+     * @dataProvider wrongStarValues
+     * @param $stars The number of Stars
+     * @return void
+     */
+    public function testUpdateStarsWrongValue(int $stars)
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create(['stars'=>3]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->post("/api/client/".$customer->id,[]);
+        $result->assertStatus(400);
+
+        $clientInDb = Client::find($customer->id);
+
+        $this->assertEquals(3,(int)$clientInDb->stars);
+        $this->assertNotEquals($stars,(int)$clientInDb->stars);
     }
 }

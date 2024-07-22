@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('client', function (Blueprint $table) {
             $table->dropColumn('map_link');
-            $table->float('stars')->unsigned()->default(0);
+            $table->smallInteger('stars')->unsigned()->default(0);
         });
     }
 
