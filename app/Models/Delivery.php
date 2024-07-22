@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DeliveryOrder[] $deliveryOrder
  * @property-read int|null $delivery_order_count
+ * @property-read string $pdf_url
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|Delivery newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Delivery newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Delivery query()
@@ -44,6 +46,8 @@ class Delivery extends Model
         'business_id'
     ];
 
+    protected $appends = ['pdf_url'];
+
     public function deliveryOrder()
     {
         return $this->hasMany(DeliveryOrder::class,'delivery_id','id')->orderBy('delivery_sequence');;
@@ -52,5 +56,10 @@ class Delivery extends Model
     public function driver()
     {
         return $this->hasOne(Driver::class,'id','driver_id');
+    }
+
+    public function getPdfUrlAttribute()
+    {
+        return route('delivery_pdf',['id'=>$this->id]);
     }
 }
