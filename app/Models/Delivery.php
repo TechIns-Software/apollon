@@ -46,7 +46,7 @@ class Delivery extends Model
 
     public function deliveryOrder()
     {
-        return $this->hasMany(DeliveryOrder::class,'delivery_id','id');
+        return $this->hasMany(DeliveryOrder::class,'delivery_id','id')->orderBy('delivery_sequence');;
     }
 
     public function driver()
