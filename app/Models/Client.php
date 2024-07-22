@@ -74,7 +74,8 @@ class Client extends Model
         "latitude",
         "email",
         "nomos",
-        'afm'
+        'afm',
+        'stars'
     ];
 
 
@@ -89,5 +90,6 @@ class Client extends Model
             $model->changes_count = ($model->changes_count??0)+1;
         });
     }
+
 
 }
