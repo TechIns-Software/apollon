@@ -128,7 +128,7 @@ class OrderController extends Controller implements HasMiddleware
                 new ValidateBoolean()
             ],
             'order_by'=>'required_with:ordering|string',
-            'ordering'=>'required_with:order_by|in:ASC,DESC,asc,desc'
+            'ordering'=>'required_with:order_by|string|in:ASC,DESC,asc,desc'
         ],$errors);
 
         if($validator->fails()){
@@ -139,7 +139,7 @@ class OrderController extends Controller implements HasMiddleware
         $page = $request->get('page')??1;
         $limit = $request->get('limit')??20;
 
-        $qb = Order::whereBusinessId($user->business_id);
+        $qb = Order::where(Order::TABLE.".business_id",$user->business_id);
 
         if($request->has('without_delivery')){
 
@@ -165,7 +165,24 @@ class OrderController extends Controller implements HasMiddleware
             }
         }
 
+        $orderBy = $request->get('order_by');
+        $order = $request->get('ordering');
 
+        if(!empty($orderBy) && !empty($order)){
+            $qb = $qb->join(Client::TABLE,Client::TABLE.'.id','=',Order::TABLE.'.client_id')
+                    ->select(Order::TABLE.".*");
+
+            switch($orderBy){
+                case 'client_name':
+                    $qb->orderBy(Client::TABLE.'.surname',$order)
+                        ->orderBy(Client::TABLE.'.name',$order);
+                    break;
+                case 'area':
+                    $qb->orderBy(Client::TABLE.'.region',$order)
+                        ->orderBy(Client::TABLE.'.nomos',$order);
+                    break;
+            }
+        }
 
         $orders = $qb->offset(($page - 1) * $limit)
             ->simplePaginate($limit);
