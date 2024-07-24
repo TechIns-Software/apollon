@@ -29,4 +29,10 @@ class SaasUserFactory extends UserFactory
             $user->business_id = $id;
         });
     }
+
+    public function withBusiness(Business $business){
+        return $this->afterMaking(function (SaasUser $user) use ($business){
+            $user->business_id = $business->id;
+        });
+    }
 }
