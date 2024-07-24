@@ -42,7 +42,7 @@ class DriverController extends Controller
                 ->orderByRaw("MATCH(driver_name) AGAINST(?) DESC", ["*".$searchterm."*"]);
         }
 
-        return new JsonResponse($qb->get());
+        return new JsonResponse($qb->paginate());
     }
 
     public function edit(Request $request,$id)
