@@ -36,7 +36,7 @@ class DriverController extends Controller
         $user = $request->user();
         $qb = Driver::where('business_id',$user->business_id)->orderBy('driver_name');
 
-        $searchterm = $request->get('driver_name');
+        $searchterm = $request->get('name');
         if(!empty($searchterm)){
             $qb=$qb->whereRaw("MATCH(driver_name) AGAINST(? IN BOOLEAN MODE)",["*".$searchterm."*"])
                 ->orderByRaw("MATCH(driver_name) AGAINST(?) DESC", ["*".$searchterm."*"]);
