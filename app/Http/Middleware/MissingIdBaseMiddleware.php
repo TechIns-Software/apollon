@@ -40,6 +40,12 @@ abstract class MissingIdBaseMiddleware
         }
 
         $user = $request->user();
+
+//        if(get_called_class() == RequiresOrderId::class){
+//            dump($model);
+//            dump($user->business_id, $model->business_id);
+//        }
+
         if($user->business_id != $model->business_id){
             return new JsonResponse(['msg'=>"Aπαγορεύετε"],403);
         }

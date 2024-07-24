@@ -40,7 +40,8 @@ class SaasUser extends Authenticatable
 {
     use HasFactory, Notifiable,HasApiTokens;
 
-    protected $table='saas_user';
+    const TABLE  = 'saas_user';
+    protected $table=self::TABLE;
 
     /**
      * The attributes that are mass assignable.

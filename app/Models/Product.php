@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    protected $table='product';
+
+    const TABLE = 'product';
+    protected $table=self::TABLE;
 
     public function productOrder()
     {
