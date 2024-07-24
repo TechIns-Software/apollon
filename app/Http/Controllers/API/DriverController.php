@@ -52,11 +52,11 @@ class DriverController extends Controller
         $driver = Driver::find($id);
 
         if(empty($driver)){
-            return new JsonResponse(['msg'=>"Driver not found"],404);
+            return new JsonResponse(['msg'=>"Ο Οδηγός δεν υπάρχει"],404);
         }
 
         if($driver->business_id != $user->business_id){
-            return new JsonResponse(['msg'=>"You are not allowed to edit this Driver"],403);
+            return new JsonResponse(['msg'=>"Απαγορεύετε"],403);
         }
 
         $all = $request->all();
