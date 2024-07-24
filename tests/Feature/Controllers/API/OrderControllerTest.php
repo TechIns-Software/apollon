@@ -511,4 +511,50 @@ class OrderControllerTest extends TestCase
         $response->assertStatus(400);
         $response->assertJsonMissing(['data']);
     }
+
+    public static function invalidParams()
+    {
+        return  [
+            [[
+                'ordering'=>'asc'
+            ]],
+            [[
+                'ordering'=>'desc'
+            ]],
+            [[
+                'order_by'=>'created_at',
+                'ordering'=>"dsadsadas"
+            ]],
+            [[
+                'order_by'=>'',
+                'ordering'=>"asc"
+            ]],
+            [[
+                'order_by'=>'',
+                'ordering'=>"desc"
+            ]],
+            [[
+                'order_by'=>null,
+                'ordering'=>"desc"
+            ]],
+        ];
+
+    }
+
+    /**
+     * @dataProvider invalidParams
+     */
+    public function testOrderByParamsReturnError400($params)
+    {
+        $user = SaasUser::factory()->create();
+        Order::factory(2)->withUser($user)->create(['business_id'=>$user->business_id]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->get('/api/order?'.http_build_query($params));
+        $result->assertStatus(400);
+    }
 }

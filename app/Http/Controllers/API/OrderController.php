@@ -126,7 +126,9 @@ class OrderController extends Controller implements HasMiddleware
             "without_delivery"=>[
                 'sometimes',
                 new ValidateBoolean()
-            ]
+            ],
+            'order_by'=>'required_with:ordering|string',
+            'ordering'=>'required_with:order_by|in:ASC,DESC,asc,desc'
         ],$errors);
 
         if($validator->fails()){
@@ -156,7 +158,16 @@ class OrderController extends Controller implements HasMiddleware
             }
         }
 
-        $orders = $qb->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
+        if($request->has('searchterm')){
+            $searchterm = $request->get('searchterm')??null;
+            if (!empty($searchterm)){
+                $qb->where('description','like','%'.$searchterm.'%');
+            }
+        }
+
+
+
+        $orders = $qb->offset(($page - 1) * $limit)
             ->simplePaginate($limit);
         $orders->appends(['limit'=>$limit, 'page' => $page+1]);
 
