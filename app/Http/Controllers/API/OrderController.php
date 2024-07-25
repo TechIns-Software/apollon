@@ -150,9 +150,9 @@ class OrderController extends Controller implements HasMiddleware
             $without_delivery = parseBool($request->get("without_delivery"))??false;
 
             if($without_delivery){
-                $qb->whereNotIn('id',$closure);
+                $qb->whereNotIn(Order::TABLE.'.id',$closure);
             } else {
-                $qb->whereIn('id',$closure);
+                $qb->whereIn(Order::TABLE.'.id',$closure);
             }
         }
 
