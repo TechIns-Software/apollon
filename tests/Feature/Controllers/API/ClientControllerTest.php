@@ -870,6 +870,45 @@ class ClientControllerTest extends TestCase
         $this->assertEquals($expectedNameSequence, $names);
     }
 
+    public function testOrderingClientNameDesc()
+    {
+        $user = SaasUser::factory()->create();
+        $expectedNameSequence = [
+            [
+                'name' => 'Αναξαγόρας',
+                'surname' => 'Αυξεντίου',
+            ],
+            [
+                'name' => 'Αναξαγόρας',
+                'surname' => 'Βουλγατάς',
+            ],
+            [
+                'name' => 'Θεόδωρος',
+                'surname' => 'Μαριάνου',
+            ],
+        ];
+
+        $expectedNameSequence = array_reverse($expectedNameSequence);
+
+        $insertOrder = $expectedNameSequence;
+        shuffle($insertOrder);
+        foreach ($insertOrder as $nameSequence) {
+            Client::factory()->withUser($user)->create(['name'=>$nameSequence['name'],'surname'=>$nameSequence['surname']]);
+        }
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $result = $this->get('/api/client?order_by=name&ordering=desc');
+        $result->assertStatus(200);
+        $data = $result->json('data');
+
+        $names =  array_map(fn ($item) => ['name'=>$item['name'],'surname'=>$item['surname']], $data);
+
+        $this->assertEquals($expectedNameSequence, $names);
+    }
+
     public function testOrderingClientRegion()
     {
         $user = SaasUser::factory()->create();
@@ -905,6 +944,51 @@ class ClientControllerTest extends TestCase
             ['mobile_api']
         );
         $result = $this->get('/api/client?order_by=area&ordering=asc');
+        $result->assertStatus(200);
+        $data = $result->json('data');
+        $regions =  array_map(fn ($item) => ['nomos'=>$item['nomos'],'region'=>$item['region']], $data);
+
+        $this->assertEquals($regionOrdering, $regions);
+    }
+
+    public function testOrderingClientRegionDesc()
+    {
+        $user = SaasUser::factory()->create();
+        $regionOrdering = [
+            [
+                'nomos'=>'ΑΤΤΙΚΗΣ',
+                'region'=>'ΑΧΑΡΝΕΣ'
+            ],
+
+            // Area or ordered first then nomos.
+            [
+                'nomos'=>'Λασιθίου',
+                'region'=>'Μάταλα'
+            ],
+            [
+                'nomos'=>'Ηλίας',
+                'region'=>'Ολυμπία'
+            ],
+            [
+                'nomos'=>'Ηλίας',
+                'region'=>'Πύργος'
+            ],
+        ];
+
+        $insertOrder = $regionOrdering;
+        shuffle($insertOrder);
+
+        $regionOrdering = array_reverse($regionOrdering);
+
+        foreach ($insertOrder as $sequence) {
+            Client::factory()->withUser($user)->create(['nomos'=>$sequence['nomos'],'region'=>$sequence['region']]);
+        }
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $result = $this->get('/api/client?order_by=area&ordering=desc');
         $result->assertStatus(200);
         $data = $result->json('data');
         $regions =  array_map(fn ($item) => ['nomos'=>$item['nomos'],'region'=>$item['region']], $data);
