@@ -41,7 +41,7 @@ class ClientController extends Controller
 
         if(!empty($orderBy) && !empty($order)){
             switch($orderBy){
-                case 'client_name':
+                case 'name':
                     $qb = $qb->orderBy(Client::TABLE.'.surname',$order)
                         ->orderBy(Client::TABLE.'.name',$order);
                     break;

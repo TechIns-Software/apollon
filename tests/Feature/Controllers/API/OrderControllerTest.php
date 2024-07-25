@@ -513,7 +513,7 @@ class OrderControllerTest extends TestCase
         $response->assertJsonMissing(['data']);
     }
 
-    public static function invalidParams()
+    public static function invalidOrderByParams()
     {
         return  [
             [[
@@ -543,7 +543,7 @@ class OrderControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidParams
+     * @dataProvider invalidOrderByParams
      */
     public function testOrderByParamsReturnError400($params)
     {
