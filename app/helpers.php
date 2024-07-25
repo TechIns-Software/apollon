@@ -1,6 +1,9 @@
 <?php
 
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+
 if(!function_exists('parseBool')){
     function parseBool($value)
     {
@@ -49,5 +52,28 @@ if(!function_exists('cast_greek_float')){
         }
 
         return floatval($value);
+    }
+}
+
+if(!function_exists('validatePaginationAndSortening')){
+    function validatePaginationAndSortening(array $requestData,array $extraValidationRules=[],array $extraValidationMessages=[])
+    {
+        $errors = [
+            ...$extraValidationMessages,
+            'page'=>"Page must have positive value",
+            'limit'=>"Limit must have positive value",
+        ];
+
+        $validator = Validator::make($requestData, [
+            ...$extraValidationRules,
+            'page'=>"sometimes|integer|min:1",
+            "limit"=>"sometimes|integer|min:1",
+            'order_by'=>'required_with:ordering|string',
+            'ordering'=>'required_with:order_by|string|in:ASC,DESC,asc,desc'
+        ],$errors);
+
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
     }
 }

@@ -111,29 +111,20 @@ class OrderController extends Controller implements HasMiddleware
     }
 
 
+    /**
+     * @throws ValidationException
+     */
     public function list(Request $request)
     {
         $user = $request->user();
 
-        $errors = [
-            'page'=>"Page must have positive value",
-            'limit'=>"Limit must have positive value",
-        ];
+        $rules = ["without_delivery"=>[
+            'sometimes',
+            new ValidateBoolean()
+        ]];
 
-        $validator = Validator::make($request->all(), [
-            'page'=>"sometimes|integer|min:1",
-            "limit"=>"sometimes|integer|min:1",
-            "without_delivery"=>[
-                'sometimes',
-                new ValidateBoolean()
-            ],
-            'order_by'=>'required_with:ordering|string',
-            'ordering'=>'required_with:order_by|string|in:ASC,DESC,asc,desc'
-        ],$errors);
-
-        if($validator->fails()){
-            return new JsonResponse($validator->errors(), 400);
-        }
+        // function in helpers.php
+        validatePaginationAndSortening($request->all(),$rules);
 
         // Input is validated Above
         $page = $request->get('page')??1;

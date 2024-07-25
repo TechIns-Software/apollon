@@ -13,24 +13,15 @@ use Illuminate\Validation\ValidationException;
 
 class ClientController extends Controller
 {
+    /**
+     * @throws ValidationException
+     */
     public function list(Request $request)
     {
         $user = $request->user();
-        $errors = [
-            'page'=>"Page must have positive value",
-            'limit'=>"Limit must have positive value",
-        ];
 
-        $validator = Validator::make($request->all(), [
-            'page'=>"sometimes|integer|min:1",
-            "limit"=>"sometimes|integer|min:1",
-            'order_by'=>'required_with:ordering|string',
-            'ordering'=>'required_with:order_by|string|in:ASC,DESC,asc,desc'
-        ],$errors);
-
-        if($validator->fails()){
-            throw new ValidationException($validator);
-        }
+        // function in helpers.php
+        validatePaginationAndSortening($request->all());
 
         $qb = Client::whereBusinessId($user->business_id);
 
