@@ -9,28 +9,62 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ClientController extends Controller
 {
     public function list(Request $request)
     {
         $user = $request->user();
+        $errors = [
+            'page'=>"Page must have positive value",
+            'limit'=>"Limit must have positive value",
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'page'=>"sometimes|integer|min:1",
+            "limit"=>"sometimes|integer|min:1",
+            'order_by'=>'required_with:ordering|string',
+            'ordering'=>'required_with:order_by|string|in:ASC,DESC,asc,desc'
+        ],$errors);
+
+        if($validator->fails()){
+            throw new ValidationException($validator);
+        }
+
+        $qb = Client::whereBusinessId($user->business_id);
+
+        if($request->has('searchterm') && !empty($searchterm = $request->get('searchterm')??null)){
+                $qb=$qb->where('description','like','%'.$searchterm.'%')
+                    ->orWhere('name','like','%'.$searchterm.'%')
+                    ->orWhere('surname','like','%'.$searchterm.'%')
+                    ->orWhere('telephone','like','%'.$searchterm.'%')
+                    ->orWhere('email','like','%'.$searchterm.'%')
+                    ->orWhere('nomos','like','%'.$searchterm.'%')
+                    ->orWhere('afm','like','%'.$searchterm.'%')
+                    ->orWhere('region','like','%'.$searchterm.'%');
+        }
+
+        $orderBy = $request->get('order_by');
+        $order = $request->get('ordering');
+
+        if(!empty($orderBy) && !empty($order)){
+            switch($orderBy){
+                case 'client_name':
+                    $qb = $qb->orderBy(Client::TABLE.'.surname',$order)
+                        ->orderBy(Client::TABLE.'.name',$order);
+                    break;
+                case 'area':
+                    $qb = $qb->orderBy(Client::TABLE.'.region',$order)
+                        ->orderBy(Client::TABLE.'.nomos',$order);
+                    break;
+            }
+        }
 
         $page = $request->get('page')??1;
         $limit = $request->get('limit')??20;
-
-        if($page <= 0){
-            return new JsonResponse(['msg'=>"Page must have positive value"],400);
-        }
-
-        if($limit <= 0){
-            return new JsonResponse(['msg'=>"Limit must have positive value"],400);
-        }
-
-        $clients = Client::orderBy('id','DESC')
-            ->whereBusinessId($user->business_id)
-            ->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
-            ->simplePaginate($limit);
+        $clients = $qb->offset(($page - 1) * $limit)
+            ->paginate($limit);
         $clients->appends(['limit'=>$limit, 'page' => $page+1]);
 
         return new JsonResponse($clients,200);
