@@ -693,6 +693,140 @@ class OrderControllerTest extends TestCase
         $this->assertEquals($expectedNameSequence,$names);
     }
 
+    public function testListOrderingClientNameDesc()
+    {
+        DB::statement("DELETE from `".Order::TABLE."`");
+        DB::statement("DELETE from ".Client::TABLE);
+
+
+        $user = SaasUser::factory()->create();
+
+        $client = Client::factory()->withUser($user)->create([
+            'name'=>"Αναξαγόρας",'surname'=>"Αυξεντίου",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $order=Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+                'client_id'=>$client->id
+            ]);
+
+        $order->client_id = $order->client_id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        // Client 2
+        $client2 = Client::factory()->withUser($user)->create([
+            'name'=>"Αναξαγόρας",'surname'=>"Βουλγατάς",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order=Order::factory()->withUser($user)
+            ->make([
+                'business_id'=>$user->business_id,
+                'client_id'=>$client2->id
+            ]);
+
+        // Upon configure a different Client may be set
+        $order->client_id = $client2->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+
+        $order=Order::factory()->withUser($user)
+            ->make([
+                'business_id'=>$user->business_id,
+                'client_id'=>$client2->id
+            ]);
+
+        // Upon configure a different Client may be set
+        $order->client_id = $client2->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+
+        // Client 3
+        $client3 = Client::factory()->withUser($user)->create([
+            'business_id'=>$user->business_id,
+            'name'=>"Θεόδωρος",
+            'surname'=>"Μαριάνου",
+        ]);
+
+
+        $order=Order::factory()->withUser($user)
+            ->make([
+                'business_id'=>$user->business_id,
+                'client_id'=>$client3->id
+            ]);
+
+        // Upon configure a different Client may be set
+        $order->client_id = $client3->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+
+        // Upon configure a different Client may be set
+        $order=Order::factory()->withUser($user)
+            ->make([
+                'business_id'=>$user->business_id,
+                'client_id'=>$client3->id
+            ]);
+        $order->client_id = $client3->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $results = $this->get('/api/order?order_by=client_name&ordering=desc&limit=100');
+        $results->assertStatus(200);
+
+        $data = $results->json('data');
+
+        $names =  array_map(fn ($item) => ['client_name'=>$item['client_name'],'client_surname'=>$item['client_surname']], $data);
+
+        $expectedNameSequence = array_reverse([
+            [
+                'client_name' => 'Αναξαγόρας',
+                'client_surname' => 'Αυξεντίου',
+            ],
+            [
+                'client_name' => 'Αναξαγόρας',
+                'client_surname' => 'Αυξεντίου',
+            ],
+            [
+                'client_name' => 'Αναξαγόρας',
+                'client_surname' => 'Βουλγατάς',
+            ],
+            [
+                'client_name' => 'Αναξαγόρας',
+                'client_surname' => 'Βουλγατάς',
+            ],
+            [
+                'client_name' => 'Θεόδωρος',
+                'client_surname' => 'Μαριάνου',
+            ],
+            [
+                'client_name' => 'Θεόδωρος',
+                'client_surname' => 'Μαριάνου',
+            ],
+        ]);
+
+        $this->assertEquals($expectedNameSequence,$names);
+    }
+
     public function testListOrderingArea()
     {
         DB::statement("DELETE from `".Order::TABLE."`");
@@ -827,6 +961,150 @@ class OrderControllerTest extends TestCase
         );
 
         $results = $this->get('/api/order?order_by=area&ordering=asc&limit=100');
+        $results->assertStatus(200);
+
+        $data = $results->json('data');
+
+        $regions =  array_map(fn ($item) => ['client_nomos'=>$item['client_nomos'],'client_region'=>$item['client_region']], $data);
+        $this->assertEquals($regionOrdering,$regions);
+    }
+
+    public function testListOrderingAreaDesc()
+    {
+        DB::statement("DELETE from `".Order::TABLE."`");
+        DB::statement("DELETE from ".Client::TABLE);
+
+
+        $user = SaasUser::factory()->create();
+
+        $client = Client::factory()->withUser($user)->create([
+            'name'=>"Αναξαγόρας",'surname'=>"Αυξεντίου",
+            'nomos'=>"ΑΤΤΙΚΗΣ",'region'=>"ΑΧΑΡΝΕΣ",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $client = Client::factory()->withUser($user)->create([
+            'name'=>"Μπάμπης",'surname'=>"Σουγιάς",
+            'nomos'=>"Λασιθίου",'region'=>"Μάταλα",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+
+        $client = Client::factory()->withUser($user)->create([
+            'name'=>"Μπάμπης",'surname'=>"Σουγιάς",
+            'nomos'=>"Ηλίας",'region'=>"Πύργος",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $client = Client::factory()->withUser($user)->create([
+            'name'=>"Μπάμπης",'surname'=>"Σουγιάς",
+            'nomos'=>"Ηλίας",'region'=>"Ολυμπία",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order = Order::factory()->withUser($user)
+            ->create([
+                'business_id'=>$user->business_id,
+            ]);
+
+        $order->client_id = $client->id;
+        $order->business_id = $user->business_id;
+        $order->save();
+
+        $regionOrdering = [
+            [
+                'client_nomos'=>'ΑΤΤΙΚΗΣ',
+                'client_region'=>'ΑΧΑΡΝΕΣ'
+            ],
+            [
+                'client_nomos'=>'ΑΤΤΙΚΗΣ',
+                'client_region'=>'ΑΧΑΡΝΕΣ'
+            ],
+            // Area or ordered first then nomos.
+            [
+                'client_nomos'=>'Λασιθίου',
+                'client_region'=>'Μάταλα'
+            ],
+            [
+                'client_nomos'=>'Λασιθίου',
+                'client_region'=>'Μάταλα'
+            ],
+            [
+                'client_nomos'=>'Ηλίας',
+                'client_region'=>'Ολυμπία'
+            ],
+            [
+                'client_nomos'=>'Ηλίας',
+                'client_region'=>'Πύργος'
+            ],
+            [
+                'client_nomos'=>'Ηλίας',
+                'client_region'=>'Πύργος'
+            ],
+        ];
+
+        $regionOrdering = array_reverse($regionOrdering);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $results = $this->get('/api/order?order_by=area&ordering=desc&limit=100');
         $results->assertStatus(200);
 
         $data = $results->json('data');
