@@ -139,8 +139,15 @@ class OrderController extends Controller implements HasMiddleware
         $page = $request->get('page')??1;
         $limit = $request->get('limit')??20;
 
-        $qb = Order::where(Order::TABLE.".business_id",$user->business_id);
-
+        $qb = Order::where(Order::TABLE.".business_id",$user->business_id)
+            ->join(Client::TABLE,Client::TABLE.'.id','=',Order::TABLE.'.client_id')
+            ->select(
+                Order::TABLE.".*",
+                Client::TABLE.'.surname as client_surname',
+                Client::TABLE.'.name as client_name',
+                Client::TABLE.'.region as client_region',
+                Client::TABLE.".nomos as client_nomos"
+            );
         if($request->has('without_delivery')){
 
             $closure = function(\Illuminate\Database\Query\Builder $q) use ($user){
@@ -169,8 +176,6 @@ class OrderController extends Controller implements HasMiddleware
         $order = $request->get('ordering');
 
         if(!empty($orderBy) && !empty($order)){
-            $qb = $qb->join(Client::TABLE,Client::TABLE.'.id','=',Order::TABLE.'.client_id')
-                    ->select(Order::TABLE.".*");
 
             switch($orderBy){
                 case 'client_name':
@@ -348,7 +353,7 @@ class OrderController extends Controller implements HasMiddleware
 
     /**
      *
-     * Saas User doe not add or modify products.
+     * Saas User does not add or modify products.
      * Therefore, making a WHOLE controller for it seems like a waste.
      *
      * @param Request $request
