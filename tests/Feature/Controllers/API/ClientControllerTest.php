@@ -34,10 +34,10 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
             "email"=>"user@example.com",
             "nomos"=>"Αττική",
-            "afm"=>"1234"
+            "afm"=>"1234",
+            'stars'=>3
         ];
 
         $result = $this->post(route('client.create'),$payload);
@@ -73,9 +73,9 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
             "email"=>"dsaddsdsdsa",
-            "nomos"=>"Αττική"
+            "nomos"=>"Αττική",
+            'stars'=>3
         ];
 
         $result = $this->post(route('client.create'),$payload);
@@ -123,7 +123,6 @@ class ClientControllerTest extends TestCase
             $this->assertEquals($value, $itemInDb->$key);
         }
 
-        $this->assertEmpty($itemInDb->map_link);
     }
 
     public function testMissingLongitude()
@@ -248,9 +247,9 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
             "longitude"=>"12.5",
-            "latitude"=>"12.5"
+            "latitude"=>"12.5",
+            'stars'=>3.5
         ];
 
         $result = $this->post("/api/client/".$customer->id,$payload);
@@ -277,10 +276,10 @@ class ClientControllerTest extends TestCase
             'state'=>"Αττική",
             'region'=>"Αθήνα",
             "description"=>"Ηαηαηα",
-            "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu",
             "email"=>"user@example.com",
             "nomos"=>"Attica",
-            "afm"=>'1234'
+            "afm"=>'1234',
+            'stars'=>3
         ];
 
         $result = $this->post("/api/client/".$customer->id,$payload);
@@ -495,8 +494,7 @@ class ClientControllerTest extends TestCase
     public static function missingInputs()
     {
         return [
-            [
-            [
+            [[
                 'surname'=>'lalala',
                 'telephone'=>"6940000000",
                 'phone1'=>"6940000000",
@@ -504,10 +502,8 @@ class ClientControllerTest extends TestCase
                 'state'=>"Αττική",
                 'region'=>"Αθήνα",
                 "description"=>"Ηαηαηα",
-                "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu"
             ]],
-            [
-            [
+            [[
                 'name'=>'lalala',
                 'telephone'=>"6940000000",
                 'phone1'=>"6940000000",
@@ -515,7 +511,6 @@ class ClientControllerTest extends TestCase
                 'state'=>"Αττική",
                 'region'=>"Αθήνα",
                 "description"=>"Ηαηαηα",
-                "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu"
             ]],
             [[
                 'telephone'=>"6940000000",
@@ -524,7 +519,6 @@ class ClientControllerTest extends TestCase
                 'state'=>"Αττική",
                 'region'=>"Αθήνα",
                 "description"=>"Ηαηαηα",
-                "map_link"=>"https://www.google.com/maps/place/%CE%95%CE%BA%CE%BA%CE%BB%CE%B7%CF%83%CE%AF%CE%B1+%CE%91%CE%B3%CE%AF%CE%B1+%CE%A4%CF%81%CE%B9%CE%AC%CE%B4%CE%B1+%CE%BF%CE%B9%CE%BA%CE%BF%CE%B4%CE%BF%CE%BC%CE%B9%CE%BA%CE%BF+%CF%84%CE%B5%CF%84%CF%81%CE%B1%CE%B3%CF%89%CE%BD%CE%BF+%CE%9D0+300/@38.2029719,23.8062457,14z/data=!4m6!3m5!1s0x14a17480b334a967:0x194a13601500a784!8m2!3d38.2108136!4d23.8098944!16s%2Fg%2F1262hqdt7?entry=ttu"
             ]],
         ];
     }
@@ -668,7 +662,7 @@ class ClientControllerTest extends TestCase
 
         DB::statement("DELETE FROM client;");
 
-        // Fetch User id 445. Clients is an empty table
+        // Fetch Client id 445. Clients is an empty table
         $result = $this->get("/api/client/445/orders",[]);
         $result->assertStatus(404);
     }
@@ -720,5 +714,76 @@ class ClientControllerTest extends TestCase
             $this->assertContains($order['id'],$expectedOrdersIds);
             $this->assertNotContains($order['id'],$unexpectedOrdersIds);
         }
+    }
+
+    public static function wrongStarValues()
+    {
+        return [
+            [-1],
+            [10]
+        ];
+    }
+
+    /**
+     * @dataProvider wrongStarValues
+     * @param $stars The number of Stars
+     * @return void
+     */
+    public function testInsertStartsWrongValue(int $stars)
+    {
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'name'=>'lalala',
+            'surname'=>'lalala',
+            'telephone'=>"6940000000",
+            'phone1'=>"6940000000",
+            'phone2'=>"6940000000",
+            'state'=>"Αττική",
+            'region'=>"Αθήνα",
+            "description"=>"Ηαηαηα",
+            "email"=>"user@example.com",
+            "nomos"=>"Attica",
+            "afm"=>'1234',
+            'stars'=>$stars
+        ];
+
+        $result = $this->post(route('client.create'),$payload);
+
+        $result->assertStatus(400);
+
+        // Because we soft delete the clients we
+        $clients = DB::table('client')->count();
+        $this->assertEmpty($clients);
+
+    }
+
+    /**
+     * @dataProvider wrongStarValues
+     * @param $stars The number of Stars
+     * @return void
+     */
+    public function testUpdateStarsWrongValue(int $stars)
+    {
+        $user = SaasUser::factory()->create();
+        $customer = Client::factory()->withUser($user)->create(['stars'=>3]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->post("/api/client/".$customer->id,[]);
+        $result->assertStatus(400);
+
+        $clientInDb = Client::find($customer->id);
+
+        $this->assertEquals(3,(int)$clientInDb->stars);
+        $this->assertNotEquals($stars,(int)$clientInDb->stars);
     }
 }

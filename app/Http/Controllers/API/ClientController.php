@@ -54,12 +54,12 @@ class ClientController extends Controller
             'state' => 'sometimes|string',
             'region' => 'sometimes|string',
             'description' => 'sometimes|string',
-            'map_link' => 'sometimes|string',
             'latitude' => 'required_with:longitude|string',
             'longitude' => 'required_with:latitude|string',
             "email"=>"sometimes|nullable|string|email",
             "nomos"=>"sometimes|nullable|string",
-            'afm'=>"sometimes|numeric"
+            'afm'=>"sometimes|numeric",
+            'stars'=>"sometimes|numeric|min:0|max:5",
         ]);
 
         if ($validator->fails()) {
@@ -140,12 +140,12 @@ class ClientController extends Controller
             'state' => 'sometimes|string',
             'region' => 'sometimes|string',
             'description' => 'sometimes|string',
-            'map_link' => 'sometimes|string',
             'latitude' => 'required_with:longitude|string',
             'longitude' => 'required_with:latitude|string',
             "email"=>"sometimes|nullable|string|email",
             "nomos"=>"sometimes|nullable|string",
-            'afm'=>"sometimes|nullable|numeric"
+            'afm'=>"sometimes|nullable|numeric",
+            'stars'=>"sometimes|numeric|min:0|max:5",
         ]);
 
         if ($validator->fails()) {
