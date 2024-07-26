@@ -111,34 +111,34 @@ class OrderController extends Controller implements HasMiddleware
     }
 
 
+    /**
+     * @throws ValidationException
+     */
     public function list(Request $request)
     {
         $user = $request->user();
 
-        $errors = [
-            'page'=>"Page must have positive value",
-            'limit'=>"Limit must have positive value",
-        ];
+        $rules = ["without_delivery"=>[
+            'sometimes',
+            new ValidateBoolean()
+        ]];
 
-        $validator = Validator::make($request->all(), [
-            'page'=>"sometimes|integer|min:1",
-            "limit"=>"sometimes|integer|min:1",
-            "without_delivery"=>[
-                'sometimes',
-                new ValidateBoolean()
-            ]
-        ],$errors);
-
-        if($validator->fails()){
-            return new JsonResponse($validator->errors(), 400);
-        }
+        // function in helpers.php
+        validatePaginationAndSortening($request->all(),$rules);
 
         // Input is validated Above
         $page = $request->get('page')??1;
         $limit = $request->get('limit')??20;
 
-        $qb = Order::whereBusinessId($user->business_id);
-
+        $qb = Order::where(Order::TABLE.".business_id",$user->business_id)
+            ->join(Client::TABLE,Client::TABLE.'.id','=',Order::TABLE.'.client_id')
+            ->select(
+                Order::TABLE.".*",
+                Client::TABLE.'.surname as client_surname',
+                Client::TABLE.'.name as client_name',
+                Client::TABLE.'.region as client_region',
+                Client::TABLE.".nomos as client_nomos"
+            );
         if($request->has('without_delivery')){
 
             $closure = function(\Illuminate\Database\Query\Builder $q) use ($user){
@@ -150,13 +150,37 @@ class OrderController extends Controller implements HasMiddleware
             $without_delivery = parseBool($request->get("without_delivery"))??false;
 
             if($without_delivery){
-                $qb->whereNotIn('id',$closure);
+                $qb->whereNotIn(Order::TABLE.'.id',$closure);
             } else {
-                $qb->whereIn('id',$closure);
+                $qb->whereIn(Order::TABLE.'.id',$closure);
             }
         }
 
-        $orders = $qb->orderBy('created_at','DESC')->offset(($page - 1) * $limit)
+        if($request->has('searchterm')){
+            $searchterm = $request->get('searchterm')??null;
+            if (!empty($searchterm)){
+                $qb->where('description','like','%'.$searchterm.'%');
+            }
+        }
+
+        $orderBy = $request->get('order_by');
+        $order = $request->get('ordering');
+
+        if(!empty($orderBy) && !empty($order)){
+
+            switch($orderBy){
+                case 'client_name':
+                    $qb->orderBy(Client::TABLE.'.surname',$order)
+                        ->orderBy(Client::TABLE.'.name',$order);
+                    break;
+                case 'area':
+                    $qb->orderBy(Client::TABLE.'.region',$order)
+                        ->orderBy(Client::TABLE.'.nomos',$order);
+                    break;
+            }
+        }
+
+        $orders = $qb->offset(($page - 1) * $limit)
             ->simplePaginate($limit);
         $orders->appends(['limit'=>$limit, 'page' => $page+1]);
 
@@ -320,7 +344,7 @@ class OrderController extends Controller implements HasMiddleware
 
     /**
      *
-     * Saas User doe not add or modify products.
+     * Saas User does not add or modify products.
      * Therefore, making a WHOLE controller for it seems like a waste.
      *
      * @param Request $request

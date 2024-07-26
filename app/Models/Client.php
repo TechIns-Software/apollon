@@ -57,7 +57,8 @@ class Client extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table='client';
+    const TABLE='client';
+    protected $table=self::TABLE;
 
     protected $fillable=[
         'name',

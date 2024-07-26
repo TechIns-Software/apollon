@@ -64,7 +64,7 @@ class ClientFactory extends Factory
            }
 
            if(empty($client->saas_user_id)){
-               $user = Business::whereBusinessId($client->business_id)->inRandomOrder()->first();
+               $user = Business::find($client->business_id);
                $client->business_id = $user->business_id;
            }
         });
