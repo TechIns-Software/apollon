@@ -20,6 +20,7 @@ class DeliveryResource extends JsonResource
             'driver'=>$this->driver->driver_name,
             'name'=>$this->name,
             'orders'=>DeliveryOrderResource::collection($this->deliveryOrder->sortBy('delivery_sequence')->sortBy('id')),
+            "pdf_url"=>route('delivery_pdf',['id'=>$this->id])
         ];
     }
 }

@@ -22,12 +22,14 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\Middleware;
 
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
+
 class DeliveryController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            new Middleware(RequiresDeliveryId::class,['edit','delivery','deliveries','addOrderToDelivery','delete'])
+            new Middleware(RequiresDeliveryId::class,['edit','delivery','deliveries','addOrderToDelivery','delete','pdf'])
         ];
     }
     public function add(Request $request)
@@ -323,5 +325,12 @@ class DeliveryController extends Controller implements HasMiddleware
         }
 
         return new JsonResponse(new DeliveryOrderResource($deliveryOrder),200);
+    }
+
+    public function pdf(Request $request)
+    {
+        $delivery = $request->delivery;
+        $pdf = PDF::loadView('api_delivery_pdf',['delivery'=>$delivery]);
+        return $pdf->stream();
     }
 }

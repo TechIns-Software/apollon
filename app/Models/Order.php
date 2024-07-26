@@ -86,4 +86,9 @@ class Order extends Model
     {
         return $this->hasMany(ProductOrder::class,'order_id','id');
     }
+
+    protected function client()
+    {
+        return $this->belongsTo(Client::class,'client_id','id');
+    }
 }

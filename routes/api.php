@@ -57,6 +57,8 @@ Route::middleware('auth:sanctum')->group(function (){
             Route::get('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delivery']);
             Route::delete('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delete']);
             Route::post('/order/{id}',[\App\Http\Controllers\API\DeliveryController::class,'changeSequenceOfOrders']);
+
+            Route::get('/{id}/delivery.pdf',[\App\Http\Controllers\API\DeliveryController::class,'pdf'])->name('delivery_pdf');
         });
 
         Route::get('/driver',[\App\Http\Controllers\API\DeliveryController::class,'driver']);
