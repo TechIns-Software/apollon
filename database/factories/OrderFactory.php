@@ -10,12 +10,16 @@ use App\Models\ProductOrder;
 use App\Models\SaasUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
  */
 class OrderFactory extends Factory
 {
+
+    private $trace=[];
+
     /**
      * Define the model's default state.
      *
@@ -96,8 +100,8 @@ class OrderFactory extends Factory
                 if(empty($user)){
                     $user = SaasUser::factory()->create();
                 }
-
                 $this->setUser($user,$order);
+//                dump($user->business_id,$order->business_id);
                 return;
             }
 

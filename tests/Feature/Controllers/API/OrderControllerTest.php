@@ -373,9 +373,13 @@ class OrderControllerTest extends TestCase
 
     public function testAddPrices()
     {
+        DB::statement("DELETE FROM ".SaasUser::TABLE);
+        DB::statement("DELETE FROM `".Order::TABLE."`");
+        DB::statement("DELETE FROM ".Product::TABLE);
+
         $business = Business::factory()->create();
         $user = SaasUser::factory()->create(['business_id'=>$business->id]);
-        $order = Order::factory()->withProducts()->create(['business_id'=>$business->id]);
+        $order = Order::factory()->withUser($user)->withProducts()->create(['business_id'=>$business->id]);
 
         $productsToUpdate = Product::where('business_id',$business->id)->get();
         $productToPlaceNewValue = Product::factory(5)->create(['business_id'=>$business->id]);
@@ -411,6 +415,10 @@ class OrderControllerTest extends TestCase
 
     public function testDeletePricesFromOrder()
     {
+        DB::statement("DELETE FROM ".SaasUser::TABLE);
+        DB::statement("DELETE FROM `".Order::TABLE."`");
+        DB::statement("DELETE FROM ".Product::TABLE);
+
         $business = Business::factory()->create();
         $user = SaasUser::factory()->create(['business_id'=>$business->id]);
         $order = Order::factory()->withProducts()->create(['business_id'=>$business->id]);
@@ -422,6 +430,7 @@ class OrderControllerTest extends TestCase
             $user,
             ['mobile_api']
         );
+
 
         $response = $this->delete('/api/order/'.$order->id.'/product/'.$productsToDelete->id);
 

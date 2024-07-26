@@ -32,7 +32,8 @@ class Business extends Model
 {
     use HasFactory;
 
-    protected $table="business";
+    const TABLE = 'business';
+    protected $table=self::TABLE;
 
     public function getIsActiveAttribute()
     {

@@ -259,19 +259,6 @@ class DeliveryController extends Controller implements HasMiddleware
         return new JsonResponse($results,200);
     }
 
-    public function driver(Request $request)
-    {
-        $user = $request->user();
-        $qb = Driver::where('business_id',$user->business_id)->orderBy('driver_name');
-
-        $searchterm = $request->get('driver_name');
-        if(!empty($searchterm)){
-            $qb=$qb->whereRaw("MATCH(driver_name) AGAINST(? IN BOOLEAN MODE)",["*".$searchterm."*"])
-                ->orderByRaw("MATCH(driver_name) AGAINST(?) DESC", ["*".$searchterm."*"]);
-        }
-
-        return new JsonResponse($qb->get());
-    }
 
     public function delete(Request $request)
     {

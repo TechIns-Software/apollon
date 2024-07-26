@@ -6,6 +6,7 @@ use App\Models\Business;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class BusinessControllerTest extends TestCase
@@ -135,7 +136,7 @@ class BusinessControllerTest extends TestCase
     public function testSavedActiveInvalid()
     {
         $user = User::factory()->create();
-
+        $originalBusinessCount = Business::count();
         $this->actingAs($user);
 
         $response = $this->session(['__token'=>'1234'])->post('/business',[
@@ -149,8 +150,8 @@ class BusinessControllerTest extends TestCase
 
         $response->assertStatus(400);
 
-        $business = Business::all();
-        $this->assertEmpty($business->all());
+        $businessCount = Business::count();
+        $this->assertEquals($originalBusinessCount , $businessCount);
     }
 
     public function testSavedActiveNoValue()
@@ -185,6 +186,7 @@ class BusinessControllerTest extends TestCase
     public function testInsertInvalidExpirationDate()
     {
         $user = User::factory()->create();
+        $originalBusinessCount = Business::count();
 
         $this->actingAs($user);
 
@@ -200,8 +202,8 @@ class BusinessControllerTest extends TestCase
 
         $response->assertStatus(400);
 
-        $business = Business::all();
-        $this->assertEmpty($business->all());
+        $businessCount = Business::count();
+        $this->assertEquals($originalBusinessCount , $businessCount);
     }
 
     public function testInsertExpirationDateAsString()
@@ -301,6 +303,8 @@ class BusinessControllerTest extends TestCase
 
     public function testGetBusinessStats()
     {
+        DB::statement("DELETE FROM driver"); // I have to clean this table first
+        DB::statement("DELETE FROM ".Business::TABLE);
         $user = User::factory()->create();
         $stats=[];
         $currentYear = Carbon::now()->format('Y');

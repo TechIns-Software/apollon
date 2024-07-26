@@ -61,7 +61,11 @@ Route::middleware('auth:sanctum')->group(function (){
             Route::get('/{id}/delivery.pdf',[\App\Http\Controllers\API\DeliveryController::class,'pdf'])->name('delivery_pdf');
         });
 
-        Route::get('/driver',[\App\Http\Controllers\API\DeliveryController::class,'driver']);
+        Route::prefix('/driver')->group(function (){
+            Route::get('/',[\App\Http\Controllers\API\DriverController::class,'list']);
+            Route::post('/',[\App\Http\Controllers\API\DriverController::class,'create']);
+            Route::post('/{id}',[\App\Http\Controllers\API\DriverController::class,'edit']);
+        });
     });
 });
 
