@@ -52,11 +52,15 @@ class ClientController extends Controller
             }
         }
 
-        $page = $request->get('page')??1;
-        $limit = $request->get('limit')??20;
-        $clients = $qb->offset(($page - 1) * $limit)
-            ->paginate($limit);
-        $clients->appends(['limit'=>$limit, 'page' => $page+1]);
+        if($request->has('page') && $request->has('limit')){
+            $page = $request->get('page')??1;
+            $limit = $request->get('limit')??20;
+            $clients = $qb->offset(($page - 1) * $limit)
+                ->paginate($limit);
+            $clients->appends(['limit'=>$limit, 'page' => $page+1]);
+        } else {
+            $clients = ['data'=>$qb->get()];
+        }
 
         return new JsonResponse($clients,200);
     }

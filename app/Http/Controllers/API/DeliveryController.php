@@ -249,22 +249,25 @@ class DeliveryController extends Controller implements HasMiddleware
 
         $qb = Delivery::where('business_id',$user->business_id)->orderBy('created_at','DESC');
 
-
         $searchterm = $request->get('name');
         if(!empty($searchterm)){
             $qb=$qb->whereRaw("MATCH(name) AGAINST(? IN BOOLEAN MODE)",["*".$searchterm."*"])
                 ->orderByRaw("MATCH(name) AGAINST(?) DESC", ["*".$searchterm."*"]);
         }
 
-        $page = $request->get('page')??1;
-        $limit = $request->get('limit')??20;
-        $results = $qb->offset(($page - 1) * $limit)
-            ->simplePaginate($limit);
+        if($request->has('page') && $request->has('limit')){
+            $page = $request->get('page')??1;
+            $limit = $request->get('limit')??20;
+            $results = $qb->offset(($page - 1) * $limit)
+                ->simplePaginate($limit);
 
-        $appends = $all;
-        $appends['limit']=$limit;
-        $appends['page']=$page+1;
-        $results->appends($appends);
+            $appends = $all;
+            $appends['limit']=$limit;
+            $appends['page']=$page+1;
+            $results->appends($appends);
+        } else {
+            $results = ['data'=>$qb->get()];
+        }
 
         return new JsonResponse($results,200);
     }

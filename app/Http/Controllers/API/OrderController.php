@@ -180,9 +180,14 @@ class OrderController extends Controller implements HasMiddleware
             }
         }
 
-        $orders = $qb->offset(($page - 1) * $limit)
-            ->simplePaginate($limit);
-        $orders->appends(['limit'=>$limit, 'page' => $page+1]);
+        if($request->has('page') && $request->has('limit')){
+            $orders = $qb->offset(($page - 1) * $limit)
+                ->simplePaginate($limit);
+            $orders->appends(['limit'=>$limit, 'page' => $page+1]);
+        } else {
+            $orders = $qb->get();
+            $orders = ['data'=>$orders];
+        }
 
         return new JsonResponse($orders,200);
     }
