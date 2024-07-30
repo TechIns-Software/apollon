@@ -58,6 +58,11 @@ class DeliveryController extends Controller implements HasMiddleware
            'driver_name'=>[
             'required_without:driver_id',
            ],
+            "delivery_date"=>[
+              'sometimes',
+              'nullable',
+              'date'
+            ],
             "name"=>[
                 'required',
                 "string"
@@ -82,6 +87,7 @@ class DeliveryController extends Controller implements HasMiddleware
                 }
             ]
         ]);
+
         if($validator->fails()){
             throw new ValidationException($validator);
         }
@@ -96,6 +102,7 @@ class DeliveryController extends Controller implements HasMiddleware
                 'name'=>$all['name'],
                 'driver_id'=>$driver->id,
                 'business_id'=>$user->business_id,
+                'delivery_date'=>$all['delivery_date'],
             ]);
 
             $orders = collect();
@@ -113,7 +120,6 @@ class DeliveryController extends Controller implements HasMiddleware
             DB::commit();
         }catch (\Exception $e){
             DB::rollback();
-            dump($e);
             report($e);
             return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
@@ -153,6 +159,11 @@ class DeliveryController extends Controller implements HasMiddleware
                 'sometimes',
                 "string"
             ],
+            "delivery_date"=>[
+                'sometimes',
+                'nullable',
+                'date'
+            ],
             "orders"=>[
                 "sometimes",
                 "array"
@@ -179,7 +190,6 @@ class DeliveryController extends Controller implements HasMiddleware
 
         try {
             DB::beginTransaction();
-
             $delivery->update($all);
             $delivery->refresh();
             $orders = collect();

@@ -34,7 +34,7 @@ class DeliveryControllerTest extends TestCase
             'driver_name'=>"Test",
             'delivery_date'=>'2025-12-01',
             'name'=>'Panzer Delivery',
-            'orders'=>$orderIds
+            'orders'=>$orderIds,
         ];
 
         $response = $this->post('/api/delivery',$payload);
@@ -51,7 +51,7 @@ class DeliveryControllerTest extends TestCase
         $this->assertEquals($user->business_id,$delivery->business_id);
         $this->assertEquals($body['business_id'],$delivery->business_id);
         $this->assertEquals($payload['name'],$delivery->name);
-
+        $this->assertEquals($payload['delivery_date'],$delivery->delivery_date);
         $sequence = -1;
         foreach ($body['orders'] as $order) {
             $sequenceInResponse=$order['sequence'];
@@ -107,6 +107,8 @@ class DeliveryControllerTest extends TestCase
         $this->assertEquals($user->business_id,$delivery->business_id);
         $this->assertEquals($body['business_id'],$delivery->business_id);
         $this->assertEquals($payload['name'],$delivery->name);
+        $this->assertEquals($payload['delivery_date'],$delivery->delivery_date);
+        $this->assertEquals('2025-12-01',$delivery->delivery_date);
 
         $sequence = -1;
         foreach ($body['orders'] as $order) {
@@ -157,12 +159,43 @@ class DeliveryControllerTest extends TestCase
         $this->assertNotEmpty($delivery);
         $this->assertEquals($user->business_id,$delivery->business_id);
         $this->assertEquals($body['business_id'],$delivery->business_id);
+        $this->assertEquals($payload['delivery_date'],$delivery->delivery_date);
+        $this->assertEquals('2025-12-01',$delivery->delivery_date);
 
         $this->assertEmpty($body['orders']);
 
         $deliveryOrder = DeliveryOrder::whereDeliveryId($delivery->id)->get();
         $this->assertEmpty($deliveryOrder);
     }
+
+    public function testAddWrongDate()
+    {
+        DB::statement('DELETE from `'.Delivery::TABLE.'`');
+        $user = SaasUser::factory()->create();
+        $driver = Driver::create([
+            'driver_name'=>'lalalala',
+            'business_id'=>$user->business_id,
+        ]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'driver_id'=>$driver->id,
+            'delivery_date'=>'dsadsadsa',
+            'name'=>'Panzer Delivery',
+        ];
+
+        $response = $this->post('/api/delivery',$payload);
+
+        $response->assertStatus(400);
+
+        $deliveries = Delivery::count();
+        $this->assertEquals(0, $deliveries);
+    }
+
 
     public function testEdit()
     {
@@ -195,7 +228,8 @@ class DeliveryControllerTest extends TestCase
         $payload=[
             'driver_id'=>$driver->id,
             'name'=>'Panzer Delivery',
-            'orders'=>$orderIds
+            'orders'=>$orderIds,
+            'delivery_date'=>'2025-12-01',
         ];
         $response = $this->post('/api/delivery/'.$delivery->id,$payload);
         $body=$response->json();
@@ -208,6 +242,7 @@ class DeliveryControllerTest extends TestCase
         $this->assertEquals($user->business_id,$delivery->business_id);
         $this->assertEquals($body['business_id'],$delivery->business_id);
         $this->assertEquals($deliveryInDb->business_id,$delivery->business_id);
+        $this->assertEquals('2025-12-01',$deliveryInDb->delivery_date);
 
 
         $this->assertNotEmpty($body['orders']);
@@ -230,6 +265,26 @@ class DeliveryControllerTest extends TestCase
             $this->assertContains($orderInDB->id,$orderIds);
             $this->assertNotContains($orderInDB->id,$unmodifiedOrders);
         }
+    }
+
+    public function testEditWrongDeliveryDate()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create(['delivery_date'=>'2026-12-12']);
+        $payload=[
+            'delivery_date'=>'dsasadasd',
+        ];
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $response->assertStatus(400);
+
+        $deliveryInDb = Delivery::find($delivery->id);
+        $this->assertNotEmpty($deliveryInDb);
+        $this->assertEquals('2026-12-12',$deliveryInDb->delivery_date);
     }
 
     public function testEditWrongDriver()
