@@ -168,13 +168,41 @@ class DeliveryControllerTest extends TestCase
         $this->assertEmpty($deliveryOrder);
     }
 
+    public function testAddWrongDate()
+    {
+        DB::statement('DELETE from `'.Delivery::TABLE.'`');
+        $user = SaasUser::factory()->create();
+        $driver = Driver::create([
+            'driver_name'=>'lalalala',
+            'business_id'=>$user->business_id,
+        ]);
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'driver_id'=>$driver->id,
+            'delivery_date'=>'dsadsadsa',
+            'name'=>'Panzer Delivery',
+        ];
+
+        $response = $this->post('/api/delivery',$payload);
+
+        $response->assertStatus(400);
+
+        $deliveries = Delivery::count();
+        $this->assertEquals(0, $deliveries);
+    }
+
+
     public function testEdit()
     {
         $user = SaasUser::factory()->create();
         $driver = Driver::create([
             'driver_name'=>'lalalala',
             'business_id'=>$user->business_id,
-            'delivery_date'=>'2026-12-01',
         ]);
 
         $orders = Order::factory(5)->withUser($user)->withProducts()->create();
@@ -237,6 +265,26 @@ class DeliveryControllerTest extends TestCase
             $this->assertContains($orderInDB->id,$orderIds);
             $this->assertNotContains($orderInDB->id,$unmodifiedOrders);
         }
+    }
+
+    public function testEditWrongDeliveryDate()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create(['delivery_date'=>'2026-12-12']);
+        $payload=[
+            'delivery_date'=>'dsasadasd',
+        ];
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $response->assertStatus(400);
+
+        $deliveryInDb = Delivery::find($delivery->id);
+        $this->assertNotEmpty($deliveryInDb);
+        $this->assertEquals('2026-12-12',$deliveryInDb->delivery_date);
     }
 
     public function testEditWrongDriver()
