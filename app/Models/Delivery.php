@@ -13,8 +13,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $business_id
  * @property int $driver_id
  * @property string $name
+ *
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $delivery_date
+ *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DeliveryOrder[] $deliveryOrder
  * @property-read int|null $delivery_order_count
  * @property-read string $pdf_url
@@ -29,6 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Delivery whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Delivery whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Delivery whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Delivery extends Model
@@ -45,7 +49,6 @@ class Delivery extends Model
         'driver_id',
         'business_id'
     ];
-
     protected $appends = ['pdf_url'];
 
     public function deliveryOrder()
