@@ -26,16 +26,18 @@ class ClientController extends Controller
         $qb = Client::whereBusinessId($user->business_id);
 
         if($request->has('searchterm') && !empty($searchterm = $request->get('searchterm')??null)){
-                $qb=$qb->where(function($qb){
-                    $qb->where('description','like','%'.$searchterm.'%')
-                        ->orWhere('name','like','%'.$searchterm.'%')
-                        ->orWhere('surname','like','%'.$searchterm.'%')
-                        ->orWhere('telephone','like','%'.$searchterm.'%')
-                        ->orWhere('email','like','%'.$searchterm.'%')
-                        ->orWhere('nomos','like','%'.$searchterm.'%')
-                        ->orWhere('afm','like','%'.$searchterm.'%')
-                        ->orWhere('region','like','%'.$searchterm.'%');
-                });
+
+            $qb = $qb->where(function($query) use ($searchterm) {
+                $query->where('description', 'like', '%' . $searchterm . '%')
+                       ->orWhere('name', 'like', '%' . $searchterm . '%')
+                       ->orWhere('surname', 'like', '%' . $searchterm . '%')
+                       ->orWhere('telephone', 'like', '%' . $searchterm . '%')
+                       ->orWhere('email', 'like', '%' . $searchterm . '%')
+                       ->orWhere('nomos', 'like', '%' . $searchterm . '%')
+                       ->orWhere('afm', 'like', '%' . $searchterm . '%')
+                       ->orWhere('region', 'like', '%' . $searchterm . '%');
+                }
+            );
         }
 
         $orderBy = $request->get('order_by');
