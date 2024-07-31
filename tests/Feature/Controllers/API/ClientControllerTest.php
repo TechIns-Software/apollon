@@ -995,4 +995,70 @@ class ClientControllerTest extends TestCase
 
         $this->assertEquals($regionOrdering, $regions);
     }
+
+    public function testSearchDoesNotFetchClientFromOtherBusiness()
+    {
+        $business1 = Business::factory()->create();
+        $user = SaasUser::factory()->create(['business_id'=>$business1->id]);
+        $name="Alice";
+
+        $notFoundClients = Client::factory()->create(['name'=>$name,'business_id'=>$user->business_id,'saas_user_id'=>$user->id]);
+        $notFoundids = $notFoundClients->pluck('id')->toArray();
+
+        $business2 = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business2->id]);
+        $foundClients = Client::factory()->create(['name'=>$name,'business_id'=>$user->business_id,'saas_user_id'=>$user2->id]);
+        $foundids = $foundClients->pluck('id')->toArray();
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+        $result = $this->get('/api/client?searchTerm='.$name);
+        $result->assertStatus(200);
+
+        $data = $result->json('data');
+        foreach ($data as $item){
+            $this->assertEquals($business2->id,$item['business_id']);
+            $this->assertContains($item['id'],$foundids);
+            $this->assertNotContains($item['id'],$notFoundids);
+        }
+    }
+
+    public function testSearchDoesNotFetchClientFromOtherBusiness2()
+    {
+        $business1 = Business::factory()->create();
+        $user = SaasUser::factory()->create(['business_id'=>$business1->id]);
+        $name="Alice";
+
+        $notFoundClients = Client::factory()->create(['name'=>$name,'business_id'=>$user->business_id,'saas_user_id'=>$user->id]);
+        $notFoundids = $notFoundClients->pluck('id')->toArray();
+
+        $notFoundClientsSameBusiness = Client::factory()->create(['name'=>'Babis','business_id'=>$user->business_id,'saas_user_id'=>$user->id]);
+        $notFoundClientsSameBusinessIds = $notFoundClientsSameBusiness->pluck('id')->toArray();
+
+        $business2 = Business::factory()->create();
+        $user2 = SaasUser::factory()->create(['business_id'=>$business2->id]);
+        $foundClients = Client::factory()->create(['name'=>$name,'business_id'=>$user->business_id,'saas_user_id'=>$user2->id]);
+        $foundids = $foundClients->pluck('id')->toArray();
+
+        Sanctum::actingAs(
+            $user2,
+            ['mobile_api']
+        );
+
+        $result = $this->get('/api/client?searchTerm='.$name);
+        $result->assertStatus(200);
+
+        $data = $result->json('data');
+        foreach ($data as $item){
+            $this->assertEquals($business2->id,$item['business_id']);
+            $this->assertContains($item['id'],$foundids);
+            $this->assertNotContains($item['id'],$notFoundids);
+            $this->assertContains($item['id'],$notFoundClientsSameBusinessIds);
+            $this->assertEquals($name,$item['name']);
+            $this->assertNotEquals("Babis",$item['name']);
+        }
+    }
 }
