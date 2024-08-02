@@ -316,6 +316,139 @@ class DeliveryControllerTest extends TestCase
         }
     }
 
+    public function testEditWithNewOrders()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        $existingOrders =  Order::factory(5)->withUser($user)->withProducts()->create();
+
+        foreach ($existingOrders as $key=>$order) {
+            DeliveryOrder::create([
+               'delivery_id'=>$delivery->id,
+               'order_id'=>$order->id,
+               'delivery_sequence'=>$key+1,
+            ]);
+        }
+
+        $ordersToInsert = Order::factory(5)->withUser($user)->withProducts()->create();
+        $orderIdsToInsert = $ordersToInsert->pluck('id');
+
+        $payload = [
+           'orders'=>$orderIdsToInsert->toArray(),
+        ];
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $response->assertStatus(200);
+
+        foreach ($existingOrders as $order) {
+            $existingOrder=DeliveryOrder::whereOrderId($order->id)->whereDeliveryId($delivery->id)->first();
+            $this->assertEmpty($existingOrder);
+        }
+
+        foreach ($orderIdsToInsert as $key=>$order) {
+            $existingOrder=DeliveryOrder::whereOrderId($order)->whereDeliveryId($delivery->id)->first();
+            $this->assertNotEmpty($existingOrder);
+            $this->assertEquals($key+1,$existingOrder->delivery_sequence);
+        }
+    }
+
+    public function testEditWithoutModifyingOrders()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        $existingOrders =  Order::factory(5)->withUser($user)->withProducts()->create();
+
+        foreach ($existingOrders as $key=>$order) {
+            DeliveryOrder::create([
+                'delivery_id'=>$delivery->id,
+                'order_id'=>$order->id,
+                'delivery_sequence'=>$key+1,
+            ]);
+        }
+
+        $payload=[
+            'name'=>"dsadsadas"
+        ];
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $response->assertStatus(200);
+
+        $orderCount = DeliveryOrder::whereOrderId($order->id)->whereDeliveryId($delivery->id)->count();
+        $this->assertNotEquals(0,$orderCount);
+    }
+
+    public function testEditRemoveOrders()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        $existingOrders =  Order::factory(5)->withUser($user)->withProducts()->create();
+
+        foreach ($existingOrders as $key=>$order) {
+            DeliveryOrder::create([
+                'delivery_id'=>$delivery->id,
+                'order_id'=>$order->id,
+                'delivery_sequence'=>$key+1,
+            ]);
+        }
+
+        $payload=[
+            'name'=>"dsadsadas",
+            'orders'=>[]
+        ];
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $response->assertStatus(200);
+
+        $orderCount = DeliveryOrder::whereOrderId($order->id)->whereDeliveryId($delivery->id)->count();
+        $this->assertEquals(0,$orderCount);
+    }
+
+    public function testEditRemoveOrdersNull()
+    {
+        $user = SaasUser::factory()->create();
+        $delivery = Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
+
+        $existingOrders =  Order::factory(5)->withUser($user)->withProducts()->create();
+
+        foreach ($existingOrders as $key=>$order) {
+            DeliveryOrder::create([
+                'delivery_id'=>$delivery->id,
+                'order_id'=>$order->id,
+                'delivery_sequence'=>$key+1,
+            ]);
+        }
+
+        $payload=[
+            'name'=>"dsadsadas",
+            'orders'=>null
+        ];
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $response = $this->post('/api/delivery/'.$delivery->id,$payload);
+        $response->assertStatus(200);
+
+        $orderCount = DeliveryOrder::whereOrderId($order->id)->whereDeliveryId($delivery->id)->count();
+        $this->assertEquals(0,$orderCount);
+    }
+
     public function testEditWrongDeliveryDate()
     {
         $user = SaasUser::factory()->create();
@@ -386,6 +519,7 @@ class DeliveryControllerTest extends TestCase
         $user = SaasUser::factory()->create();
         Delivery::factory()->businessFromUser($user)->withNewDriver()->create();
         Order::factory(5)->withUser($user)->withProducts()->create();
+
 
         Sanctum::actingAs(
             $user,
