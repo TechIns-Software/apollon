@@ -131,6 +131,55 @@ class DeliveryControllerTest extends TestCase
         }
     }
 
+    public function testInsertDuplicateOrderIds()
+    {
+        $user = SaasUser::factory()->create();
+        $orders = Order::factory(5)->withUser($user)->create();
+
+        $duplicateOrder= Order::factory()->withUser($user)->create();
+
+        $driver = Driver::create([
+            'driver_name'=>'lalalala',
+            'business_id'=>$user->business_id,
+        ]);
+
+        $orderIds = [$duplicateOrder->id];
+        foreach ($orders as $order) {
+            $orderIds[] = $order->id;
+        }
+
+        $orderIds[]=$duplicateOrder->id;
+
+        $expectedDuplicateOrderPriority= array_key_last($orderIds)+1;
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $payload=[
+            'driver_id'=>$driver->id,
+            'delivery_date'=>'2025-12-01',
+            'name'=>'Panzer Delivery',
+            'orders'=>$orderIds
+        ];
+
+
+        $response = $this->post('/api/delivery',$payload);
+        $body=$response->json();
+        $response->assertStatus(201);
+
+        $insertedId = (int)$body['id'];
+
+        $duplicateOrderCount = DeliveryOrder::whereDeliveryId($insertedId)->whereOrderId($duplicateOrder->id)->count();
+        $this->assertEquals(1,$duplicateOrderCount);
+
+        $deliveryOrderInDb = DeliveryOrder::whereDeliveryId($insertedId)->whereOrderId($duplicateOrder->id)->first();
+
+        $this->assertNotEmpty($deliveryOrderInDb);
+        $this->assertEquals($expectedDuplicateOrderPriority,$deliveryOrderInDb->delivery_sequence);
+    }
+
     public function testAddWithoutOrders()
     {
         $user = SaasUser::factory()->create();

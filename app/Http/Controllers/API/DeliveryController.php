@@ -106,7 +106,10 @@ class DeliveryController extends Controller implements HasMiddleware
             ]);
 
             $orders = collect();
-            $all['orders'] = uniqueWithLargestKey($all['orders'])??[];
+            $all['orders'] = $all['orders']??[];
+            if(!empty($all['orders'])){
+                $all['orders']=uniqueWithLargestKey($all['orders']);
+            }
             foreach ( $all['orders'] as $key => $order){
                 $orders->push(DeliveryOrder::create([
                    'order_id'=>$order,
