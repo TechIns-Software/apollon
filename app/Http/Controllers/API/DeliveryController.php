@@ -107,7 +107,10 @@ class DeliveryController extends Controller implements HasMiddleware
 
             $orders = collect();
             $all['orders'] = $all['orders']??[];
-            foreach ($all['orders'] as $key => $order){
+            if(!empty($all['orders'])){
+                $all['orders']=uniqueWithLargestKey($all['orders']);
+            }
+            foreach ( $all['orders'] as $key => $order){
                 $orders->push(DeliveryOrder::create([
                    'order_id'=>$order,
                    'delivery_id'=>$delivery->id,
@@ -166,6 +169,7 @@ class DeliveryController extends Controller implements HasMiddleware
             ],
             "orders"=>[
                 "sometimes",
+                'nullable',
                 "array"
             ],
             "orders.*"=>[
@@ -193,13 +197,16 @@ class DeliveryController extends Controller implements HasMiddleware
             $delivery->update($all);
             $delivery->refresh();
             $orders = collect();
-            $all['orders'] = $all['orders']??[];
-            foreach ($all['orders'] as $key => $order){
-                $orders->push(DeliveryOrder::upsert([
-                    'order_id'=>$order,
-                    'delivery_id'=>$delivery->id,
-                    'delivery_sequence'=>$key+1
-                ],['order_id','delivery_id']));
+            if($request->has('orders')){
+                DeliveryOrder::whereDeliveryId($delivery->id)->delete();
+                $all['orders'] = $all['orders']??[];
+                foreach ($all['orders'] as $key => $order){
+                    $orders->push(DeliveryOrder::create([
+                        'order_id'=>$order,
+                        'delivery_id'=>$delivery->id,
+                        'delivery_sequence'=>$key+1
+                    ]));
+                }
             }
 
             $delivery->refresh();
