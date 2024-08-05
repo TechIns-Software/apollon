@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\DeliveryOrder;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -204,6 +205,12 @@ class ClientController extends Controller
         $client = $request->input('client');
         $id = $client->id;
         try{
+            $orders = Order::whereClientId($id)->get();
+            foreach ($orders as $order) {
+                DeliveryOrder::whereOrderId($order->id)->delete();
+                $order->delete();
+            }
+
             $client->delete();
         }catch (\Exception $e){
             report($e);
