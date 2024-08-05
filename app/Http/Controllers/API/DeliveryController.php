@@ -285,6 +285,7 @@ class DeliveryController extends Controller implements HasMiddleware
         $delivery = $request->input('delivery');
 
         try{
+            DeliveryOrder::whereDeliveryId($delivery->id)->delete();
             $delivery->delete();
         }catch (\Exception $e){
             report($e);

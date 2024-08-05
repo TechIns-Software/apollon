@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Thiagoprz\EloquentCompositeKey\HasCompositePrimaryKey;
+
+
+/**
+ * App\Models\ProductOrder
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|DeliveryOrder whereOrderId($value)
+ */
 class ProductOrder extends Model
 {
     use HasFactory;

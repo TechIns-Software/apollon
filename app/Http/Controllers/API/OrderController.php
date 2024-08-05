@@ -251,13 +251,15 @@ class OrderController extends Controller implements HasMiddleware
     {
         $order = $request->input('order');
         try{
+            ProductOrder::whereOrderId($order->id)->delete();
+            DeliveryOrder::whereOrderId($order->id)->delete();
             $order->delete();
         } catch (\Exception $e){
             report($e);
             return new JsonResponse(['message' => 'Αδυναμία αποθήκευσης'], 500);
         }
 
-        return new JsonResponse(['msg'=>'Η παραγγελία διεγράφει επιτυχώς'],200);
+        return new JsonResponse(['msg'=>'Η παραγγελία διεγράφη επιτυχώς'],200);
     }
 
     public function addItemToOrder(Request $request)

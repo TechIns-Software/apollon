@@ -210,6 +210,6 @@ class ClientController extends Controller
             return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
 
-        return response()->json( ['id'=>$id,'msg'=>'Ο πελάτης διεγράφει'],200);
+        return response()->json( ['id'=>$id,'msg'=>'Ο πελάτης διαγράφτηκε'],200);
     }
 }
