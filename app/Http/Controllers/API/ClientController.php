@@ -26,6 +26,7 @@ class ClientController extends Controller
         $qb = Client::whereBusinessId($user->business_id);
 
         if($request->has('searchterm') && !empty($searchterm = $request->get('searchterm')??null)){
+
             $qb = $qb->where(function($query) use ($searchterm) {
                 $query->where('description', 'like', '%' . $searchterm . '%')
                        ->orWhere('name', 'like', '%' . $searchterm . '%')
