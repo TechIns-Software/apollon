@@ -3,6 +3,8 @@
 namespace Feature\Controllers\API;
 
 use App\Models\Business;
+use App\Models\Delivery;
+use App\Models\DeliveryOrder;
 use App\Models\SaasUser;
 use App\Models\Client;
 use App\Models\Order;
@@ -1080,12 +1082,48 @@ class ClientControllerTest extends TestCase
         $clientInDB = Client::find($client->id);
         $this->assertEmpty($clientInDB);
 
-        // Look actual db Eloquent do not give table results
+        // Initially orders were soft-deleted upon client deletion as well. Thus I needed to access db diretly bypassing the eloquent.
         $qb = DB::query()->from(Order::TABLE)
             ->whereIn('id',$orderIds)
             ->where('client_id',$client->id);
 
         $results = $qb->get();
         $this->assertEmpty($results);
+    }
+
+    public function testDeleteWithDelivery()
+    {
+        $user = SaasUser::factory()->create();
+        $client = Client::factory()->withUser($user)->withOrders()->create();
+
+        $orders = Order::factory(5)->withUser($user)->create(['client_id'=>$client->id]);
+        $delivery = Delivery::factory()->create(['business_id'=>$user->business_id]);
+        $orderIds=[];
+        foreach ($orders as $order){
+            DeliveryOrder::insert([['delivery_id'=>$delivery->id,'order_id'=>$order->id,'delivery_sequence'=>1]]);
+            $orderIds[] = $order->id;
+        }
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+        $result = $this->delete('/api/client/'.$client->id);
+        $result->assertStatus(200);
+
+        $clientInDB = Client::find($client->id);
+        $this->assertEmpty($clientInDB);
+
+
+        // Using Sql because code snipet already existed.
+        $qb = DB::query()->from(Order::TABLE)
+            ->whereIn('id',$orderIds)
+            ->where('client_id',$client->id);
+
+        $results = $qb->get();
+        $this->assertEmpty($results);
+
+        $delivertOrder = DeliveryOrder::whereIn('order_id',$orderIds)->where('delivery_id',$delivery->id)->count();
+        $this->assertEmpty($delivertOrder);
     }
 }

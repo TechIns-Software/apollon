@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
@@ -204,16 +205,18 @@ class ClientController extends Controller
          */
         $client = $request->input('client');
         $id = $client->id;
+        DB::beginTransaction();
         try{
             $orders = Order::whereClientId($id)->get();
             foreach ($orders as $order) {
                 DeliveryOrder::whereOrderId($order->id)->delete();
-                $order->delete();
             }
 
             $client->delete();
+            DB::commit();
         }catch (\Exception $e){
             report($e);
+            DB::rollback();
             return response()->json(['msg' => "Αδυναμία αποθήκευσης"], 500);
         }
 
