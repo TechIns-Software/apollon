@@ -207,6 +207,8 @@ class ClientController extends Controller
         $id = $client->id;
         DB::beginTransaction();
         try{
+            // There was an initial code rthat was deleting orders but logic has moved upon model
+            // In oprder to avoid refactoring I left existing logic for Orders upon delivery here.
             $orders = Order::whereClientId($id)->get();
             foreach ($orders as $order) {
                 DeliveryOrder::whereOrderId($order->id)->delete();
