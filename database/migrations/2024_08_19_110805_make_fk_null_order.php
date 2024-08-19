@@ -21,6 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        //I ommit reverting changes intentiionally.
+        // because I may need to migrate data as well and at current point there's no need for it.
     }
 };

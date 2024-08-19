@@ -1061,4 +1061,31 @@ class ClientControllerTest extends TestCase
             $this->assertNotEquals("Babis",$item['name']);
         }
     }
+    public function testDelete()
+    {
+        $user = SaasUser::factory()->create();
+        $client = Client::factory()->withUser($user)->withOrders()->create();
+
+        $orders = Order::factory(5)->withUser($user)->create(['client_id'=>$client->id]);
+        $orderIds = $orders->pluck('id')->toArray();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->delete('/api/client/'.$client->id);
+        $result->assertStatus(200);
+
+        $clientInDB = Client::find($client->id);
+        $this->assertEmpty($clientInDB);
+
+        // Look actual db Eloquent do not give table results
+        $qb = DB::query()->from(Order::TABLE)
+            ->whereIn('id',$orderIds)
+            ->where('client_id',$client->id);
+
+        $results = $qb->get();
+        $this->assertEmpty($results);
+    }
 }

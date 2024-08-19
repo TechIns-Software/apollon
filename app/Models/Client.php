@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
@@ -90,7 +91,10 @@ class Client extends Model
             }
             $model->changes_count = ($model->changes_count??0)+1;
         });
-    }
 
+        static::deleted(function (Client $model) {
+            Order::withTrashed()->where('client_id', $model->id)->update(['client_id' => null]);
+        });
+    }
 
 }
