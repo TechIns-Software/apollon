@@ -131,7 +131,7 @@ class OrderController extends Controller implements HasMiddleware
         $limit = $request->get('limit')??20;
 
         $qb = Order::where(Order::TABLE.".business_id",$user->business_id)
-            ->join(Client::TABLE,Client::TABLE.'.id','=',Order::TABLE.'.client_id')
+            ->leftJoin(Client::TABLE,Client::TABLE.'.id','=',Order::TABLE.'.client_id')
             ->select(
                 Order::TABLE.".*",
                 Client::TABLE.'.surname as client_surname',
@@ -155,6 +155,11 @@ class OrderController extends Controller implements HasMiddleware
                 $qb->whereIn(Order::TABLE.'.id',$closure);
             }
         }
+
+        if(!empty($request->get('without_client'))){
+            $qb->whereRaw(Order::TABLE.'.client_id is NULL');
+        }
+
 
         if($request->has('searchterm')){
             $searchterm = $request->get('searchterm')??null;
