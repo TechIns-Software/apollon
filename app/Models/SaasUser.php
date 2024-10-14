@@ -43,6 +43,8 @@ class SaasUser extends Authenticatable
     const TABLE  = 'saas_user';
     protected $table=self::TABLE;
 
+    protected $primaryKey = 'id';
+
     /**
      * The attributes that are mass assignable.
      *

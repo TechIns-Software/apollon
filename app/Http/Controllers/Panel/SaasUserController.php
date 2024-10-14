@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\SaasUser;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -159,7 +160,10 @@ class SaasUserController extends Controller
             return new JsonResponse(['msg'=>'H εταιρεία δεν υπάρχει'],404);
         }
 
-        $qb = SaasUser::where('business_id',$business_id);
+        /**
+         * @var $qb Builder
+         */
+        $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
 
         $searchterm = $request->get('searchterm');
 
@@ -168,12 +172,9 @@ class SaasUserController extends Controller
                 ->orWhere('email','like','%'.$searchterm.'%');
         }
 
-        $cursor = $request->input('cursor', null);
-        if(!empty($cursor)) {
-            $paginationResult = $qb->cursorPaginate(50, ['*'], 'cursor', $cursor);
-        } else {
-            $paginationResult = $qb->cursorPaginate(50);
-        }
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 20);
+        $paginationResult = $qb->simplePaginate($limit,page:$page);
 
         return view('business.components.userList',['rows'=>$paginationResult]);
     }
