@@ -159,7 +159,7 @@ class SaasUserController extends Controller
             return new JsonResponse(['msg'=>'H εταιρεία δεν υπάρχει'],404);
         }
 
-        $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
+        $qb = SaasUser::where('business_id',$business_id);
 
         $searchterm = $request->get('searchterm');
 

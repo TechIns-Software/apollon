@@ -110,7 +110,7 @@ $(document).ready(function () {
         createUserModal.focus()
     });
 
-    newUserform.querySelector('form').addEventListener('submit',function (e){
+    newUserform.addEventListener('submit',function (e){
         e.preventDefault();
         const form = this;
         submitFormAjax(form, (data) => {

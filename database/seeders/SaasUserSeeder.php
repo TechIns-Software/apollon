@@ -11,6 +11,12 @@ class SaasUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = SaasUser::factory()->create();
+        $business_id = env('BUSINESS_ID');
+        $userNum = env('USER_NUM')??1;
+        if($business_id){
+            $user = SaasUser::factory($userNum)->create(['business_id' => $business_id]);
+        }else {
+            $user = SaasUser::factory($userNum)->create();
+        }
     }
 }
