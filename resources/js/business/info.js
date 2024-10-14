@@ -1,6 +1,7 @@
 import $ from "jquery";
 import 'jscroll';
 
+import {ScrollTable} from '../scrollSearch';
 import { Modal } from "bootstrap";
 
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
@@ -144,13 +145,15 @@ $(document).ready(function () {
         contentSelector: '#productScroll.tbody',}
     );
 
-    $("#userScroll").jscroll({
-        loadingHtml: '<tr>' +
-            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
-            '</tr>',
-        nextSelector: 'a.jscroll-next:last',
-        contentSelector: '#userScroll.tbody'
-    });
+    // $("#userScroll").jscroll({
+    //     loadingHtml: '<tr>' +
+    //         '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
+    //         '</tr>',
+    //     nextSelector: 'a.jscroll-next:last',
+    //     contentSelector: '#userListTable tbody'
+    // });
+
+    const scrollTable = new ScrollTable("#userScroll")
 
     new SearchForm("productSearchform","productListTable",()=>{})
     new SearchForm("userSearchForm","userListTable",()=>{})

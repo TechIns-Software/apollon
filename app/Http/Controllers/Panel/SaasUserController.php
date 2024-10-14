@@ -176,6 +176,8 @@ class SaasUserController extends Controller
         $limit = $request->input('limit', 20);
         $paginationResult = $qb->simplePaginate($limit,page:$page);
 
-        return view('business.components.userList',['rows'=>$paginationResult]);
+        return response()->view('business.components.userList',['rows'=>$paginationResult])
+            ->header('X-NextUrl',$paginationResult->nextPageUrl())
+            ->header('X-HasMore',$paginationResult->hasMorePages());
     }
 }
