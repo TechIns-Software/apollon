@@ -1,8 +1,9 @@
 import $ from "jquery";
 import {debounce, stringToDomHtml, submitFormAjax} from "@techins/jsutils/utils";
 
+
 class ScrollTable {
-    constructor(scrollWrapper,scrollAjaxErrorCallback,ajaxPerformingCallback) {
+    constructor(scrollWrapper,scrollAjaxErrorCallback) {
 
         this.__scrollWrapper = stringToDomHtml(scrollWrapper)
         this.__dataContainer = this.__scrollWrapper.querySelector("tbody");
@@ -91,7 +92,9 @@ class ScrollTable {
     }
 
     resetOriginalData(){
+        console.log("RESET")
         this.__scrollWrapper.setAttribute('data-url',this.__initialUrl)
+        this.__dataContainer.innerHTML = ""
         this.__ajaxUpdateData();
     }
 }
@@ -163,7 +166,7 @@ class ScrollTableSearchForm extends GenericSearchForm
     constructor(form,scrollWrapper,searchErrorCallback,scrollAjaxErrorCallback){
         super(form,(data,textStatus, jqXHR)=>{
             const url = jqXHR.getResponseHeader('X-NextUrl');
-            console.log(url);
+            console.log("SEARCH",url);
             this.scrollTable.overWriteData(data,url)
         },searchErrorCallback);
         this.scrollTable = new ScrollTable(scrollWrapper,scrollAjaxErrorCallback)

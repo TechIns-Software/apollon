@@ -17,9 +17,19 @@ class ProductSeeder extends Seeder
         $args=[];
         $business_id = env('BUSINESS_ID');
         $productNum = env('PRODUCT_NUM',200);
+        $namePrefix = env('NAME_PREFIX');
         if(!empty($business_id)){
             $args['business_id']=$business_id;
         }
+
+        if(!empty($namePrefix)){
+            for($i = $productNum; $i>0;$i--){
+                $args['name']=$namePrefix." ".$i;
+                Product::factory($productNum)->create($args);
+            }
+            return;
+        }
+
         dump($args);
         Product::factory($productNum)->create($args);
     }
