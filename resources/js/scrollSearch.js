@@ -102,7 +102,7 @@ class ScrollTable {
 
 class GenericSearchForm
 {
-    constructor(form_element,successCallback,submitErrorCallback){
+    constructor(form_element,successCallback,submitErrorCallback,clearValueOnInit){
         this.form = stringToDomHtml(form_element)
         this.prevAjax=null
 
@@ -118,20 +118,34 @@ class GenericSearchForm
 
         this.successCallback = successCallback.bind(this)
 
-        this.__init()
+        this.__init(clearValueOnInit)
     }
 
-    __init() {
+    __init(clearValueOnInit) {
         const inputSearchField = this.form.querySelector('.inputSearchField')
+
+        // Upon refresh form stays with its old value.
+        // We can configure to be removed
+        if(clearValueOnInit){
+            inputSearchField.value="";
+        }
+
+        this.manualSearch=()=>{
+            this.__handleSearch(inputSearchField)
+        }
+
+        this.reset=()=>{
+            this.__reset(inputSearchField)
+        }
 
         this.form.addEventListener('submit',(e)=>{
             e.preventDefault();
             e.stopPropagation();
-            this.handleSearch(inputSearchField)
+            this.__handleSearch(inputSearchField)
         })
 
         inputSearchField.addEventListener('change',debounce(()=>{
-            this.handleSearch(inputSearchField)
+            this.__handleSearch(inputSearchField)
         }))
 
         this.form.querySelector(".cleanSearch").addEventListener('click',debounce(()=>{
@@ -151,22 +165,22 @@ class GenericSearchForm
     /**
      * Handle the search action, submit the form via AJAX, and manage the results.
      */
-    handleSearch(inputSearchField){
+    __handleSearch(inputSearchField){
         this.prevAjax=submitFormAjax(this.form,this.successCallback,this.submitErrorCallback,null,this.prevAjax)
     }
 }
 
 /**
- * SearchForm Used to search data Upon a ScrollTable
+ * SearchForm that populates a ScrollTable. It is a combination of a ScrollTable with SearchForm.
  */
 class ScrollTableSearchForm extends GenericSearchForm
 {
-    constructor(form,scrollWrapper,searchErrorCallback,scrollAjaxErrorCallback){
+    constructor(form,scrollWrapper,clearFormValueOnInit,searchErrorCallback,scrollAjaxErrorCallback){
         super(form,(data,textStatus, jqXHR)=>{
             const url = jqXHR.getResponseHeader('X-NextUrl');
             console.log("SEARCH",url);
             this.scrollTable.overWriteData(data,url)
-        },searchErrorCallback);
+        },searchErrorCallback,clearFormValueOnInit);
         this.scrollTable = new ScrollTable(scrollWrapper,scrollAjaxErrorCallback)
     }
 

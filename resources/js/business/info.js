@@ -134,8 +134,8 @@ $(document).ready(function () {
         });
     },);
 
-    new ScrollTableSearchForm("userSearchForm","userScroll")
-    new ScrollTableSearchForm("productSearchform","productScroll")
+    const userSearchForm = new ScrollTableSearchForm("userSearchForm","userScroll",true);
+    const productSearchForm = new ScrollTableSearchForm("productSearchform","productScroll",true)
 
     bootstrapYearMonthChart("statsForm","orderStatsWrapper");
 })
