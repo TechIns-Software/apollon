@@ -54,6 +54,8 @@ class ProductsController extends Controller
 
         $qb = Product::whereBusinessId($items['business_id']);
 
+        // The Url that will be used upon Pagination needs some extra parameters.
+        // These are retrieved from this table.
         $paginationUrlAppendData=['business_id'=>$items['business_id']];
 
         $searchterm = $request->input('name',null);
@@ -70,6 +72,8 @@ class ProductsController extends Controller
             $products = $qb->cursorPaginate(20);
         }
 
+        // The url for the next page needs some extra Parameters.
+        // We place these here.
         $products=$products->appends($paginationUrlAppendData);
 
         return response()->view('business/components/listProducts',['rows'=>$products])

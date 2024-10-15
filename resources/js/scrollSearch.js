@@ -121,8 +121,6 @@ class GenericSearchForm
         this.__init()
     }
 
-
-
     __init() {
         const inputSearchField = this.form.querySelector('.inputSearchField')
 
