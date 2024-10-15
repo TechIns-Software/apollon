@@ -67,7 +67,9 @@ class ProductsController extends Controller
             $products = $qb->cursorPaginate(50);
         }
 
-        return view('business/components/listProducts',['rows'=>$products]);;
+        return response()->view('business/components/listProducts',['rows'=>$products])
+                ->header("X-NextUrl",$products->nextPageUrl())
+                ->header("X-HasMore",$products->hasMorePages());
     }
 
     /**

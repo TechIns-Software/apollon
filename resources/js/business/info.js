@@ -1,13 +1,12 @@
 import $ from "jquery";
 import 'jscroll';
 
-import {ScrollTable} from '../scrollSearch';
+import {ScrollTableSearchForm} from '../scrollSearch';
 import { Modal } from "bootstrap";
 
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
-import {clearInputErrorMessage, errorResponseHandler,} from "@techins/jsutils/input-error";
-import SearchForm from "@techins/jsutils/searchForm";
+import {clearInputErrorMessage, errorResponseHandler} from "@techins/jsutils/input-error";
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
 import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
@@ -135,28 +134,8 @@ $(document).ready(function () {
         });
     },);
 
-
-
-    $("#productScroll").jscroll( {
-        loadingHtml: '<tr>' +
-            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
-            '</tr>',
-        nextSelector: 'a.jscroll-next:last',
-        contentSelector: '#productScroll.tbody',}
-    );
-
-    // $("#userScroll").jscroll({
-    //     loadingHtml: '<tr>' +
-    //         '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
-    //         '</tr>',
-    //     nextSelector: 'a.jscroll-next:last',
-    //     contentSelector: '#userListTable tbody'
-    // });
-
-    const scrollTable = new ScrollTable("#userScroll")
-
-    new SearchForm("productSearchform","productListTable",()=>{})
-    new SearchForm("userSearchForm","userListTable",()=>{})
+    new ScrollTableSearchForm("userSearchForm","userScroll")
+    new ScrollTableSearchForm("productSearchform","productScroll")
 
     bootstrapYearMonthChart("statsForm","orderStatsWrapper");
 })

@@ -84,7 +84,7 @@
             <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#createProduct" >
                 <i class="fa fa-plus"></i>&nbsp;Προσθήκη Προϊόντος
             </button>
-            <div id="productScroll" class="scrollWrapper">
+            <div id="productScroll" class="scrollWrapper" data-url="{{$products->nextPageUrl()}}">
                 <table id="productListTable" class="table">
                     <thead>
                         <tr>
