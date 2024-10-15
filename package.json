@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.5.1",
-        "@techins/jsutils": "^2.1.0",
+        "@techins/jsutils": "../lib/jsUtils",
         "air-datepicker": "^3.5.3",
         "bootstrap": "^5.3.3",
         "chart.js": "^4.4.3",

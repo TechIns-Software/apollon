@@ -1,9 +1,8 @@
 import $ from "jquery";
-import 'jscroll';
 
-import {ScrollTableSearchForm} from '../scrollSearch';
 import { Modal } from "bootstrap";
 
+import {ScrollTableSearchForm} from '@techins/jsutils/searchForm';
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
 import {clearInputErrorMessage, errorResponseHandler} from "@techins/jsutils/input-error";
