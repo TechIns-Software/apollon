@@ -65,11 +65,11 @@ class ScrollTable {
 
 
     populateData(data,url,hasMore){
-        if(!url){
-            throw new Error("Url has not Been provided")
-        }
 
         if(hasMore){
+            if(!url){
+                throw new Error("Url has not Been provided")
+            }
             this.__scrollWrapper.setAttribute('data-url',url)
         } else {
             this.__scrollWrapper.removeAttribute('data-url');

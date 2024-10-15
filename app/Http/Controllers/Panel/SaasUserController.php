@@ -165,16 +165,23 @@ class SaasUserController extends Controller
          */
         $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
 
+        $appends = ['business_id'=>$business_id];
+
         $searchterm = $request->get('searchterm');
 
         if(!empty($searchterm)){
             $qb->where('name','like','%'.$searchterm.'%')
                 ->orWhere('email','like','%'.$searchterm.'%');
+
+            $appends['searchterm']=$searchterm;
         }
 
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 20);
+
         $paginationResult = $qb->simplePaginate($limit,page:$page);
+
+        $paginationResult=$paginationResult->appends($appends);
 
         return response()->view('business.components.userList',['rows'=>$paginationResult])
             ->header('X-NextUrl',$paginationResult->nextPageUrl())
