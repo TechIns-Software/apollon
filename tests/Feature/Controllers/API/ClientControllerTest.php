@@ -1126,4 +1126,60 @@ class ClientControllerTest extends TestCase
         $delivertOrder = DeliveryOrder::whereIn('order_id',$orderIds)->where('delivery_id',$delivery->id)->count();
         $this->assertEmpty($delivertOrder);
     }
+
+    public function testSearchById()
+    {
+        $user = SaasUser::factory()->create();
+
+        $client1 = Client::factory()->withUser($user)->create([
+            'name'=>"Komis",
+            'surname'=>"Alpha",
+            'id'=>1022,
+            "telephone"=>'202460000'
+        ]);
+
+        $client2 = Client::factory()->withUser($user)->create([
+            'name'=>"Komis",
+            'surname'=>"Beta",
+            'id'=>2022,
+            "telephone"=>'202460000'
+        ]);
+
+        $client3 = Client::factory()->withUser($user)->create([
+            'name'=>"Komis",
+            'surname'=>"Gamma",
+            'id'=>2202,
+            "telephone"=>'202460000'
+        ]);
+
+        Client::factory()->withUser($user)->create([
+            'name'=>"Komis",
+            'surname'=>"Delta",
+            'id'=>7895,
+            "telephone"=>'202460000'
+        ]);
+
+        Client::factory()->withUser($user)->create([
+            'name'=>"Komis",
+            'surname'=>"Delta",
+            'id'=>8888,
+            "telephone"=>'202460000'
+        ]);
+
+        $validIds = [$client1->id,$client2->id,$client3->id];
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $result = $this->get('/api/client?searchterm=22');
+        $result->assertStatus(200);
+
+        $data = $result->json('data');
+        foreach ($data as $item){
+            $this->assertContains($item['id'],$validIds);
+        }
+
+    }
 }
