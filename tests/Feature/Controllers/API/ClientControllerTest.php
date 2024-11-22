@@ -1152,14 +1152,14 @@ class ClientControllerTest extends TestCase
             "telephone"=>'202460000'
         ]);
 
-        Client::factory()->withUser($user)->create([
+        $client4=Client::factory()->withUser($user)->create([
             'name'=>"Komis",
             'surname'=>"Delta",
             'id'=>7895,
             "telephone"=>'202460000'
         ]);
 
-        Client::factory()->withUser($user)->create([
+        $client5=Client::factory()->withUser($user)->create([
             'name'=>"Komis",
             'surname'=>"Delta",
             'id'=>8888,
@@ -1167,6 +1167,7 @@ class ClientControllerTest extends TestCase
         ]);
 
         $validIds = [$client1->id,$client2->id,$client3->id];
+        $invalidIds = [$client4->id,$client5->id];
 
         Sanctum::actingAs(
             $user,
@@ -1179,6 +1180,7 @@ class ClientControllerTest extends TestCase
         $data = $result->json('data');
         foreach ($data as $item){
             $this->assertContains($item['id'],$validIds);
+            $this->assertNotContains($item['id'],$invalidIds);
         }
 
     }

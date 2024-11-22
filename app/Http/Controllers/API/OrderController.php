@@ -164,7 +164,8 @@ class OrderController extends Controller implements HasMiddleware
         if($request->has('searchterm')){
             $searchterm = $request->get('searchterm')??null;
             if (!empty($searchterm)){
-                $qb->where('description','like','%'.$searchterm.'%');
+                $qb->where(Order::TABLE.'.description','like','%'.$searchterm.'%')
+                    ->orWhere(Order::TABLE.'.id','like','%'.$searchterm.'%');
             }
         }
 
