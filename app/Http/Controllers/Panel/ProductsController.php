@@ -54,9 +54,14 @@ class ProductsController extends Controller
 
         $qb = Product::whereBusinessId($items['business_id']);
 
+        // The Url that will be used upon Pagination needs some extra parameters.
+        // These are retrieved from this table.
+        $paginationUrlAppendData=['business_id'=>$items['business_id']];
+
         $searchterm = $request->input('name',null);
         if(!empty($searchterm)){
            $qb->where('name','like','%'.$searchterm.'%');
+            $paginationUrlAppendData['name']=$searchterm;
         }
         $qb->orderBy('created_at','DESC')->orderBy('name','ASC');
 
@@ -64,10 +69,16 @@ class ProductsController extends Controller
         if(!empty($cursor)) {
             $products = $qb->cursorPaginate(20, ['*'], 'cursor', $cursor);
         } else {
-            $products = $qb->cursorPaginate(50);
+            $products = $qb->cursorPaginate(20);
         }
 
-        return view('business/components/listProducts',['rows'=>$products]);;
+        // The url for the next page needs some extra Parameters.
+        // We place these here.
+        $products=$products->appends($paginationUrlAppendData);
+
+        return response()->view('business/components/listProducts',['rows'=>$products])
+                ->header("X-NextUrl",$products->nextPageUrl())
+                ->header("X-HasMore",$products->hasMorePages());
     }
 
     /**

@@ -118,7 +118,7 @@ class BusinessController extends Controller
             ->withPath('/products?business_id='.$business->id);
 
         $users = SaasUser::whereBusinessId($business->id)->orderBy('created_at','DESC')
-            ->cursorPaginate(20)
+            ->simplePaginate(20)
             ->withPath('/saasuser?business_id='.$business->id);
 
         return view("business.info",['business'=>$business,'products'=>$products,'users'=>$users]);

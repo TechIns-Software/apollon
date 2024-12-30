@@ -1,12 +1,11 @@
 import $ from "jquery";
-import 'jscroll';
 
 import { Modal } from "bootstrap";
 
+import {ScrollTableSearchForm} from '@techins/jsutils/searchForm';
 import {submitFormAjax,boolInputUponCheckboxCheckedStatus,enableTabs,prependHtmlRowIntoATable} from "@techins/jsutils/utils";
 import {toggleVisibilityBetween2Elements} from "@techins/jsutils/visibility";
-import {clearInputErrorMessage, errorResponseHandler,} from "@techins/jsutils/input-error";
-import SearchForm from "@techins/jsutils/searchForm";
+import {clearInputErrorMessage, errorResponseHandler} from "@techins/jsutils/input-error";
 
 import {bootstrapYearMonthChart} from '../chartCommon.js';
 import {errorFormHandle, createAlert as mkAlert, initDatePicker} from "./common.js";
@@ -110,7 +109,7 @@ $(document).ready(function () {
         createUserModal.focus()
     });
 
-    newUserform.querySelector('form').addEventListener('submit',function (e){
+    newUserform.addEventListener('submit',function (e){
         e.preventDefault();
         const form = this;
         submitFormAjax(form, (data) => {
@@ -134,26 +133,8 @@ $(document).ready(function () {
         });
     },);
 
-
-
-    $("#productScroll").jscroll( {
-        loadingHtml: '<tr>' +
-            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
-            '</tr>',
-        nextSelector: 'a.jscroll-next:last',
-        contentSelector: '#productScroll.tbody',}
-    );
-
-    $("#userScroll").jscroll({
-        loadingHtml: '<tr>' +
-            '<td colspan="2" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i></td>'+
-            '</tr>',
-        nextSelector: 'a.jscroll-next:last',
-        contentSelector: '#userScroll.tbody'
-    });
-
-    new SearchForm("productSearchform","productListTable",()=>{})
-    new SearchForm("userSearchForm","userListTable",()=>{})
+    const userSearchForm = new ScrollTableSearchForm("userSearchForm","userScroll",true);
+    const productSearchForm = new ScrollTableSearchForm("productSearchform","productScroll",true)
 
     bootstrapYearMonthChart("statsForm","orderStatsWrapper");
 })

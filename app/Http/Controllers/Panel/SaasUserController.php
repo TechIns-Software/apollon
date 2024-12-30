@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\SaasUser;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -159,22 +160,31 @@ class SaasUserController extends Controller
             return new JsonResponse(['msg'=>'H εταιρεία δεν υπάρχει'],404);
         }
 
+        /**
+         * @var $qb Builder
+         */
         $qb = SaasUser::orderBy('id')->where('business_id',$business_id);
+
+        $appends = ['business_id'=>$business_id];
 
         $searchterm = $request->get('searchterm');
 
         if(!empty($searchterm)){
             $qb->where('name','like','%'.$searchterm.'%')
                 ->orWhere('email','like','%'.$searchterm.'%');
+
+            $appends['searchterm']=$searchterm;
         }
 
-        $cursor = $request->input('cursor', null);
-        if(!empty($cursor)) {
-            $paginationResult = $qb->cursorPaginate(50, ['*'], 'cursor', $cursor);
-        } else {
-            $paginationResult = $qb->cursorPaginate(50);
-        }
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 20);
 
-        return view('business.components.userList',['rows'=>$paginationResult]);
+        $paginationResult = $qb->simplePaginate($limit,page:$page);
+
+        $paginationResult=$paginationResult->appends($appends);
+
+        return response()->view('business.components.userList',['rows'=>$paginationResult])
+            ->header('X-NextUrl',$paginationResult->nextPageUrl())
+            ->header('X-HasMore',$paginationResult->hasMorePages());
     }
 }
