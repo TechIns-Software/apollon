@@ -41,6 +41,7 @@ class SaasUserController extends Controller
             new JsonResponse(['msg'=>'Το email και το password δεν έχουν δοθεί'],400);
         }
 
+        $email = trim($email);
         if(auth()->guard('mobile_api_basic')->attempt(['email'=>$email,'password'=>$password])){
             $user = auth()->guard('mobile_api_basic')->user();
             $business = Business::find($user->business_id);

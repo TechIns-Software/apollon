@@ -37,7 +37,8 @@ class ClientController extends Controller
                        ->orWhere('email', 'like', '%' . $searchterm . '%')
                        ->orWhere('nomos', 'like', '%' . $searchterm . '%')
                        ->orWhere('afm', 'like', '%' . $searchterm . '%')
-                       ->orWhere('region', 'like', '%' . $searchterm . '%');
+                       ->orWhere('region', 'like', '%' . $searchterm . '%')
+                        ->orWhere('id','like', '%' . $searchterm . '%');
                 }
             );
         }

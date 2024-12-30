@@ -160,12 +160,20 @@ class OrderController extends Controller implements HasMiddleware
             $qb->whereRaw(Order::TABLE.'.client_id is NULL');
         }
 
-
         if($request->has('searchterm')){
             $searchterm = $request->get('searchterm')??null;
             if (!empty($searchterm)){
-                $qb->where('description','like','%'.$searchterm.'%');
+                $qb->where(Order::TABLE.'.description','like','%'.$searchterm.'%')
+                    ->orWhere(Order::TABLE.'.id','like','%'.$searchterm.'%');
             }
+        }
+
+        $status = $request->get('status')??null;
+        if(!empty($status)){
+            if(!in_array($status,['OPEN','FINISHED','CANCELLED'])){
+                throw new \InvalidArgumentException("Invalid status");
+            }
+            $qb->where(Order::TABLE.'.status',$status);
         }
 
         $orderBy = $request->get('order_by');

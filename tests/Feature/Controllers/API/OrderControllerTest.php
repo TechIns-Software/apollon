@@ -1112,4 +1112,70 @@ class OrderControllerTest extends TestCase
         $regions =  array_map(fn ($item) => ['client_nomos'=>$item['client_nomos'],'client_region'=>$item['client_region']], $data);
         $this->assertEquals($regionOrdering,$regions);
     }
+
+    public function testListFilterById()
+    {
+        DB::statement("DELETE from `".Order::TABLE."`");
+        DB::statement("DELETE from ".Client::TABLE);
+
+        $user = SaasUser::factory()->create();
+
+        Sanctum::actingAs(
+            $user,
+            ['mobile_api']
+        );
+
+        $client = Client::factory()->withUser($user)->create([
+            'name'=>"Αναξαγόρας",'surname'=>"Αυξεντίου",
+            'nomos'=>"ΑΤΤΙΚΗΣ",'region'=>"ΑΧΑΡΝΕΣ",
+            'business_id'=>$user->business_id
+        ]);
+
+        $order1 = Order::factory()->withUser($user)->create([
+            'business_id'=>$user->business_id,
+            'description'=>"",
+            'client_id'=>$client->id,
+            'id'=>2022
+        ]);
+
+        $order2 = Order::factory()->withUser($user)->create([
+            'business_id'=>$user->business_id,
+            'description'=>"",
+            'client_id'=>$client->id,
+            'id'=>2202
+        ]);
+
+        $order3 = Order::factory()->withUser($user)->create([
+            'business_id'=>$user->business_id,
+            'description'=>"",
+            'client_id'=>$client->id,
+            'id'=>1022
+        ]);
+
+        $order4 = Order::factory()->withUser($user)->create([
+            'business_id'=>$user->business_id,
+            'description'=>"",
+            'client_id'=>$client->id,
+            'id'=>899
+        ]);
+
+        $order5 = Order::factory()->withUser($user)->create([
+            'business_id'=>$user->business_id,
+            'description'=>"",
+            'client_id'=>$client->id,
+            'id'=>898
+        ]);
+
+        $validIds = [$order1->id,$order2->id,$order3->id];
+        $invalidIds = [$order4->id,$order5->id];
+
+        $result = $this->get('/api/order?searchterm=22');
+        $result->assertStatus(200);
+
+        $data = $result->json('data');
+        foreach ($data as $item){
+            $this->assertContains($item['id'],$validIds);
+            $this->assertNotContains($item['id'],$invalidIds);
+        }
+    }
 }
