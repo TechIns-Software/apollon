@@ -193,6 +193,9 @@ class OrderController extends Controller implements HasMiddleware
                     $qb->orderBy(Client::TABLE.'.region',$order)
                         ->orderBy(Client::TABLE.'.nomos',$order);
                     break;
+                case 'id':
+                    $qb->orderBy(Order::TABLE . '.id', $order);
+                    break;
             }
         }
 

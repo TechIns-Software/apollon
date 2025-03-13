@@ -29,6 +29,10 @@ abstract class MissingIdBaseMiddleware
         $inputParam=$inputParam??'id';
         $id = $request->route($inputParam);
 
+        if ($request->route()->getName() === 'delivery_pdf') {
+            return $next($request);
+        }
+
         if(empty($id)){
             return new JsonResponse(['msg'=>$this->notFoundMsg],404);
         }

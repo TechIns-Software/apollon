@@ -8,7 +8,7 @@ Route::put('/token',[\App\Http\Controllers\API\SaasUserController::class,'login'
         ->name('api.login');
 
 Route::post('/user/forgot/password',[\App\Http\Controllers\API\SaasUserController::class,'sendPasswordResetEmail']);
-
+Route::get('/delivery/{id}/delivery.pdf', [\App\Http\Controllers\API\DeliveryController::class, 'pdf'])->name('delivery_pdf');
 
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('/user', function (Request $request) {
@@ -58,7 +58,6 @@ Route::middleware('auth:sanctum')->group(function (){
             Route::delete('/{id}',[\App\Http\Controllers\API\DeliveryController::class,'delete']);
             Route::post('/order/{id}',[\App\Http\Controllers\API\DeliveryController::class,'changeSequenceOfOrders']);
 
-            Route::get('/{id}/delivery.pdf',[\App\Http\Controllers\API\DeliveryController::class,'pdf'])->name('delivery_pdf');
         });
 
         Route::prefix('/driver')->group(function (){

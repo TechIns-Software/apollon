@@ -335,10 +335,21 @@ class DeliveryController extends Controller implements HasMiddleware
         return new JsonResponse(new DeliveryOrderResource($deliveryOrder),200);
     }
 
-    public function pdf(Request $request)
+    public function pdf(Request $request, $id)
     {
-        $delivery = $request->delivery;
+
+        $delivery = Delivery::find($id);
+
+        if (!$delivery) {
+            abort(404, 'Delivery not found');
+        }
+
         $pdf = PDF::loadView('api_delivery_pdf',['delivery'=>$delivery]);
-        return $pdf->stream();
+        $filename = "Delivery-{$delivery->id}.pdf";
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename=\"$filename\"",
+        ]);
     }
 }
